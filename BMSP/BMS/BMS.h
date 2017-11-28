@@ -5,10 +5,12 @@ class BMSMeasure;
 class BMS
 {
 public:
-	float bpm = 130.0f;
+	double bpm = 130.0f;
 	int player;
 	int rank;
+	int lnType = 1;
 	std::map<int, float> BPMs;
+	std::set<int> lnObjs;
 	std::vector<BMSMeasure> measures;
 	std::string title;
 	std::string subtitle;

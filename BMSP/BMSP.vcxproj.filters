@@ -19,10 +19,10 @@
     <Filter Include="헤더 파일\BMS">
       <UniqueIdentifier>{a68ac0a2-8ce4-4f75-aded-a4db3a21b771}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\client">
+    <Filter Include="소스 파일\client">
       <UniqueIdentifier>{8dfd28e0-fa02-4dcb-9dab-1378198bbab5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\client\impl">
+    <Filter Include="소스 파일\client\impl">
       <UniqueIdentifier>{7c1f5568-4b7f-4722-8e90-0fa999031480}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -33,10 +33,10 @@
     <ClInclude Include="BMS\BMS.h">
       <Filter>헤더 파일\BMS</Filter>
     </ClInclude>
-    <ClInclude Include="BMS\BMSParser.h">
+    <ClInclude Include="BMS\BMSNode.h">
       <Filter>헤더 파일\BMS</Filter>
     </ClInclude>
-    <ClInclude Include="BMS\BMSNode.h">
+    <ClInclude Include="BMS\BMSParser.h">
       <Filter>헤더 파일\BMS</Filter>
     </ClInclude>
   </ItemGroup>
@@ -51,10 +51,10 @@
       <Filter>소스 파일\BMS</Filter>
     </ClCompile>
     <ClCompile Include="client\client.cpp">
-      <Filter>헤더 파일\client</Filter>
+      <Filter>소스 파일\client</Filter>
     </ClCompile>
     <ClCompile Include="client\impl\winmain.cpp">
-      <Filter>헤더 파일\client\impl</Filter>
+      <Filter>소스 파일\client\impl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

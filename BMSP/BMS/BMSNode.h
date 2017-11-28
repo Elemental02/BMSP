@@ -1,16 +1,18 @@
 #pragma once
-class BMSNode
+class BMSNode //³ëÆ®
 {
 public:
 	int value = 0;
-	uint32_t length = 0;
-	uint32_t a_time = 0;
-	uint32_t position = 0;
+	double length = 0;	//·Õ³ò¿ë
+	double a_time = 0;
+	double position = 0;
 };
 
-class BMSMeasure
+class BMSMeasure //¸¶µð
 {
 public:
-	uint32_t length = 10000;
+	double length = 0;
+	double position = 0;
+	double bpm = 0.0f;
 	std::map<int, std::list<BMSNode>> nodes;
 };

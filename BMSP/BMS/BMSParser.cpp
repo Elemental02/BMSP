@@ -65,7 +65,11 @@ namespace CH
 	const int P1 = parseValue("11");
 	const int P2 = parseValue("21");
 
+	const int P1L = parseValue("51");
+	const int P2L = parseValue("61");
+
 	const int BGM = parseValue("01");
+	const int Length = parseValue("02");
 	const int BPM = parseValue("03");
 	const int BGA = parseValue("04");
 	const int extendBPM = parseValue("08");
@@ -171,7 +175,7 @@ void BMSParser::Parse()
 			bms.measures[imeasure].nodes[ichannel] = std::list<BMSNode>();
 
 		std::string nodes = match[3];
-		int len = nodes.length() / 2;
+		size_t len = nodes.length() / 2;
 		auto& channels = bms.measures[imeasure].nodes[ichannel];
 		if (channels.size() < len)
 			channels.resize(len);
@@ -186,18 +190,75 @@ void BMSParser::Parse()
 		}
 	}
 
+	std::map<int, BMSNode*> lastNodes;
+	double measurePosition = 0.0f;
 	for (auto& measure : bms.measures)
 	{
+		measure.position = measurePosition;
+		measurePosition += measure.length;
 		for (auto& channels : measure.nodes)
 		{
 			int size = channels.second.size();
 			int count = 0;
-			for (auto& node : channels.second)
+			for (auto& node : channels.second)	//process position and length
 			{
-				node.position = count / size;
+				node.position = measure.length * count / size + measure.position;
 				count++;
+
+				if (channels.first >= CH::P1L && channels.first <= (CH::P2L + 7))
+				{
+					if (bms.lnType == 1)	// ex: 00AA0000FF00
+					{
+						if (node.value != 0)
+						{
+							if (lastNodes.find(channels.first) != lastNodes.end() && lastNodes[channels.first] != nullptr)
+							{
+								lastNodes[channels.first]->length = node.position - lastNodes[channels.first]->position;
+								lastNodes[channels.first] = nullptr;
+							}
+							else
+							{
+								lastNodes[channels.first] = &node;
+							}
+						}
+					}
+					else if (bms.lnType == 2) // ex:: 00AAAAAA00
+					{
+						if (lastNodes.find(channels.first) != lastNodes.end() && lastNodes[channels.first] != nullptr)
+						{
+							if (lastNodes[channels.first]->value != node.value)
+							{
+								lastNodes[channels.first]->length = node.position - lastNodes[channels.first]->position;
+								if(node.value != 0)
+									lastNodes[channels.first] = &node;
+								else
+									lastNodes[channels.first] = nullptr;
+							}
+							else
+							{
+								node.value = 0; // to remove after
+							}
+						}
+						else if(node.value != 0)
+						{
+							lastNodes[channels.first] = &node;
+						}
+					}
+				}
+				else if (node.value != 0)
+				{
+					if (bms.lnObjs.find(node.value) != bms.lnObjs.end())
+					{
+						if (lastNodes.find(channels.first) != lastNodes.end() && lastNodes[channels.first] != nullptr)
+							lastNodes[channels.first]->length = node.position - lastNodes[channels.first]->position;
+					}
+					else
+					{
+						lastNodes[channels.first] = &node;
+					}
+				}
 			}
-			channels.second.remove_if([](BMSNode& i) { return i.value == 0; });
+			channels.second.remove_if([](auto& i) {return i.value == 0; });
 		}
 	}
 }
