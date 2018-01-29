@@ -35,12 +35,6 @@ void gfx::gfxPanel::Render()
 			color.push_back(sprite.getColor());
 			matrix.push_back(panelTransform*sprite.getTransform());
 		}
-		int i = 0;
-		for (auto& vert : vertex)
-		{
-			vert.x += 10.0f*i;
-			i++;
-		}
 
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
