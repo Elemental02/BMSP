@@ -69,13 +69,25 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>../include;$(IncludePath)</IncludePath>
+    <LibraryPath>../lib/Win32;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <ReferencePath>$(VC_ReferencesPath_x86);</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>../include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>../lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -83,6 +95,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>glfw3.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -116,6 +131,13 @@
     <ClInclude Include="BMS\BMS.h" />
     <ClInclude Include="BMS\BMSNode.h" />
     <ClInclude Include="BMS\BMSParser.h" />
+    <ClInclude Include="common\Singleton.h" />
+    <ClInclude Include="gfx\gfxGlobal.h" />
+    <ClInclude Include="gfx\gfxObject.h" />
+    <ClInclude Include="gfx\gfxPanel.h" />
+    <ClInclude Include="gfx\gfxScene.h" />
+    <ClInclude Include="gfx\gfxSprite.h" />
+    <ClInclude Include="managers\ResourceManager.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +149,16 @@
     </ClCompile>
     <ClCompile Include="client\client.cpp" />
     <ClCompile Include="client\impl\winmain.cpp" />
+    <ClCompile Include="gfx\gfxGlobal.cpp" />
+    <ClCompile Include="gfx\gfxObject.cpp" />
+    <ClCompile Include="gfx\gfxPanel.cpp" />
+    <ClCompile Include="gfx\gfxScene.cpp" />
+    <ClCompile Include="gfx\gfxSprite.cpp" />
+    <ClCompile Include="managers\ResourceManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fragment_shader.shader" />
+    <None Include="shaders\vertex_shader.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
