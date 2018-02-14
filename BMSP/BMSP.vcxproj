@@ -86,7 +86,8 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>false</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,6 +139,7 @@
     <ClInclude Include="gfx\gfxScene.h" />
     <ClInclude Include="gfx\gfxSprite.h" />
     <ClInclude Include="managers\ResourceManager.h" />
+    <ClInclude Include="sfx\sfxSound.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +157,7 @@
     <ClCompile Include="gfx\gfxScene.cpp" />
     <ClCompile Include="gfx\gfxSprite.cpp" />
     <ClCompile Include="managers\ResourceManager.cpp" />
+    <ClCompile Include="sfx\sfxSound.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment_shader.shader" />

@@ -43,6 +43,12 @@
     <Filter Include="헤더 파일\managers">
       <UniqueIdentifier>{01487df3-e8f9-4067-b0a9-f54fcceb2df1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\sfx">
+      <UniqueIdentifier>{e1ad1cb3-d666-4676-a7a7-089ca8d5d116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\sfx">
+      <UniqueIdentifier>{43ab49ba-4551-4622-b5e5-89e404a2fe20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -78,6 +84,9 @@
     <ClInclude Include="gfx\gfxPanel.h">
       <Filter>헤더 파일\gfx</Filter>
     </ClInclude>
+    <ClInclude Include="sfx\sfxSound.h">
+      <Filter>헤더 파일\sfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -112,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="gfx\gfxPanel.cpp">
       <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="sfx\sfxSound.cpp">
+      <Filter>소스 파일\sfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -230,6 +230,11 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(std::string path)
 	return res;
 }
 
+std::shared_ptr<Sound> ResourceManager::LoadSound(std::string path)
+{
+	return std::shared_ptr<Sound>();
+}
+
 Sprite::~Sprite()
 {
 	glDeleteTextures(1, &textureId);

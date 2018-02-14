@@ -9,6 +9,11 @@ public:
 	~Sprite();
 };
 
+struct Sound
+{
+
+};
+
 class ResourceManager
 {
 private:
@@ -23,4 +28,5 @@ public:
 		return instance;
 	}
 	std::shared_ptr<Sprite> LoadSprite(std::string path);
+	std::shared_ptr<Sound> LoadSound(std::string path);
 };
