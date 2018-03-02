@@ -322,7 +322,7 @@ int main(void)
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
-	const int spritecnt = 1;
+	const int spritecnt = 100;
 	gfx::gfxSprite sprite[spritecnt];
 
 	gfx::gfxPanel panel;

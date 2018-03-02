@@ -16,6 +16,7 @@ namespace sfx
 		ALuint sourceId;
 		void setSource();
 	public:
+		~sfxSound();
 		void setSound(std::shared_ptr<Sound> sound);
 		void Play();
 		void Pause();

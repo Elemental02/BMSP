@@ -16,6 +16,16 @@ void sfx::sfxSound::setSource()
 	sourceId = sfxGlobal::Instance()->TryGetSource();
 }
 
+sfx::sfxSound::~sfxSound()
+{
+	if (sourceId != 0)
+	{
+		Stop();
+		sfxGlobal::Instance()->ReleaseSource(sourceId);
+	}
+	sound.reset();
+}
+
 void sfx::sfxSound::setSound(std::shared_ptr<Sound> sound)
 {
 	this->sound = sound;

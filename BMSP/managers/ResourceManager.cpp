@@ -376,6 +376,10 @@ Sound::Sound() :codec(nullptr), container(nullptr), is_load_complete(false), str
 
 Sound::~Sound()
 {
+	if (swr_ctx != nullptr)
+	{
+		swr_free(&swr_ctx);
+	}
 	if (codec != nullptr)
 	{
 		avcodec_free_context(&codec);
@@ -384,5 +388,10 @@ Sound::~Sound()
 	{
 		avformat_close_input(&container);
 		avformat_free_context(container);
+	}
+
+	if (!buffers.empty())
+	{
+		alDeleteBuffers(buffers.size(), buffers.data());
 	}
 }

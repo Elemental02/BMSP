@@ -45,12 +45,20 @@ sfx::sfxGlobal::sfxGlobal()
 
 sfx::sfxGlobal::~sfxGlobal()
 {
+	quit();
 }
 
 void sfx::sfxGlobal::quit()
 {
-	quit_loop = true;
-	sfx_loop_thread.join();
+	if (quit_loop == false)
+	{
+		quit_loop = true;
+		sfx_loop_thread.join();
+	}
+	for (auto source : source_pool)
+	{
+		alDeleteSources(1, &source);
+	}
 }
 
 ALuint sfx::sfxGlobal::TryGetSource()
