@@ -87,6 +87,9 @@
     <ClInclude Include="sfx\sfxSound.h">
       <Filter>헤더 파일\sfx</Filter>
     </ClInclude>
+    <ClInclude Include="sfx\sfxGlobal.h">
+      <Filter>헤더 파일\sfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -123,6 +126,9 @@
       <Filter>소스 파일\gfx</Filter>
     </ClCompile>
     <ClCompile Include="sfx\sfxSound.cpp">
+      <Filter>소스 파일\sfx</Filter>
+    </ClCompile>
+    <ClCompile Include="sfx\sfxGlobal.cpp">
       <Filter>소스 파일\sfx</Filter>
     </ClCompile>
   </ItemGroup>

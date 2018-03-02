@@ -4,6 +4,23 @@ namespace sfx
 {
 	class sfxSound
 	{
+	private:
+		class StreamingObj : public sfxObject
+		{
+			sfxSound * soundObj;
+		public:
+			StreamingObj(sfxSound* sound);
+			virtual bool Update();
+		};
+		std::shared_ptr<Sound> sound;
+		ALuint sourceId;
+		void setSource();
+	public:
+		void setSound(std::shared_ptr<Sound> sound);
+		void Play();
+		void Pause();
+		void Stop();
 
+		bool Update();
 	};
 }

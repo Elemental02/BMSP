@@ -11,7 +11,17 @@ public:
 
 struct Sound
 {
+public:
+	AVCodecContext* codec;
+	AVFormatContext* container;
+	SwrContext* swr_ctx;
+	int stream_id;
 
+	std::vector<ALuint> buffers;
+	bool is_load_complete;
+
+	Sound();
+	~Sound();
 };
 
 class ResourceManager
@@ -29,4 +39,5 @@ public:
 	}
 	std::shared_ptr<Sprite> LoadSprite(std::string path);
 	std::shared_ptr<Sound> LoadSound(std::string path);
+	void LoadSoundFrame(std::shared_ptr<Sound> sound);
 };

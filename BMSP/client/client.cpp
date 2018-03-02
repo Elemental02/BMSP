@@ -5,32 +5,14 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include "../managers/ResourceManager.h"
+
 #include "../gfx/gfxGlobal.h"
 #include "../gfx/gfxSprite.h"
 #include "../gfx/gfxPanel.h"
-#include "../managers/ResourceManager.h"
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavutil/avutil.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-}
-
-#ifndef AL_FORMAT_MONO_FLOAT32
-
-#define AL_FORMAT_MONO_FLOAT32 0x10010
-
-#endif
-
-#ifndef AL_FORMAT_STEREO_FLOAT32
-
-#define AL_FORMAT_STEREO_FLOAT32 0x10011
-
-#endif
-
-const int MAX_AUDIO_FRAME_SIZE = 192000;
+#include "../sfx/sfxGlobal.h"
+#include "../sfx/sfxSound.h"
 
 GLFWwindow* window;
 
@@ -132,7 +114,6 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
 void soundtest(std::string path)
 {
 	av_register_all();
-	avcodec_register_all();
 
 	AVFormatContext* container = avformat_alloc_context();
 	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
@@ -142,7 +123,7 @@ void soundtest(std::string path)
 	if (avformat_find_stream_info(container, nullptr) < 0) {
 		return;
 	}
-	//av_dump_format(container, 0, path.c_str(), false);
+
 	int stream_id = -1;
 	int i;
 	for (i = 0; i < container->nb_streams; i++) {
@@ -171,10 +152,9 @@ void soundtest(std::string path)
 
 	int res = avcodec_open2(ctx, codec, nullptr);
 	if (res < 0) {
-		
 		return;
 	}
-
+	
 	ALCcontext* alContext;
 	auto alDevice = alcOpenDevice(nullptr);
 
@@ -207,50 +187,88 @@ void soundtest(std::string path)
 
 	AVFrame *frame = av_frame_alloc();
 
-	int len;
+	int len = 0;
 	int frameFinished = 0;
 	std::vector<uint8_t> bufferdata;
-	int cnt = 1;
-	while(av_read_frame(container, &packet) >= 0)
+	while(1)
 	{
-		if (packet.stream_index == stream_id) {
-			int len = avcodec_send_packet(ctx, &packet);
-			frameFinished = avcodec_receive_frame(ctx, frame);
-			if (frameFinished==0) {
-				uint8_t *output;
-				av_samples_alloc(&output, nullptr, ctxp->channel_layout ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
-				int bufferSize = av_samples_get_buffer_size(NULL, ctxp->channels, frame->nb_samples,
-					AV_SAMPLE_FMT_S16, 0);
-				auto out_samples = swr_convert(swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(frame->extended_data), frame->nb_samples);
-				
-				bufferdata.insert(bufferdata.end(), output, output + (bufferSize));
-				cnt++;
-				av_freep(&output);
-			}
-			else {
-				break;
-			}
-			if (cnt > 5) {
-				cnt = 0;
-				ALuint g_buffer;
-				alGenBuffers(1, &g_buffer);
-				alBufferData(g_buffer, ctxp->channel_layout ? AL_FORMAT_STEREO16: AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
-				alSourceQueueBuffers(g_source, 1, &g_buffer);
-				ALint state;
-				alGetSourcei(g_source, AL_SOURCE_STATE, &state);
-				if (state != AL_PLAYING) {
-					alSourcePlay(g_source);
+		ALint state, queued, processed;
+		alGetSourcei(g_source, AL_BUFFERS_QUEUED, &queued);
+		alGetSourcei(g_source, AL_BUFFERS_PROCESSED, &processed);
+		alGetSourcei(g_source, AL_SOURCE_STATE, &state);
+		
+		if ((queued - processed) < 5)
+		{
+			if (processed != 0) {
+				//alSourceUnqueueBuffers(g_source, processed, g_buffers.data());
+				unsigned int* tempbuf = new unsigned int[processed];
+				alSourceUnqueueBuffers(g_source, processed, tempbuf);
+				delete[] tempbuf;
+				auto err = alGetError();
+				if (err != 0) {
+					fprintf(stderr, "openal err: %d\n", err);
 				}
-				bufferdata.clear();
+				alDeleteBuffers(processed, g_buffers.data());
+				if (err != 0) {
+					fprintf(stderr, "openal err: %d\n", err);
+				}
+				err = alGetError();
+				len += processed;
+				g_buffers.erase(g_buffers.begin(), g_buffers.begin() + processed);
+				fprintf(stderr, "unqueue buffer: %d, total: %d\n", processed, len);
+			}
+			for (int i = 0; i < 5; i++) {
+				int packetcnt = 0;
+				while (packetcnt < 6)
+				{
+					int res_read_freame = av_read_frame(container, &packet);
+					if (res_read_freame < 0)
+					{
+						av_packet_unref(&packet);
+						break;
+					}
+					if (packet.stream_index == stream_id) {
+						int len = avcodec_send_packet(ctx, &packet);
+						frameFinished = avcodec_receive_frame(ctx, frame);
+						if (frameFinished == 0) {
+							uint8_t *output;
+							av_samples_alloc(&output, nullptr, ctxp->channel_layout ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
+							int bufferSize = av_samples_get_buffer_size(NULL, ctxp->channels, frame->nb_samples,
+								AV_SAMPLE_FMT_S16, 0);
+							auto out_samples = swr_convert(swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(frame->extended_data), frame->nb_samples);
+
+							bufferdata.insert(bufferdata.end(), output, output + (bufferSize));
+							av_freep(&output);
+							packetcnt++;
+						}
+					}
+					av_packet_unref(&packet);
+				}
+				if (packetcnt > 0) {
+					ALuint g_buffer;
+					alGenBuffers(1, &g_buffer);
+					alBufferData(g_buffer, ctxp->channel_layout ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
+					alSourceQueueBuffers(g_source, 1, &g_buffer);
+
+					g_buffers.push_back(g_buffer);
+					bufferdata.clear();
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
+
+		if (state != AL_PLAYING) {
+			alSourcePlay(g_source);
+		}
 	}
-	//alBufferData(g_buffer, ctxp->channel_layout ? AL_FORMAT_STEREO16: AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
+	av_freep(&frame);
 }
 
 int main(void)
 {
-	// Initialise GLFW
 	if (!glfwInit())
 	{
 		fprintf(stderr, "Failed to initialize GLFW\n");
@@ -286,6 +304,9 @@ int main(void)
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
 	GLuint programID = LoadShaders("shaders/vertex_shader.shader", "shaders/fragment_shader.shader");
+	
+	av_register_all();
+	sfx::sfxGlobal::Instance();
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -306,7 +327,12 @@ int main(void)
 
 	gfx::gfxPanel panel;
 	panel.setPosition(glm::vec3(100.0f, 10.0f, 0.0f));
-	soundtest("resource/kobayashisanchinmd-1.mp4");//BGM1-1.wav");//kobayashisanchinmd-1.mp4");//
+	//soundtest("resource/kobayashisanchinmd-1.mp4");//BGM1-1.wav");//kobayashisanchinmd-1.mp4");//
+	auto soundfile = ResourceManager::Instance()->LoadSound("resource/kobayashisanchinmd-1.mp4");
+	sfx::sfxSound sound;
+	sound.setSound(soundfile);
+
+	sound.Play();
 
 	for (int i = 0; i < spritecnt; i++)
 	{
@@ -328,7 +354,8 @@ int main(void)
 		}*/
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(10ms);
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
@@ -336,6 +363,7 @@ int main(void)
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
 
+	sfx::sfxGlobal::Instance()->quit();
 	return 0;
 }
 

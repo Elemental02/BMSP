@@ -1,6 +1,7 @@
 #include "../stdafx.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include "ResourceManager.h"
 
 #include <stdio.h>
@@ -232,10 +233,156 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(std::string path)
 
 std::shared_ptr<Sound> ResourceManager::LoadSound(std::string path)
 {
-	return std::shared_ptr<Sound>();
+	AVFormatContext* container = avformat_alloc_context();
+	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
+		return nullptr;
+	}
+
+	if (avformat_find_stream_info(container, nullptr) < 0) {
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return nullptr;
+	}
+
+	AVCodec *codec = nullptr;
+	int stream_id = av_find_best_stream(container, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+	if (stream_id == -1) {
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return nullptr;
+	}
+
+	AVCodecParameters *ctxp = container->streams[stream_id]->codecpar;
+	if (codec == nullptr) {
+		codec = avcodec_find_decoder(ctxp->codec_id);
+	}
+	AVCodecContext* ctx = avcodec_alloc_context3(codec);
+
+	avcodec_parameters_to_context(ctx, ctxp);
+
+	if (codec == NULL) {
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return nullptr;
+	}
+
+	int res = avcodec_open2(ctx, codec, nullptr);
+	if (res < 0) {
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return nullptr;
+	}
+
+	auto swr_ctx = swr_alloc_set_opts(nullptr, ctxp->channel_layout ? ctxp->channel_layout : 4, AV_SAMPLE_FMT_S16, 44100,
+		ctxp->channel_layout ? ctxp->channel_layout : 4, static_cast<AVSampleFormat>(ctxp->format), ctxp->sample_rate, 0, nullptr);
+	if (!swr_ctx) {
+		fprintf(stderr, "Could not allocate resampler context\n");
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return nullptr;
+	}
+
+	/* initialize the resampling context */
+	if (swr_init(swr_ctx) < 0) {
+		fprintf(stderr, "Failed to initialize the resampling context\n");
+		swr_free(&swr_ctx);
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return nullptr;
+	}
+
+	std::shared_ptr<Sound> sound(new Sound);
+	sound->container = container;
+	sound->codec = ctx;
+	sound->swr_ctx = swr_ctx;
+	sound->stream_id = stream_id;
+	LoadSoundFrame(sound);
+	return sound;
+}
+
+void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
+{
+	if (sound->container == nullptr || sound->codec == nullptr)
+		return;
+	if (sound->is_load_complete)
+		return;
+	AVPacket packet;
+	av_init_packet(&packet);
+	AVFrame *frame = av_frame_alloc();
+	for (int i = 0; i < 5; i++)
+	{
+		std::vector<uint8_t> bufferdata;
+		int packetcnt = 0;
+		while (packetcnt < 6)
+		{
+			int res_read_freame = av_read_frame(sound->container, &packet);
+			if (res_read_freame < 0)
+			{
+				av_packet_unref(&packet);
+				break;
+			}
+			if (packet.stream_index == sound->stream_id) {
+				int len = avcodec_send_packet(sound->codec, &packet);
+				int frameFinished = avcodec_receive_frame(sound->codec, frame);
+				if (frameFinished == 0)
+				{
+					uint8_t *output;
+					if (sound->swr_ctx != nullptr)
+					{
+						av_samples_alloc(&output, nullptr, sound->codec->channel_layout ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
+						int bufferSize = av_samples_get_buffer_size(NULL, sound->codec->channels, frame->nb_samples,
+							AV_SAMPLE_FMT_S16, 0);
+						auto out_samples = swr_convert(sound->swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(frame->extended_data), frame->nb_samples);
+						bufferdata.insert(bufferdata.end(), output, output + (bufferSize));
+						av_freep(&output);
+					}
+					else
+					{
+						bufferdata.insert(bufferdata.end(), frame->data[0], frame->data[0] + frame->linesize[0]);
+					}
+					packetcnt++;
+				}
+			}
+			av_packet_unref(&packet);
+		}
+
+		if (packetcnt > 0) {
+			ALuint g_buffer;
+			alGenBuffers(1, &g_buffer);
+			alBufferData(g_buffer, sound->codec->channel_layout ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
+			sound->buffers.push_back(g_buffer);
+		}
+		else
+		{
+			sound->is_load_complete = true;
+			break;
+		}
+	}
+	av_freep(&frame);
 }
 
 Sprite::~Sprite()
 {
 	glDeleteTextures(1, &textureId);
+}
+
+Sound::Sound() :codec(nullptr), container(nullptr), is_load_complete(false), stream_id(-1)
+{
+}
+
+Sound::~Sound()
+{
+	if (codec != nullptr)
+	{
+		avcodec_free_context(&codec);
+	}
+	if (container != nullptr)
+	{
+		avformat_close_input(&container);
+		avformat_free_context(container);
+	}
 }
