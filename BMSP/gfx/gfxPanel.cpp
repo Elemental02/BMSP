@@ -17,7 +17,7 @@ void gfx::gfxPanel::Render()
 	for (auto group : renderlist)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, group.second.sprites.begin()->getSprite().textureId);
+		glBindTexture(GL_TEXTURE_2D, (*(group.second.sprites.begin()))->getSprite().textureId);
 		
 		glUniform1i(samplerId, 0);
 
@@ -26,21 +26,21 @@ void gfx::gfxPanel::Render()
 		int vertex_count = 0, color_count = 0, uv_count = 0, matrix_count = 0;
 		for (auto& sprite : group.second.sprites)
 		{
-			for (int i = 0; i < sprite.getSprite().vertex.size(); i++)
+			for (int i = 0; i < sprite->getSprite().vertex.size(); i++)
 			{
-				group.second.vertex[vertex_count] = sprite.getSprite().vertex[i];
+				group.second.vertex[vertex_count] = sprite->getSprite().vertex[i];
 				vertex_count++;
 			}
-			for (int i = 0; i < sprite.getSprite().uv.size(); i++)
+			for (int i = 0; i < sprite->getSprite().uv.size(); i++)
 			{
-				group.second.uv[uv_count] = sprite.getSprite().uv[i];
+				group.second.uv[uv_count] = sprite->getSprite().uv[i];
 				uv_count++;
 			}
 			
-			group.second.color[color_count]= sprite.getColor();
+			group.second.color[color_count]= sprite->getColor();
 			color_count++;
 
-			group.second.matrix[matrix_count] = panelTransform * sprite.getTransform();
+			group.second.matrix[matrix_count] = panelTransform * sprite->getTransform();
 			matrix_count++;
 		}
 
@@ -111,9 +111,9 @@ void gfx::gfxPanel::Render()
 	}
 }
 
-void gfx::gfxPanel::addSprite(gfxSprite& sprite)
+void gfx::gfxPanel::addSprite(gfxSprite* sprite)
 {
-	GLuint textureId = sprite.getSprite().textureId;
+	GLuint textureId = sprite->getSprite().textureId;
 	auto& pair = renderlist.find(textureId);
 	if (pair == renderlist.end())
 	{
@@ -121,26 +121,26 @@ void gfx::gfxPanel::addSprite(gfxSprite& sprite)
 	}
 	auto& group = renderlist[textureId];
 
-	group.vertex.insert(group.vertex.end(), sprite.getSprite().vertex.begin(), sprite.getSprite().vertex.end());
-	group.uv.insert(group.uv.end(), sprite.getSprite().uv.begin(), sprite.getSprite().uv.end());
-	group.color.push_back(sprite.getColor());
-	group.matrix.push_back(sprite.getTransform());
+	group.vertex.insert(group.vertex.end(), sprite->getSprite().vertex.begin(), sprite->getSprite().vertex.end());
+	group.uv.insert(group.uv.end(), sprite->getSprite().uv.begin(), sprite->getSprite().uv.end());
+	group.color.push_back(sprite->getColor());
+	group.matrix.push_back(sprite->getTransform());
 
 	group.sprites.push_back(sprite);
 }
 
-void gfx::gfxPanel::RemoveSprite(gfxSprite & sprite)
+void gfx::gfxPanel::RemoveSprite(gfxSprite* sprite)
 {
-	GLuint textureId = sprite.getSprite().textureId;
+	GLuint textureId = sprite->getSprite().textureId;
 	auto& pair = renderlist.find(textureId);
 	if (pair == renderlist.end())
 	{
 		return;
 	}
 	auto& group = pair->second;
-	group.vertex.erase(group.vertex.end() - sprite.getSprite().vertex.size(), group.vertex.end());
-	group.uv.erase(group.uv.end() - sprite.getSprite().uv.size(), group.uv.end());
+	group.vertex.erase(group.vertex.end() - sprite->getSprite().vertex.size(), group.vertex.end());
+	group.uv.erase(group.uv.end() - sprite->getSprite().uv.size(), group.uv.end());
 	group.color.pop_back();
 	group.matrix.pop_back();
-	//group.sprites.remove(sprite);
+	group.sprites.remove(sprite);
 }

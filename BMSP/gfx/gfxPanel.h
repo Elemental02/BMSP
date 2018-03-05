@@ -11,14 +11,14 @@ namespace gfx
 			std::vector<glm::vec2> uv;
 			std::vector<glm::vec4> color;
 			std::vector<glm::mat4> matrix;
-			std::list<gfxSprite> sprites;
+			std::list<gfxSprite*> sprites;
 		};
 		std::map<GLuint, renderlistGroup> renderlist;
 
 	public:
 		virtual void Render();
 
-		void addSprite(gfxSprite& sprite);
-		void RemoveSprite(gfxSprite& sprite);
+		void addSprite(gfxSprite* sprite);
+		void RemoveSprite(gfxSprite* sprite);
 	};
 }

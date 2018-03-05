@@ -339,7 +339,7 @@ int main(void)
 		sprite[i].setSprite(ResourceManager::Instance()->LoadSprite("resource/action1_01.bmp"));
 		sprite[i].setPosition(glm::vec3(rand() % 1024, rand() % 768, 0.0f));
 		sprite[i].setColor(glm::vec4((rand()%1000)/1000.0f, (rand() % 1000) / 1000.0f, (rand() % 1000) / 1000.0f, 1.0f));
-		panel.addSprite(sprite[i]);
+		panel.addSprite(&sprite[i]);
 	}
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
