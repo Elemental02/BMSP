@@ -191,6 +191,7 @@ GLuint loadDDS(const char * imagepath, unsigned int& height, unsigned int& width
 
 std::shared_ptr<Sprite> ResourceManager::LoadSprite(std::string path)
 {
+	
 	if (sprites.find(path) != sprites.end())
 		return sprites[path];
 	auto ext = path.substr(path.length() - 3, 3);

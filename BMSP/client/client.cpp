@@ -322,7 +322,7 @@ int main(void)
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
-	const int spritecnt = 100;
+	const int spritecnt = 500;
 	gfx::gfxSprite sprite[spritecnt];
 
 	gfx::gfxPanel panel;
@@ -355,7 +355,7 @@ int main(void)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(10ms);
+		//std::this_thread::sleep_for(10ms);
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
