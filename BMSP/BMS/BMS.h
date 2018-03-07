@@ -1,6 +1,17 @@
 #pragma once
 
-class BMSMeasure;
+#include "BMSNode.h"
+
+/*struct BMSMetadata
+{
+	std::string title;
+	std::string subtitle;
+	std::string artist;
+	std::string subartist;
+	std::string maker;
+	std::string genre;
+	std::string comment;
+};*/
 
 class BMS
 {
@@ -9,14 +20,11 @@ public:
 	int player;
 	int rank;
 	int lnType = 1;
-	std::map<int, float> BPMs;
-	std::set<int> lnObjs;
+	std::map<int, float> bpms;
+	std::set<int> ln_objs;
 	std::vector<BMSMeasure> measures;
-	std::string title;
-	std::string subtitle;
-	std::string artist;
-	std::string subartist;
-	std::string maker;
-	std::string genre;
-	std::string comment;
+
+	std::map<int, std::string> wavs;
+	std::map<int, std::string> bmps;
+	std::map<std::string, std::string> metadata;
 };

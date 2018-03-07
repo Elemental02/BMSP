@@ -3,7 +3,8 @@
 class BMSParser
 {
 public:
-	void Parse();
+	BMS Parse(std::string filename);
+	//BMSMetadata ParseMeatdata(std::string filename);
 private:
 	
 };

@@ -133,6 +133,7 @@
     <ClInclude Include="BMS\BMSNode.h" />
     <ClInclude Include="BMS\BMSParser.h" />
     <ClInclude Include="common\Singleton.h" />
+    <ClInclude Include="Game\PlayScene.h" />
     <ClInclude Include="gfx\gfxGlobal.h" />
     <ClInclude Include="gfx\gfxObject.h" />
     <ClInclude Include="gfx\gfxPanel.h" />
@@ -152,6 +153,7 @@
     </ClCompile>
     <ClCompile Include="client\client.cpp" />
     <ClCompile Include="client\impl\winmain.cpp" />
+    <ClCompile Include="Game\PlayScene.cpp" />
     <ClCompile Include="gfx\gfxGlobal.cpp" />
     <ClCompile Include="gfx\gfxObject.cpp" />
     <ClCompile Include="gfx\gfxPanel.cpp" />

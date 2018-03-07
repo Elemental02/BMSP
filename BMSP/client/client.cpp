@@ -14,6 +14,8 @@
 #include "../sfx/sfxGlobal.h"
 #include "../sfx/sfxSound.h"
 
+#include "../Game/PlayScene.h"
+
 GLFWwindow* window;
 
 GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_path) {
@@ -322,40 +324,25 @@ int main(void)
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
-	const int spritecnt = 500;
-	gfx::gfxSprite sprite[spritecnt];
+	PlayScene scene;
+	scene.Init();
 
-	gfx::gfxPanel panel;
-	panel.setPosition(glm::vec3(100.0f, 10.0f, 0.0f));
-	//soundtest("resource/kobayashisanchinmd-1.mp4");//BGM1-1.wav");//kobayashisanchinmd-1.mp4");//
-	auto soundfile = ResourceManager::Instance()->LoadSound("resource/kobayashisanchinmd-1.mp4");
-	sfx::sfxSound sound;
-	sound.setSound(soundfile);
-
-	sound.Play();
-
-	for (int i = 0; i < spritecnt; i++)
-	{
-		sprite[i].setSprite(ResourceManager::Instance()->LoadSprite("resource/action1_01.bmp"));
-		sprite[i].setPosition(glm::vec3(rand() % 1024, rand() % 768, 0.0f));
-		sprite[i].setColor(glm::vec4((rand()%1000)/1000.0f, (rand() % 1000) / 1000.0f, (rand() % 1000) / 1000.0f, 1.0f));
-		panel.addSprite(&sprite[i]);
-	}
-	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+	auto prev_time = std::chrono::system_clock::now();
 	do {
-		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
+		auto curr_time = std::chrono::system_clock::now();
+		auto diff = curr_time - prev_time;
+		std::chrono::milliseconds delta(std::chrono::duration_cast<std::chrono::milliseconds>(diff));
+		prev_time = curr_time;
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		panel.Render();
-		/*for (int i = 0; i < spritecnt; i++)
-		{
-			sprite[i].Render();
-		}*/
+		scene.Update(delta);
+		scene.Render();
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		using namespace std::chrono_literals;
-		//std::this_thread::sleep_for(10ms);
+		std::this_thread::sleep_for(10ms);
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);

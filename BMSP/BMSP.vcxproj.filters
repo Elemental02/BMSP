@@ -49,6 +49,12 @@
     <Filter Include="소스 파일\sfx">
       <UniqueIdentifier>{43ab49ba-4551-4622-b5e5-89e404a2fe20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Game">
+      <UniqueIdentifier>{31de2c73-09dd-4b30-b45f-12fd3e52376e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game">
+      <UniqueIdentifier>{57c57f89-a22e-4d0e-86db-c653b05a741a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -90,6 +96,9 @@
     <ClInclude Include="sfx\sfxGlobal.h">
       <Filter>헤더 파일\sfx</Filter>
     </ClInclude>
+    <ClInclude Include="Game\PlayScene.h">
+      <Filter>헤더 파일\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -130,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="sfx\sfxGlobal.cpp">
       <Filter>소스 파일\sfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\PlayScene.cpp">
+      <Filter>소스 파일\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
