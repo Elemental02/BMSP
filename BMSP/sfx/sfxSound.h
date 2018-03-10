@@ -1,4 +1,5 @@
 #pragma once
+#include "sfxGlobal.h"
 
 namespace sfx
 {
@@ -23,5 +24,7 @@ namespace sfx
 		void Stop();
 
 		bool Update();
+
+		bool isPlaying();
 	};
 }

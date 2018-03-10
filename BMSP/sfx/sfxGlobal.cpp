@@ -63,6 +63,7 @@ void sfx::sfxGlobal::quit()
 
 ALuint sfx::sfxGlobal::TryGetSource()
 {
+	std::lock_guard<std::mutex> guard(source_pool_mutex);
 	ALuint source;
 	if (source_pool.empty())
 	{
@@ -78,11 +79,20 @@ ALuint sfx::sfxGlobal::TryGetSource()
 
 void sfx::sfxGlobal::ReleaseSource(ALuint source)
 {
+	std::lock_guard<std::mutex> guard(source_pool_mutex);
 	int processed;
 	unsigned int tempbuf[20];
 
 	alGetSourcei(source, AL_BUFFERS_QUEUED, &processed);
-	alSourceUnqueueBuffers(source, processed, tempbuf);
+	while (processed != 0)
+	{
+		if (processed > 20)
+			processed = 20;
+		alSourceUnqueueBuffers(source, processed, tempbuf);
+		alGetSourcei(source, AL_BUFFERS_QUEUED, &processed);
+	}
+	auto err = alGetError();
+	assert(err == AL_NO_ERROR && "setSound");
 	source_pool.push_back(source);
 }
 

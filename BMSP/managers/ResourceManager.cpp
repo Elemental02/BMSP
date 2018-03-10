@@ -189,7 +189,7 @@ GLuint loadDDS(const char * imagepath, unsigned int& height, unsigned int& width
 	return textureID;
 }
 
-std::shared_ptr<Sprite> ResourceManager::LoadSprite(std::string path)
+std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 {
 	
 	if (sprites.find(path) != sprites.end())
@@ -232,7 +232,7 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(std::string path)
 	return res;
 }
 
-std::shared_ptr<Sound> ResourceManager::LoadSound(std::string path)
+std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 {
 	AVFormatContext* container = avformat_alloc_context();
 	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
@@ -276,8 +276,8 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(std::string path)
 		return nullptr;
 	}
 
-	auto swr_ctx = swr_alloc_set_opts(nullptr, ctxp->channel_layout ? ctxp->channel_layout : 4, AV_SAMPLE_FMT_S16, 44100,
-		ctxp->channel_layout ? ctxp->channel_layout : 4, static_cast<AVSampleFormat>(ctxp->format), ctxp->sample_rate, 0, nullptr);
+	auto swr_ctx = swr_alloc_set_opts(nullptr, ctxp->channels > 1 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_S16, 44100,
+		ctxp->channel_layout ? ctxp->channel_layout : (ctxp->channels > 1 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO), static_cast<AVSampleFormat>(ctxp->format), ctxp->sample_rate, 0, nullptr);
 	if (!swr_ctx) {
 		fprintf(stderr, "Could not allocate resampler context\n");
 		avcodec_free_context(&ctx);
@@ -334,8 +334,8 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 					uint8_t *output;
 					if (sound->swr_ctx != nullptr)
 					{
-						av_samples_alloc(&output, nullptr, sound->codec->channel_layout ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
-						int bufferSize = av_samples_get_buffer_size(NULL, sound->codec->channels, frame->nb_samples,
+						av_samples_alloc(&output, nullptr, sound->codec->channels>1 ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
+						int bufferSize = av_samples_get_buffer_size(NULL, sound->codec->channels>1 ? 2 : 1, frame->nb_samples,
 							AV_SAMPLE_FMT_S16, 0);
 						auto out_samples = swr_convert(sound->swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(frame->extended_data), frame->nb_samples);
 						bufferdata.insert(bufferdata.end(), output, output + (bufferSize));
@@ -354,7 +354,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 		if (packetcnt > 0) {
 			ALuint g_buffer;
 			alGenBuffers(1, &g_buffer);
-			alBufferData(g_buffer, sound->codec->channel_layout ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
+			alBufferData(g_buffer, sound->codec->channels>1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
 			sound->buffers.push_back(g_buffer);
 		}
 		else

@@ -11,6 +11,7 @@ namespace sfx
 	{
 	private:
 		std::list<ALuint> source_pool;
+		std::mutex source_pool_mutex;
 		std::list<std::shared_ptr<sfxObject>> streaming_objects;
 		std::mutex streaming_mutex;
 

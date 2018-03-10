@@ -11,6 +11,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>

@@ -1,13 +1,10 @@
 #include "../stdafx.h"
 
 #include "../managers/ResourceManager.h"
-#include "sfxGlobal.h"
 #include "sfxSound.h"
 
 void sfx::sfxSound::setSource()
 {
-	if (sound == nullptr)
-		return;
 	if (sourceId != 0)
 	{
 		Stop();
@@ -28,10 +25,15 @@ sfx::sfxSound::~sfxSound()
 
 void sfx::sfxSound::setSound(std::shared_ptr<Sound> sound)
 {
-	this->sound = sound;
-	if (sourceId == 0)
+	if (sourceId == 0 || this->sound != nullptr)
 		setSource();
+	this->sound = sound;
+	int queued;
+	alGetSourcei(sourceId, AL_BUFFERS_QUEUED, &queued);
+	assert(queued==0);
 	alSourceQueueBuffers(sourceId, sound->buffers.size(), sound->buffers.data());
+	auto err = alGetError();
+	assert(err == AL_NO_ERROR && "setSound");
 }
 
 void sfx::sfxSound::Play()
@@ -39,7 +41,7 @@ void sfx::sfxSound::Play()
 	if (sound == nullptr)
 		return;
 	alSourcePlay(sourceId);
-	auto err = alGetError();
+	assert(alGetError() == AL_NO_ERROR && "alPlay");
 	if (!sound->is_load_complete)
 	{
 		std::shared_ptr<sfxObject> streaming_obj(new StreamingObj(this));
@@ -52,6 +54,7 @@ void sfx::sfxSound::Pause()
 	if (sourceId == 0)
 		return;
 	alSourcePause(sourceId);
+	assert(alGetError() == AL_NO_ERROR);
 }
 
 void sfx::sfxSound::Stop()
@@ -59,6 +62,7 @@ void sfx::sfxSound::Stop()
 	if (sourceId == 0)
 		return;
 	alSourceStop(sourceId);
+	assert(alGetError() == AL_NO_ERROR);
 }
 
 bool sfx::sfxSound::Update()
@@ -67,7 +71,7 @@ bool sfx::sfxSound::Update()
 		return false;
 	if (sound->is_load_complete)
 	{
-		sfxGlobal::Instance();
+		//sfxGlobal::Instance();
 		return false;
 	}
 	int curr_state = 0;
@@ -81,6 +85,7 @@ bool sfx::sfxSound::Update()
 		{
 			ResourceManager::Instance()->LoadSoundFrame(sound);
 			alSourceQueueBuffers(sourceId, sound->buffers.size() - queued, sound->buffers.data() + queued);
+			assert(alGetError() == AL_NO_ERROR && "alsourcequeuebuffer");
 		}
 	}
 	else
@@ -88,6 +93,13 @@ bool sfx::sfxSound::Update()
 		return false;
 	}
 	return true;
+}
+
+bool sfx::sfxSound::isPlaying()
+{
+	int curr_state = 0;
+	alGetSourcei(sourceId, AL_SOURCE_STATE, &curr_state);
+	return (curr_state == AL_PLAYING);
 }
 
 sfx::sfxSound::StreamingObj::StreamingObj(sfxSound * sound) :soundObj(sound)

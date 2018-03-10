@@ -37,7 +37,7 @@ public:
 			instance = new ResourceManager();
 		return instance;
 	}
-	std::shared_ptr<Sprite> LoadSprite(std::string path);
-	std::shared_ptr<Sound> LoadSound(std::string path);
+	std::shared_ptr<Sprite> LoadSprite(const std::string& path);
+	std::shared_ptr<Sound> LoadSound(const std::string& path);
 	void LoadSoundFrame(std::shared_ptr<Sound> sound);
 };

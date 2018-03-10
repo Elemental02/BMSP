@@ -132,6 +132,7 @@
     <ClInclude Include="BMS\BMS.h" />
     <ClInclude Include="BMS\BMSNode.h" />
     <ClInclude Include="BMS\BMSParser.h" />
+    <ClInclude Include="BMS\BMSPlayer.h" />
     <ClInclude Include="common\Singleton.h" />
     <ClInclude Include="Game\PlayScene.h" />
     <ClInclude Include="gfx\gfxGlobal.h" />
@@ -151,6 +152,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="BMS\BMSPlayer.cpp" />
     <ClCompile Include="client\client.cpp" />
     <ClCompile Include="client\impl\winmain.cpp" />
     <ClCompile Include="Game\PlayScene.cpp" />

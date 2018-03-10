@@ -75,7 +75,7 @@ namespace CH
 	const int extendBPM = parseValue("08");
 };
 
-BMS BMSParser::Parse(std::string filename)
+BMS BMSParser::Parse(std::string filename, bool metadata_only)
 {
 	std::fstream file;
 	file.open(filename);
@@ -95,12 +95,13 @@ BMS BMSParser::Parse(std::string filename)
 			std::string value = match[2];
 			std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
-			if (name.substr(0, 3) == "WAV")
+			if (!metadata_only && name.substr(0, 3) == "WAV")
 			{
-				int index = parseValue(std::string(match[1]).substr(3, match[1].length() - 3).c_str());
+				auto parsed_wav = std::string(match[1]).substr(3, match[1].length() - 3);
+				int index = parseValue(parsed_wav.c_str());
 				bms.wavs[index] = value;
 			}
-			if (name.substr(0, 3) == "BMP")
+			if (!metadata_only && name.substr(0, 3) == "BMP")
 			{
 				int index = parseValue(std::string(match[1]).substr(3, match[1].length() - 3).c_str());
 				bms.bmps[index] = value;
@@ -109,7 +110,7 @@ BMS BMSParser::Parse(std::string filename)
 			{
 				bms.bpm = std::stof(value);
 			}
-			else if (name.substr(0, 3) == "BPM")
+			else if (!metadata_only && name.substr(0, 3) == "BPM")
 			{
 				int index = parseValue(std::string(match[1]).substr(3, match[1].length() - 3).c_str());
 				bms.bpms[index] = std::stof(value);
@@ -127,7 +128,7 @@ BMS BMSParser::Parse(std::string filename)
 				bms.metadata[name] = value;
 			}
 		}
-		else if (std::regex_match(line, match, std::regex("^#([0-9][0-9][0-9])([0-9a-zA-Z][0-9a-zA-Z]):((?:[0-9a-zA-Z][0-9a-zA-Z])*).*")))
+		else if (!metadata_only && std::regex_match(line, match, std::regex("^#([0-9][0-9][0-9])([0-9a-zA-Z][0-9a-zA-Z]):((?:[0-9a-zA-Z][0-9a-zA-Z])*).*")))
 		{
 			// xxxCH:00-ZZ
 			std::string measure = match[1];
@@ -142,17 +143,34 @@ BMS BMSParser::Parse(std::string filename)
 
 			std::string nodes = match[3];
 			size_t len = nodes.length() / 2;
+			if (ichannel == CH::BGA || ichannel == CH::Length || ichannel == CH::BPM || ichannel == CH::extendBPM) //for test do not load bmp
+				continue;
 			auto& channels = bms.measures[imeasure].nodes[ichannel];
-			if (channels.size() < len)
+			
+			for (int i = 0; i < len; i++)
+			{
+				std::string val = nodes.substr(i * 2, 2);
+				int value = parseValue(val.c_str());
+				if (value != 0)
+				{
+					auto node = BMSNode();
+					node.value = value;
+					node.position = i / (double)len;
+					channels.push_back(node);
+				}
+			}
+
+			/*if (channels.size() < len)
 				channels.resize(len);
 			auto node = channels.begin();
-			for (int i = 0; i < len; i++, node++)
+			/*for (int i = 0; i < len; i++, node++)
 			{
 				std::string val = nodes.substr(i * 2, 2);
 				int value = parseValue(val.c_str());
 				if (value != 0)
 					node->value = value;
-			}
+			}*/
+
 			/*
 			int i = 0;
 			for (auto& it : channels)
@@ -179,7 +197,7 @@ BMS BMSParser::Parse(std::string filename)
 			int count = 0;
 			for (auto& node : channels.second)	//process position and length
 			{
-				node.position = measure.length * count / size + measure.position;
+				node.position = measure.length * node.position + measure.position;
 				count++;
 
 				if (channels.first >= CH::P1L && channels.first <= (CH::P2L + 7))

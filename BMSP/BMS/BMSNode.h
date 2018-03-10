@@ -11,7 +11,7 @@ public:
 class BMSMeasure //¸¶µð
 {
 public:
-	double length = 0;
+	double length = 1.0;
 	double position = 0;
 	double bpm = 0.0f;
 	std::map<int, std::list<BMSNode>> nodes;
