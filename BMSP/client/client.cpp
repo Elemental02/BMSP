@@ -329,6 +329,7 @@ int main(void)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	auto prev_time = std::chrono::system_clock::now();
+	int fps = 60;
 	do {
 		auto curr_time = std::chrono::system_clock::now();
 		auto diff = curr_time - prev_time;
@@ -341,8 +342,10 @@ int main(void)
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(10ms);
+		
+		auto elapsed_time = std::chrono::system_clock::now();
+		std::chrono::milliseconds elapsed(std::chrono::duration_cast<std::chrono::milliseconds>(curr_time- elapsed_time));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps - 10) - elapsed); // -10 for inaccuracy
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);

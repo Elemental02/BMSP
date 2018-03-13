@@ -23,7 +23,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 	}
 	soundpool.playing.remove_if([](auto it) {return !it->isPlaying(); });
 
-	bmsPlayer.Update(delta);
+	bmsPlayer.Update();
 	auto& nodes = bmsPlayer.getUpdated();
 	for (auto& node : nodes)
 	{
@@ -49,7 +49,7 @@ void PlayScene::Render()
 
 void PlayScene::Init()
 {
-	std::string filename = "resource/Fellhound/Fellhound (Original Mix)7.bms";
+	std::string filename = "resource/k/Concertino in Blue [SP ANOTHER].bme";// "resource/Fellhound/Fellhound (Original Mix)7.bms";
 	std::experimental::filesystem::path path(filename);
 	BMSParser parser;
 	//bms = parser.Parse(filename);

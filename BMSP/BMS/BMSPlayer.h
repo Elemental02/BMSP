@@ -28,7 +28,7 @@ public:
 		return current_process;
 	}
 
-	void Update(std::chrono::milliseconds delta);
+	void Update();
 
 	inline const BMS& getBMS()
 	{

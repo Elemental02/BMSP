@@ -1,9 +1,9 @@
 #include "../stdafx.h"
 #include "BMSPlayer.h"
 
-double _4_minute_to_millisecond = 4 * 60 * 1000;
+//double _4_minute_to_millisecond = 4 * 60 * 1000;
 
-void BMSPlayer::Update(std::chrono::milliseconds delta)
+void BMSPlayer::Update()
 {
 	if (!isPlaying)
 		return;
@@ -28,8 +28,8 @@ void BMSPlayer::Update(std::chrono::milliseconds delta)
 		{
 			for (auto& node : channel.second)
 			{
-				node.a_time = node.a_time ? node.a_time : node.position / (current_bpm / _4_minute_to_millisecond);
-				if (node.a_time <= played_time.count() && node.value != 0)
+				//node.a_time = node.a_time.count() ? node.a_time : std::chrono::milliseconds(static_cast<unsigned int>(node.position / (current_bpm / _4_minute_to_millisecond)));
+				if (node.a_time <= played_time && node.value != 0)
 				{
 					//add node with channel number
 					updated_nodes.push_back(std::pair<int, BMSNode>(channel.first, node));
@@ -37,7 +37,7 @@ void BMSPlayer::Update(std::chrono::milliseconds delta)
 				}
 			}
 		}
-		if ((played_time.count()) / (_4_minute_to_millisecond / current_bpm) >= measure.length + measure.position)
+		if (played_time >= measure.time + measure.during_time)
 		{
 			current_measure++;
 			std::cout << "measure: " << current_measure << std::endl;

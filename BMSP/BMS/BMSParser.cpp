@@ -44,6 +44,8 @@
 %URL %EMAIL
 */
 
+double _4_minute_to_millisecond = 4 * 60 * 1000;
+
 int constexpr parseValue(const char* value)
 {
 	int val = 0;
@@ -72,7 +74,10 @@ namespace CH
 	const int Length = parseValue("02");
 	const int BPM = parseValue("03");
 	const int BGA = parseValue("04");
+	const int PoorBGA = parseValue("06");
+	const int BGALayer = parseValue("07");
 	const int extendBPM = parseValue("08");
+	const int Stop = parseValue("09");
 };
 
 BMS BMSParser::Parse(std::string filename, bool metadata_only)
@@ -88,7 +93,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 		//std::string line = "#00012:000102030405060708090a0b0c0d0e0f0g0h0i0j0k0l0m0n0o0p0q0r0s0t0u0v0w0x0y0z0A0B0C0D0E0F0G0H0I0J0K0L0M0N0O0P0Q0R0S0T0U0V0W0X0Y0Z		; this is test node";
 		//std::string line2 = "#PLAYER dfkdufj <dkfjdjfkdkfj>  ; this is test";
 		std::smatch match;
-		if (std::regex_match(line, match, std::regex("^#([a-zA-Z][a-zA-Z0-9]*)[ \\t]*(.*)(?:[;(?://)].*)?"))) // header
+		if (std::regex_match(line, match, std::regex("^#([a-zA-Z][a-zA-Z0-9]*)[ \\t]*(.*?)(?:[;(?://)].*)?"))) // header
 		{
 			// name value
 			std::string name = match[1];
@@ -128,7 +133,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 				bms.metadata[name] = value;
 			}
 		}
-		else if (!metadata_only && std::regex_match(line, match, std::regex("^#([0-9][0-9][0-9])([0-9a-zA-Z][0-9a-zA-Z]):((?:[0-9a-zA-Z][0-9a-zA-Z])*).*")))
+		else if (!metadata_only && std::regex_match(line, match, std::regex("^#([0-9][0-9][0-9])([0-9a-zA-Z][0-9a-zA-Z]):(.*?)(?:[;(?://)].*)?")))
 		{
 			// xxxCH:00-ZZ
 			std::string measure = match[1];
@@ -143,62 +148,132 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 
 			std::string nodes = match[3];
 			size_t len = nodes.length() / 2;
-			if (ichannel == CH::BGA || ichannel == CH::Length || ichannel == CH::BPM || ichannel == CH::extendBPM) //for test do not load bmp
-				continue;
-			auto& channels = bms.measures[imeasure].nodes[ichannel];
-			
-			for (int i = 0; i < len; i++)
+			if (ichannel == CH::Length)
 			{
-				std::string val = nodes.substr(i * 2, 2);
-				int value = parseValue(val.c_str());
-				if (value != 0)
+				bms.measures[imeasure].length = std::stod(match[3]);
+			}
+			/*else if (ichannel == CH::BPM)
+			{
+				//bms.measures[imeasure].bpm = std::stoi(match[3], 0, 16);
+			}*/
+			else
+			{
+				auto& channels = bms.measures[imeasure].nodes[ichannel];
+
+				for (int i = 0; i < len; i++)
 				{
-					auto node = BMSNode();
-					node.value = value;
-					node.position = i / (double)len;
-					channels.push_back(node);
+					std::string val = nodes.substr(i * 2, 2);
+					int value = ichannel == CH::BPM ? std::stoi(val, 0, 16) : parseValue(val.c_str());
+					double position = i / (double)len;
+					if (value != 0)
+					{
+						auto node = BMSNode();
+						node.value = value;
+						node.position = position;
+						channels.push_back(node);
+					}
 				}
 			}
-
-			/*if (channels.size() < len)
-				channels.resize(len);
-			auto node = channels.begin();
-			/*for (int i = 0; i < len; i++, node++)
-			{
-				std::string val = nodes.substr(i * 2, 2);
-				int value = parseValue(val.c_str());
-				if (value != 0)
-					node->value = value;
-			}*/
-
-			/*
-			int i = 0;
-			for (auto& it : channels)
-			{
-				std::string val = nodes.substr(i * 2, 2);
-				int value = parseValue(val.c_str());
-				i += 1;
-				if (value != 0)
-					it.value = value;
-			}*/
 		}
 	}
 	file.close();
 
 	std::map<int, BMSNode*> lastNodes;
+	double current_bpm = bms.bpm;
 	double measurePosition = 0.0f;
+	std::chrono::milliseconds measureTime(0);
 	for (auto& measure : bms.measures)
 	{
+		for (auto& channels : measure.nodes)
+			channels.second.sort([](auto& lhs, auto& rhs) { return lhs.position < rhs.position; });
+
 		measure.position = measurePosition;
 		measurePosition += measure.length;
+		measure.time = measureTime;
+
+		if (measure.nodes.find(CH::BPM) == measure.nodes.end())
+			measure.nodes[CH::BPM] = std::list<BMSNode>();
+		if (measure.nodes.find(CH::extendBPM) == measure.nodes.end())
+			measure.nodes[CH::extendBPM] = std::list<BMSNode>();
+
+		auto& bpm_channel = measure.nodes.find(CH::BPM)->second;
+		auto& bpm_ext_channel = measure.nodes.find(CH::extendBPM)->second;
+
+		auto& it_bpm = bpm_channel.begin();
+		auto& it_bpm_ext = bpm_ext_channel.begin();
+
+		struct bpm_node
+		{
+			double position;
+			double bpm;
+			double time;
+		};
+
+		std::vector<bpm_node> bpm_nodes;
+		bpm_nodes.push_back(bpm_node{ 0, current_bpm, 0 });
+		if (bpm_channel.size() >= 2)
+		{
+			std::cout << "tz"<<std::endl;
+		}
+
+		while (it_bpm != bpm_channel.end() || it_bpm_ext != bpm_ext_channel.end())
+		{
+			auto& back_node = bpm_nodes.back();
+			if (it_bpm != bpm_channel.end() && (it_bpm_ext == bpm_ext_channel.end() || it_bpm->position < it_bpm_ext->position))
+			{
+				double time = back_node.time + (it_bpm->position - back_node.position) * measure.length * _4_minute_to_millisecond / current_bpm;
+				it_bpm->a_time = std::chrono::milliseconds(static_cast<long long>(time));
+				bpm_nodes.push_back(bpm_node{ it_bpm->position , static_cast<double>(it_bpm->value),time });
+				it_bpm++;
+			}
+			else if (it_bpm_ext != bpm_channel.end() && (it_bpm == bpm_channel.end() || it_bpm->position > it_bpm_ext->position))
+			{
+				double time = back_node.time + (it_bpm_ext->position - back_node.position) * measure.length * _4_minute_to_millisecond / current_bpm;
+				it_bpm_ext->a_time = std::chrono::milliseconds(static_cast<long long>(time));
+				//it_bpm_ext->a_time = back_node.time + std::chrono::milliseconds(static_cast<long long>((it_bpm_ext->position - back_node.position) * measure.length * _4_minute_to_millisecond / current_bpm));
+				bpm_nodes.push_back(bpm_node{ it_bpm_ext->position , bms.bpms[it_bpm_ext->value],time });
+				it_bpm_ext++;
+			}
+			current_bpm = bpm_nodes.back().bpm;
+		}
+		
+		measure.during_time += std::chrono::milliseconds(static_cast<long long>((1.0 - bpm_nodes.back().position) * measure.length * _4_minute_to_millisecond / current_bpm + bpm_nodes.back().time));
+
+		if (measure.nodes.find(CH::Stop) != measure.nodes.end())
+		{
+			auto& bpm_node = bpm_nodes.begin();
+			std::chrono::milliseconds stopped_time(0);
+			for (auto& node : measure.nodes[CH::Stop])
+			{
+				while ((bpm_node+1) != bpm_nodes.end() && (bpm_node + 1)->position < node.position)
+					bpm_node++;
+				node.a_time = measure.time + stopped_time + std::chrono::milliseconds(static_cast<long long>((node.position - bpm_node->position) * measure.length * _4_minute_to_millisecond / bpm_node->bpm + bpm_node->time));
+				stopped_time += std::chrono::milliseconds(node.value);
+			}
+			measure.during_time += stopped_time;
+		}
+
+		measureTime += measure.during_time;
 		for (auto& channels : measure.nodes)
 		{
+			if (channels.first == CH::BPM || channels.first == CH::extendBPM || channels.first == CH::Stop)
+				continue;
 			int size = channels.second.size();
-			int count = 0;
+			auto& bpm_node = bpm_nodes.begin();
+			std::chrono::milliseconds stopped_time(0);
+			auto& stop_node = measure.nodes[CH::Stop].begin();
 			for (auto& node : channels.second)	//process position and length
 			{
+				while ((bpm_node + 1) != bpm_nodes.end() && (bpm_node + 1)->position < node.position)
+					bpm_node++;
+				while ((stop_node) != measure.nodes[CH::Stop].end() && stop_node->position < node.position)
+				{
+					stopped_time += std::chrono::milliseconds(node.value);
+					stop_node++;
+				}
+
+				node.a_time = measure.time + stopped_time + std::chrono::milliseconds(static_cast<long long>((node.position - bpm_node->position) * measure.length * _4_minute_to_millisecond / bpm_node->bpm + bpm_node->time));
 				node.position = measure.length * node.position + measure.position;
-				count++;
 
 				if (channels.first >= CH::P1L && channels.first <= (CH::P2L + 7))
 				{
