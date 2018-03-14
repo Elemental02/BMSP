@@ -1,8 +1,6 @@
 #include "../stdafx.h"
 #include "BMSPlayer.h"
 
-//double _4_minute_to_millisecond = 4 * 60 * 1000;
-
 void BMSPlayer::Update()
 {
 	if (!isPlaying)
@@ -12,7 +10,8 @@ void BMSPlayer::Update()
 		start_time = std::chrono::system_clock::now();
 	}
 	auto curr_time = std::chrono::system_clock::now();
-	auto played_time = std::chrono::duration_cast<std::chrono::milliseconds>(curr_time - start_time);
+	auto prev_played_time = std::chrono::duration_cast<std::chrono::milliseconds>(prev_time - start_time);
+	play_time = std::chrono::duration_cast<std::chrono::milliseconds>(curr_time - start_time);
 	updated_nodes.clear();
 
 	if (current_bpm == 0)
@@ -21,6 +20,8 @@ void BMSPlayer::Update()
 	}
 
 	bool loop = false;
+	BMSNode* bpm_node = nullptr;
+	BMSNode* stop_node = nullptr;
 	do
 	{
 		BMSMeasure& measure = bms.measures[current_measure];
@@ -28,16 +29,27 @@ void BMSPlayer::Update()
 		{
 			for (auto& node : channel.second)
 			{
-				//node.a_time = node.a_time.count() ? node.a_time : std::chrono::milliseconds(static_cast<unsigned int>(node.position / (current_bpm / _4_minute_to_millisecond)));
-				if (node.a_time <= played_time && node.value != 0)
+				if (node.a_time > prev_played_time && node.a_time <= play_time && node.value != 0)
 				{
-					//add node with channel number
-					updated_nodes.push_back(std::pair<int, BMSNode>(channel.first, node));
-					node.value = 0;
+					if (channel.first == BMS::CH::BPM || channel.first == BMS::CH::extendBPM)
+					{
+						double node_bpm = channel.first == BMS::CH::BPM ? static_cast<double>(node.value) : bms.bpms[node.value];
+						bpm_node = bpm_node ? (bpm_node->position < node.position ? &node : bpm_node) : &node;
+						current_bpm= bpm_node ? (bpm_node->position < node.position ? node_bpm : current_bpm) : node_bpm;
+					}
+					else if (channel.first == BMS::CH::BPM)
+					{
+						stop_node = stop_node ? (stop_node->position < node.position ? &node : stop_node) : &node;
+					}
+					else
+					{
+						updated_nodes.push_back(std::pair<int, BMSNode>(channel.first, node));
+					}
 				}
 			}
 		}
-		if (played_time >= measure.time + measure.during_time)
+		
+		if (play_time >= measure.time + measure.during_time)
 		{
 			current_measure++;
 			std::cout << "measure: " << current_measure << std::endl;
@@ -46,6 +58,8 @@ void BMSPlayer::Update()
 				isPlaying = false;
 				return;
 			}
+			current_process = measure.position;
+			prev_played_time = play_time - measure.time;
 			loop = true;
 		}
 		else
@@ -53,4 +67,12 @@ void BMSPlayer::Update()
 			loop = false;
 		}
 	} while (loop);
+
+	if (stop_node && (stop_node->a_time + std::chrono::milliseconds(stop_node->value) > play_time))
+		current_process = stop_node->position;
+	else if (bpm_node)
+		current_process = bpm_node->position + std::chrono::duration_cast<std::chrono::milliseconds>(play_time - bpm_node->a_time).count()*(current_bpm / BMS::_4_minute_to_millisecond);
+	else
+		current_process += std::chrono::duration_cast<std::chrono::milliseconds>(prev_played_time).count()*(current_bpm / BMS::_4_minute_to_millisecond);
+	prev_time = curr_time;
 }

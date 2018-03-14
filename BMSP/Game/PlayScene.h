@@ -1,6 +1,8 @@
 #pragma once
 #include "../BMS/BMSPlayer.h"
 #include "../gfx/gfxScene.h"
+#include "../gfx/gfxSprite.h"
+#include "../gfx/gfxPanel.h"
 
 class PlayScene : public gfx::gfxScene
 {
@@ -19,6 +21,23 @@ private:
 		std::list<std::shared_ptr<sfx::sfxSound>> playing;
 	};
 	SoundPool soundpool;
+
+	gfx::gfxPanel node_panel;
+	struct NodeSprite
+	{
+		std::shared_ptr<gfx::gfxSprite> sprite;
+		BMSNode* node;
+	};
+	struct SpritePool
+	{
+		std::list<NodeSprite> pool;
+		std::list<NodeSprite> playing;
+	};
+	SpritePool node_pool;
+	int processed_measure = -1;
+
+	std::shared_ptr<Sprite> skinSprite;
+	std::shared_ptr<Sprite> nodeSprite;
 public:
 	PlayScene();
 	virtual ~PlayScene();

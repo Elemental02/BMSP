@@ -60,4 +60,7 @@ void PlayScene::Init()
 		auto wav_filename = dir.append(wav.second);
 		sounds[wav.first] = ResourceManager::Instance()->LoadSound(wav_filename.string());
 	}
+
+	skinSprite = ResourceManager::Instance()->LoadSprite("resource/ui/skin.png");
+	nodeSprite = ResourceManager::Instance()->LoadSprite("resource/ui/node.png");
 }

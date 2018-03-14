@@ -1,5 +1,4 @@
 #include "../stdafx.h"
-#include <GL/glew.h>
 #include "gfxSprite.h"
 #include "../managers/ResourceManager.h"
 #include "gfxPanel.h"

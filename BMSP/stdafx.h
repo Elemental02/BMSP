@@ -19,6 +19,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <GL/glew.h>
+
 #include <AL/al.h>
 #include <AL/alc.h>
 

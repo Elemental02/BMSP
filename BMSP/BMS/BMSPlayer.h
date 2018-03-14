@@ -12,6 +12,8 @@ private:
 	std::chrono::system_clock::time_point start_time;
 	std::chrono::system_clock::time_point prev_time;
 
+	std::chrono::milliseconds play_time;
+
 	std::list<std::pair<int,BMSNode>> updated_nodes;
 
 	bool isPlaying = true;
@@ -28,12 +30,22 @@ public:
 		return current_process;
 	}
 
-	void Update();
+	inline auto getCurrentTime()
+	{
+		return play_time;
+	}
+
+	inline int getCurrentMeasure()
+	{
+		return current_measure;
+	}
 
 	inline const BMS& getBMS()
 	{
 		return bms;
 	}
+
+	void Update();
 	
 	inline const decltype(updated_nodes)& getUpdated()
 	{
