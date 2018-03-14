@@ -96,121 +96,143 @@ GLuint loadBMP_custom(const char * imagepath, unsigned int& height, unsigned int
 	return textureID;
 }
 
-#define FOURCC_DXT1 0x31545844 // Equivalent to "DXT1" in ASCII
-#define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
-#define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
-
-GLuint loadDDS(const char * imagepath, unsigned int& height, unsigned int& width) {
-	unsigned char header[124];
-
-	FILE *fp;
-
-	/* try to open the file */
-	fopen_s(&fp, imagepath, "rb");
-	if (fp == NULL) {
-		printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar();
+GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned int& width)
+{
+	AVFormatContext* container = avformat_alloc_context();
+	if (avformat_open_input(&container, imagepath, NULL, NULL) < 0) {
 		return 0;
 	}
 
-	/* verify the type of file */
-	char filecode[4];
-	fread(filecode, 1, 4, fp);
-	if (strncmp(filecode, "DDS ", 4) != 0) {
-		fclose(fp);
+	if (avformat_find_stream_info(container, nullptr) < 0) {
+		avformat_close_input(&container);
+		avformat_free_context(container);
 		return 0;
 	}
 
-	/* get the surface desc */
-	fread(&header, 124, 1, fp);
+	AVCodec *codec = nullptr;
+	int stream_id = av_find_best_stream(container, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+	if (stream_id == -1) {
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
 
-	height = *(unsigned int*)&(header[8]);
-	width = *(unsigned int*)&(header[12]);
-	unsigned int linearSize = *(unsigned int*)&(header[16]);
-	unsigned int mipMapCount = *(unsigned int*)&(header[24]);
-	unsigned int fourCC = *(unsigned int*)&(header[80]);
+	AVCodecParameters *ctxp = container->streams[stream_id]->codecpar;
+	if (codec == nullptr) {
+		codec = avcodec_find_decoder(ctxp->codec_id);
+	}
+	AVCodecContext* ctx = avcodec_alloc_context3(codec);
 
-	unsigned char * buffer;
-	unsigned int bufsize;
-	/* how big is it going to be including all mipmaps? */
-	bufsize = mipMapCount > 1 ? linearSize * 2 : linearSize;
-	buffer = (unsigned char*)malloc(bufsize * sizeof(unsigned char));
-	fread(buffer, 1, bufsize, fp);
-	/* close the file pointer */
-	fclose(fp);
+	avcodec_parameters_to_context(ctx, ctxp);
 
-	unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
-	unsigned int format;
-	switch (fourCC)
+	height = ctx->height;
+	width = ctx->width;
+	
+	int height_conv = height;
+	int width_conv = width;
+
+	if (codec == NULL) {
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+
+	int res = avcodec_open2(ctx, codec, nullptr);
+	if (res < 0) {
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+
+	struct SwsContext *sws_ctx = sws_getContext(ctx->width, ctx->height, ctx->pix_fmt,
+		width_conv, height_conv, AV_PIX_FMT_RGBA, SWS_BICUBIC, NULL, NULL, NULL);
+
+	if (!sws_ctx) {
+		fprintf(stderr, "Could not allocate resampler context\n");
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+
+	AVPacket packet;
+	av_init_packet(&packet);
+	AVFrame *frame = av_frame_alloc();
+	AVFrame *frameRGBA = av_frame_alloc();
+
+	av_image_alloc(frameRGBA->data, frameRGBA->linesize, width_conv, height_conv, AV_PIX_FMT_RGBA, 1);
+
+	GLuint textureID = 0;
+
+	while (av_read_frame(container, &packet) >= 0)
 	{
-	case FOURCC_DXT1:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-		break;
-	case FOURCC_DXT3:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-		break;
-	case FOURCC_DXT5:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		break;
-	default:
-		free(buffer);
-		return 0;
+		if (packet.stream_index != stream_id) {
+			continue;
+		}
+
+		int len = avcodec_send_packet(ctx, &packet);
+		int frameFinished = avcodec_receive_frame(ctx, frame);
+		if (frameFinished == 0)
+		{
+			sws_scale(sws_ctx, frame->data, frame->linesize, 0, ctx->height, frameRGBA->data, frameRGBA->linesize);
+			
+			// Create one OpenGL texture
+			glGenTextures(1, &textureID);
+
+			// "Bind" the newly created texture : all future texture functions will modify this texture
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+			// Give the image to OpenGL
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_conv, height_conv, 0, GL_RGBA, GL_UNSIGNED_BYTE, frameRGBA->data[0]);
+			auto err = glGetError();
+			
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		av_packet_unref(&packet);
 	}
 
-	// Create one OpenGL texture
-	GLuint textureID;
-	glGenTextures(1, &textureID);
+	// Return the ID of the texture we just created
+	av_freep(&frameRGBA->data[0]);
+	av_freep(&frameRGBA);
+	av_freep(&frame);
 
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
-	unsigned int offset = 0;
-
-	/* load the mipmaps */
-	for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
-	{
-		unsigned int size = ((width + 3) / 4)*((height + 3) / 4)*blockSize;
-		glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height,
-			0, size, buffer + offset);
-
-		offset += size;
-		width /= 2;
-		height /= 2;
-
-		// Deal with Non-Power-Of-Two textures. This code is not included in the webpage to reduce clutter.
-		if (width < 1) width = 1;
-		if (height < 1) height = 1;
-
-	}
-
-	free(buffer);
+	avcodec_free_context(&ctx);
+	avformat_close_input(&container);
+	avformat_free_context(container);
+	sws_freeContext(sws_ctx);
 
 	return textureID;
 }
 
 std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 {
-	
+
 	if (sprites.find(path) != sprites.end())
 		return sprites[path];
 	auto ext = path.substr(path.length() - 3, 3);
 	std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-	unsigned int height, width, textrueId;
-	if (ext == "bmp")
+	unsigned int height, width, textureId;
+	/*if (ext == "bmp")
 	{
 		textrueId = loadBMP_custom(path.c_str(), height, width);
 	}
 	else if (ext == "dds")
 	{
 		textrueId = loadDDS(path.c_str(), height, width);
-	}
-	if (textrueId == 0)
+	}*/
+	textureId = loadSprite_ffmpeg(path.c_str(), height, width);
+	if (textureId == 0)
 		return nullptr;
 
 	std::shared_ptr<Sprite> res = std::shared_ptr<Sprite>(new Sprite);
-	res->textureId = textrueId;
+	res->textureId = textureId;
 
 	res->vertex[0] = glm::vec3(0.0f, 0.0f, 0.0f);
 	res->vertex[1] = glm::vec3(0.0f, height, 0.0f);
@@ -220,13 +242,13 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 	res->vertex[4] = glm::vec3(width, height, 0.0f);
 	res->vertex[5] = glm::vec3(width, 0.0f, 0.0f);
 
-	res->uv[0] = glm::vec2(0.0f, 1.0f);
-	res->uv[1] = glm::vec2(0.0f, 0.0f);
-	res->uv[2] = glm::vec2(1.0f, 1.0f);
+	res->uv[0] = glm::vec2(0.0f, 0.0f);
+	res->uv[1] = glm::vec2(0.0f, 1.0f);
+	res->uv[2] = glm::vec2(1.0f, 0.0f);
 
-	res->uv[3] = glm::vec2(0.0f, 0.0f);
-	res->uv[4] = glm::vec2(1.0f, 0.0f);
-	res->uv[5] = glm::vec2(1.0f, 1.0f);
+	res->uv[3] = glm::vec2(0.0f, 1.0f);
+	res->uv[4] = glm::vec2(1.0f, 1.0f);
+	res->uv[5] = glm::vec2(1.0f, 0.0f);
 
 	sprites[path] = res;
 	return res;
@@ -363,6 +385,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 			break;
 		}
 	}
+	av_freep(&frame->data[0]);
 	av_freep(&frame);
 }
 
