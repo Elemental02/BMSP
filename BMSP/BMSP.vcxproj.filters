@@ -102,6 +102,9 @@
     <ClInclude Include="BMS\BMSPlayer.h">
       <Filter>헤더 파일\BMS</Filter>
     </ClInclude>
+    <ClInclude Include="managers\InputManager.h">
+      <Filter>헤더 파일\managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -148,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="BMS\BMSPlayer.cpp">
       <Filter>소스 파일\BMS</Filter>
+    </ClCompile>
+    <ClCompile Include="managers\InputManager.cpp">
+      <Filter>소스 파일\managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

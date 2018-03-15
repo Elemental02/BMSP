@@ -10,10 +10,10 @@ private:
 	BMSPlayer bmsPlayer;
 	std::map<int, std::shared_ptr<Sound>> sounds;
 
-	std::chrono::system_clock::time_point start_time;
-	std::chrono::system_clock::duration prev_time;
+	//std::chrono::system_clock::time_point start_time;
+	//std::chrono::system_clock::duration prev_time;
 
-	std::chrono::milliseconds processed_time;
+	//std::chrono::milliseconds processed_time;
 
 	struct SoundPool
 	{
@@ -26,7 +26,8 @@ private:
 	struct NodeSprite
 	{
 		std::shared_ptr<gfx::gfxSprite> sprite;
-		BMSNode* node;
+		const BMSNode* node;
+		int lane_index;
 	};
 	struct SpritePool
 	{
@@ -36,8 +37,18 @@ private:
 	SpritePool node_pool;
 	int processed_measure = -1;
 
-	std::shared_ptr<Sprite> skinSprite;
+	struct LaneInfo
+	{
+		int lane_value;
+		NodeSprite* closest_node;
+		int sound_value;
+	};
+	std::array<LaneInfo, 8> lane_info;
+
+	std::shared_ptr<gfx::gfxSprite> skinSprite;
 	std::shared_ptr<Sprite> nodeSprite;
+
+	void SoundPlay(int value);
 public:
 	PlayScene();
 	virtual ~PlayScene();

@@ -2,8 +2,8 @@
 #include "BMS.h"
 
 //static values
-const int BMS::CH::P1 = BMS::parseValue("11");
-const int BMS::CH::P2 = BMS::parseValue("21");
+const int BMS::CH::P1 = 11;// BMS::parseValue("11");
+const int BMS::CH::P2 = 21;// BMS::parseValue("21");
 
 const int BMS::CH::P1L = BMS::parseValue("51");
 const int BMS::CH::P2L = BMS::parseValue("61");

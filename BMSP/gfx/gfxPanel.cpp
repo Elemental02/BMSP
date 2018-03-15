@@ -15,6 +15,8 @@ void gfx::gfxPanel::Render()
 
 	for (auto group : renderlist)
 	{
+		if (group.second.sprites.empty())
+			continue;
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, (*(group.second.sprites.begin()))->getSprite().textureId);
 		

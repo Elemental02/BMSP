@@ -140,6 +140,7 @@
     <ClInclude Include="gfx\gfxPanel.h" />
     <ClInclude Include="gfx\gfxScene.h" />
     <ClInclude Include="gfx\gfxSprite.h" />
+    <ClInclude Include="managers\InputManager.h" />
     <ClInclude Include="managers\ResourceManager.h" />
     <ClInclude Include="sfx\sfxGlobal.h" />
     <ClInclude Include="sfx\sfxSound.h" />
@@ -161,6 +162,7 @@
     <ClCompile Include="gfx\gfxPanel.cpp" />
     <ClCompile Include="gfx\gfxScene.cpp" />
     <ClCompile Include="gfx\gfxSprite.cpp" />
+    <ClCompile Include="managers\InputManager.cpp" />
     <ClCompile Include="managers\ResourceManager.cpp" />
     <ClCompile Include="sfx\sfxGlobal.cpp" />
     <ClCompile Include="sfx\sfxSound.cpp" />

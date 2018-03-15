@@ -148,6 +148,16 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 		double current_bpm = bms.bpm;
 		double measurePosition = 0.0f;
 		std::chrono::milliseconds measureTime(0);
+
+		struct bpm_node
+		{
+			double position;
+			double bpm;
+			double time;
+		};
+		std::vector<bpm_node> bpm_nodes;
+		bpm_nodes.push_back(bpm_node{ 0, current_bpm, 0 });
+
 		for (auto& measure : bms.measures)
 		{
 			for (auto& channels : measure.nodes)
@@ -168,43 +178,28 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 			auto& it_bpm = bpm_channel.begin();
 			auto& it_bpm_ext = bpm_ext_channel.begin();
 
-			struct bpm_node
-			{
-				double position;
-				double bpm;
-				double time;
-			};
-
-			std::vector<bpm_node> bpm_nodes;
-			bpm_nodes.push_back(bpm_node{ 0, current_bpm, 0 });
-			if (bpm_channel.size() >= 2)
-			{
-				std::cout << "tz" << std::endl;
-			}
-
 			while (it_bpm != bpm_channel.end() || it_bpm_ext != bpm_ext_channel.end())
 			{
 				auto& back_node = bpm_nodes.back();
 				if (it_bpm != bpm_channel.end() && (it_bpm_ext == bpm_ext_channel.end() || it_bpm->position < it_bpm_ext->position))
 				{
-					double time = back_node.time + (it_bpm->position - back_node.position) * measure.length *BMS::_4_minute_to_millisecond / current_bpm;
+					it_bpm->position = measure.length * it_bpm->position + measure.position;
+					double time = back_node.time + (it_bpm->position - back_node.position) * BMS::_4_minute_to_millisecond / current_bpm;
 					it_bpm->a_time = std::chrono::milliseconds(static_cast<long long>(time));
 					bpm_nodes.push_back(bpm_node{ it_bpm->position , static_cast<double>(it_bpm->value),time });
 					it_bpm++;
 				}
 				else if (it_bpm_ext != bpm_channel.end() && (it_bpm == bpm_channel.end() || it_bpm->position > it_bpm_ext->position))
 				{
-					double time = back_node.time + (it_bpm_ext->position - back_node.position) * measure.length * BMS::_4_minute_to_millisecond / current_bpm;
-					it_bpm_ext->a_time = std::chrono::milliseconds(static_cast<long long>(time));
-					//it_bpm_ext->a_time = back_node.time + std::chrono::milliseconds(static_cast<long long>((it_bpm_ext->position - back_node.position) * measure.length * _4_minute_to_millisecond / current_bpm));
-					bpm_nodes.push_back(bpm_node{ it_bpm_ext->position , bms.bpms[it_bpm_ext->value],time });
+					it_bpm_ext->position = measure.length * it_bpm_ext->position + measure.position;
+					double time = back_node.time + (it_bpm_ext->position - back_node.position) * BMS::_4_minute_to_millisecond / current_bpm;
+					it_bpm_ext->a_time = std::chrono::milliseconds(static_cast<long long>(time)) + measure.time;
+					bpm_nodes.push_back(bpm_node{ it_bpm_ext->position , bms.bpms[it_bpm_ext->value], time });
 					it_bpm_ext++;
 				}
 				current_bpm = bpm_nodes.back().bpm;
 			}
-
-			measure.during_time += std::chrono::milliseconds(static_cast<long long>((1.0 - bpm_nodes.back().position) * measure.length * BMS::_4_minute_to_millisecond / current_bpm + bpm_nodes.back().time));
-
+			measure.during_time = std::chrono::milliseconds(static_cast<long long>((measure.position + measure.length - bpm_nodes.back().position) * BMS::_4_minute_to_millisecond / current_bpm + bpm_nodes.back().time));
 			if (measure.nodes.find(BMS::CH::Stop) != measure.nodes.end())
 			{
 				auto& bpm_node = bpm_nodes.begin();
@@ -218,11 +213,11 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 				}
 				measure.during_time += stopped_time;
 			}
-
-			measureTime += measure.during_time;
+			measureTime = measure.during_time;
+			//measureTime += measure.during_time;
 			for (auto& channels : measure.nodes)
 			{
-				if (channels.first == BMS::CH::BPM || channels.first == BMS::CH::extendBPM || channels.first == BMS::CH::Stop)
+				if (channels.first == BMS::CH::Stop || channels.first == BMS::CH::BPM || channels.first == BMS::CH::extendBPM)
 					continue;
 				int size = channels.second.size();
 				auto& bpm_node = bpm_nodes.begin();
@@ -230,6 +225,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 				auto& stop_node = measure.nodes[BMS::CH::Stop].begin();
 				for (auto& node : channels.second)	//process position and length
 				{
+					node.position = measure.length * node.position + measure.position;
 					while ((bpm_node + 1) != bpm_nodes.end() && (bpm_node + 1)->position < node.position)
 						bpm_node++;
 					while ((stop_node) != measure.nodes[BMS::CH::Stop].end() && stop_node->position < node.position)
@@ -237,9 +233,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 						stopped_time += std::chrono::milliseconds(node.value);
 						stop_node++;
 					}
-
-					node.a_time = measure.time + stopped_time + std::chrono::milliseconds(static_cast<long long>((node.position - bpm_node->position) * measure.length * BMS::_4_minute_to_millisecond / bpm_node->bpm + bpm_node->time));
-					node.position = measure.length * node.position + measure.position;
+					node.a_time = stopped_time + std::chrono::milliseconds(static_cast<long long>((node.position - bpm_node->position) * BMS::_4_minute_to_millisecond / bpm_node->bpm + bpm_node->time));
 
 					if (channels.first >= BMS::CH::P1L && channels.first <= (BMS::CH::P2L + 7))
 					{

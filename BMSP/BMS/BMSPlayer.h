@@ -6,9 +6,10 @@ class BMSPlayer
 private:
 	BMS bms;
 	int current_measure = 0;
-	double current_bpm;
-	double current_process;
-
+	double current_bpm = 0.0f;
+	double current_process = 0.0f;
+	
+	BMSNode* bpm_node = nullptr;
 	std::chrono::system_clock::time_point start_time;
 	std::chrono::system_clock::time_point prev_time;
 

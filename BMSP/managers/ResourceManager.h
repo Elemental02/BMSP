@@ -1,7 +1,6 @@
 #pragma once
 struct Sprite
 {
-public:
 	std::array<glm::vec3, 6> vertex;
 	std::array<glm::vec2, 6> uv;
 	glm::uint textureId = 0;
@@ -11,7 +10,6 @@ public:
 
 struct Sound
 {
-public:
 	AVCodecContext* codec;
 	AVFormatContext* container;
 	SwrContext* swr_ctx;
@@ -29,6 +27,7 @@ class ResourceManager
 private:
 	ResourceManager() {}
 	std::map<std::string, std::shared_ptr<Sprite>> sprites;
+	std::map<std::string, std::shared_ptr<Sound>> sounds;
 public:
 	static ResourceManager* Instance()
 	{

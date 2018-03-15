@@ -215,18 +215,8 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 
 	if (sprites.find(path) != sprites.end())
 		return sprites[path];
-	auto ext = path.substr(path.length() - 3, 3);
-	std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
 	unsigned int height, width, textureId;
-	/*if (ext == "bmp")
-	{
-		textrueId = loadBMP_custom(path.c_str(), height, width);
-	}
-	else if (ext == "dds")
-	{
-		textrueId = loadDDS(path.c_str(), height, width);
-	}*/
 	textureId = loadSprite_ffmpeg(path.c_str(), height, width);
 	if (textureId == 0)
 		return nullptr;
@@ -256,6 +246,8 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 
 std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 {
+	if (sounds.find(path) != sounds.end())
+		return sounds[path];
 	AVFormatContext* container = avformat_alloc_context();
 	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
 		return nullptr;
@@ -324,6 +316,8 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 	sound->swr_ctx = swr_ctx;
 	sound->stream_id = stream_id;
 	LoadSoundFrame(sound);
+
+	sounds[path] = sound;
 	return sound;
 }
 
