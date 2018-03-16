@@ -1,45 +1,11 @@
 EXPORTS
-    Java_java_awt_BDFontMetrics_charWidthN@20
-    Java_java_awt_BDFontMetrics_charsWidthN@28
-    Java_java_awt_BDFontMetrics_destroyFontN@16
-    Java_java_awt_BDFontMetrics_destroyN@16
-    Java_java_awt_BDFontMetrics_getFontFamilyAndStyleN@20
-    Java_java_awt_BDFontMetrics_initN@8
-    Java_java_awt_BDFontMetrics_loadFontN@24
-    Java_java_awt_BDFontMetrics_resolveFontN@16
-    Java_java_awt_BDFontMetrics_stringWidthN@20
-    Java_java_awt_BDFontMetrics_unloadFontConfigN@8
-    Java_java_awt_BDGraphics_drawStringN@32
-    Java_org_videolan_Libbluray_cacheBdRomFileN@24
-    Java_org_videolan_Libbluray_getAacsDataN@20
-    Java_org_videolan_Libbluray_getBdjoN@20
-    Java_org_videolan_Libbluray_getPlaylistInfoN@20
-    Java_org_videolan_Libbluray_getTitleInfosN@16
-    Java_org_videolan_Libbluray_getUOMaskN@16
-    Java_org_videolan_Libbluray_listBdFilesN@24
-    Java_org_videolan_Libbluray_readGPRN@20
-    Java_org_videolan_Libbluray_readPSRN@20
-    Java_org_videolan_Libbluray_seekN@32
-    Java_org_videolan_Libbluray_selectAngleN@20
-    Java_org_videolan_Libbluray_selectPlaylistN@36
-    Java_org_videolan_Libbluray_selectRateN@24
-    Java_org_videolan_Libbluray_selectTitleN@20
-    Java_org_videolan_Libbluray_setKeyInterestN@20
-    Java_org_videolan_Libbluray_setUOMaskN@24
-    Java_org_videolan_Libbluray_setVirtualPackageN@24
-    Java_org_videolan_Libbluray_soundEffectN@20
-    Java_org_videolan_Libbluray_tellTimeN@16
-    Java_org_videolan_Libbluray_updateGraphicN@44
-    Java_org_videolan_Libbluray_writeGPRN@24
-    Java_org_videolan_Libbluray_writePSRN@28
-    Java_org_videolan_Logger_logN@24
     av_add_index_entry
     av_append_packet
     av_apply_bitstream_filters
     av_codec_get_id
     av_codec_get_tag
     av_codec_get_tag2
-    av_convert_lang_to
+    av_demuxer_iterate
     av_demuxer_open
     av_dump_format
     av_filename_number_test
@@ -48,7 +14,7 @@ EXPORTS
     av_find_input_format
     av_find_program_from_stream
     av_fmt_ctx_get_duration_estimation_method
-    av_format_ffversion DATA
+    av_format_ffversion
     av_format_get_audio_codec
     av_format_get_control_message_cb
     av_format_get_data_codec
@@ -82,6 +48,7 @@ EXPORTS
     av_interleaved_write_frame
     av_interleaved_write_uncoded_frame
     av_match_ext
+    av_muxer_iterate
     av_new_program
     av_oformat_next
     av_pkt_dump2
@@ -195,6 +162,9 @@ EXPORTS
     avio_wl64
     avio_write
     avio_write_marker
+    avpriv_codec2_mode_bit_rate
+    avpriv_codec2_mode_block_align
+    avpriv_codec2_mode_frame_size
     avpriv_dv_get_packet
     avpriv_dv_init_demux
     avpriv_dv_produce_packet
@@ -204,15 +174,5 @@ EXPORTS
     avpriv_mpegts_parse_open
     avpriv_mpegts_parse_packet
     avpriv_new_chapter
+    avpriv_register_devices
     avpriv_set_pts_info
-    ff_inet_aton
-    ff_rtp_get_local_rtcp_port
-    ff_rtp_get_local_rtp_port
-    ff_rtsp_parse_line
-    ff_socket_nonblock
-    ffio_open_dyn_packet_buf
-    ffio_set_buf_size
-    ffurl_close
-    ffurl_open
-    ffurl_write
-    url_feof

@@ -12,6 +12,7 @@ struct Sound
 {
 	AVCodecContext* codec;
 	AVFormatContext* container;
+	FILE* file;
 	SwrContext* swr_ctx;
 	int stream_id;
 

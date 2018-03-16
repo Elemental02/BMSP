@@ -271,6 +271,7 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 	if (codec == nullptr) {
 		codec = avcodec_find_decoder(ctxp->codec_id);
 	}
+	
 	AVCodecContext* ctx = avcodec_alloc_context3(codec);
 
 	avcodec_parameters_to_context(ctx, ctxp);
@@ -281,7 +282,7 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 		avformat_free_context(container);
 		return nullptr;
 	}
-
+	
 	int res = avcodec_open2(ctx, codec, nullptr);
 	if (res < 0) {
 		avcodec_free_context(&ctx);
@@ -290,7 +291,7 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 		return nullptr;
 	}
 
-	auto swr_ctx = swr_alloc_set_opts(nullptr, ctxp->channels > 1 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_S16, 44100,
+	auto swr_ctx = swr_alloc_set_opts(nullptr, ctxp->channels > 1 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_S16, ctxp->sample_rate,
 		ctxp->channel_layout ? ctxp->channel_layout : (ctxp->channels > 1 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO), static_cast<AVSampleFormat>(ctxp->format), ctxp->sample_rate, 0, nullptr);
 	if (!swr_ctx) {
 		fprintf(stderr, "Could not allocate resampler context\n");
@@ -334,15 +335,16 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 	{
 		std::vector<uint8_t> bufferdata;
 		int packetcnt = 0;
-		while (packetcnt < 6)
+		while (packetcnt < 3)
 		{
-			int res_read_freame = av_read_frame(sound->container, &packet);
-			if (res_read_freame < 0)
+			int res_read_frame = av_read_frame(sound->container, &packet);
+			if (res_read_frame < 0)
 			{
 				av_packet_unref(&packet);
 				break;
 			}
-			if (packet.stream_index == sound->stream_id) {
+			if (packet.stream_index == sound->stream_id) 
+			{
 				int len = avcodec_send_packet(sound->codec, &packet);
 				int frameFinished = avcodec_receive_frame(sound->codec, frame);
 				if (frameFinished == 0)
@@ -350,9 +352,9 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 					uint8_t *output;
 					if (sound->swr_ctx != nullptr)
 					{
-						av_samples_alloc(&output, nullptr, sound->codec->channels>1 ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
-						int bufferSize = av_samples_get_buffer_size(NULL, sound->codec->channels>1 ? 2 : 1, frame->nb_samples,
-							AV_SAMPLE_FMT_S16, 0);
+						int bufferSize = av_samples_alloc(&output, nullptr, sound->codec->channels > 1 ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
+						//int bufferSize = av_samples_get_buffer_size(NULL, sound->codec->channels>1 ? 2 : 1, frame->nb_samples,
+							//AV_SAMPLE_FMT_S16, 0);
 						auto out_samples = swr_convert(sound->swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(frame->extended_data), frame->nb_samples);
 						bufferdata.insert(bufferdata.end(), output, output + (bufferSize));
 						av_freep(&output);
@@ -370,7 +372,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 		if (packetcnt > 0) {
 			ALuint g_buffer;
 			alGenBuffers(1, &g_buffer);
-			alBufferData(g_buffer, sound->codec->channels>1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), 44100);
+			alBufferData(g_buffer, sound->codec->channels>1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), sound->codec->sample_rate);
 			sound->buffers.push_back(g_buffer);
 		}
 		else

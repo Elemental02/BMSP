@@ -168,7 +168,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 	auto& nodes = bmsPlayer.getUpdated();
 	for (auto& node : nodes)
 	{
-		if (node.first != 1)
+		if (node.first != 1 && node.first < BMS::CH::P1)
 			continue;
 		SoundPlay(node.second.value);
 	}

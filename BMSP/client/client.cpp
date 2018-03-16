@@ -154,7 +154,8 @@ int main(void)
 
 	InputManager::Instance()->Init(window);
 	
-	av_register_all();
+	//av_register_all();
+	//avcodec_register_all();
 	sfx::sfxGlobal::Instance();
 
 	GLuint VertexArrayID;

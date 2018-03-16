@@ -23,17 +23,15 @@ EXPORTS
     av_buffersrc_parameters_alloc
     av_buffersrc_parameters_set
     av_buffersrc_write_frame
-    av_filter_ffversion DATA
-    av_filter_next
+    av_filter_ffversion
     avfilter_add_matrix
-    avfilter_all_channel_layouts DATA
+    avfilter_all_channel_layouts
     avfilter_config_links
     avfilter_configuration
     avfilter_free
     avfilter_get_by_name
     avfilter_get_class
     avfilter_get_matrix
-    avfilter_graph_add_filter
     avfilter_graph_alloc
     avfilter_graph_alloc_filter
     avfilter_graph_config
@@ -49,7 +47,6 @@ EXPORTS
     avfilter_graph_send_command
     avfilter_graph_set_auto_convert
     avfilter_init_dict
-    avfilter_init_filter
     avfilter_init_str
     avfilter_inout_alloc
     avfilter_inout_free
@@ -62,7 +59,6 @@ EXPORTS
     avfilter_make_format64_list
     avfilter_mul_matrix
     avfilter_next
-    avfilter_open
     avfilter_pad_count
     avfilter_pad_get_name
     avfilter_pad_get_type
@@ -71,5 +67,4 @@ EXPORTS
     avfilter_register_all
     avfilter_sub_matrix
     avfilter_transform
-    avfilter_uninit
     avfilter_version
