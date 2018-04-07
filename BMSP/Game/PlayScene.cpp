@@ -141,8 +141,6 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		auto state = InputManager::Instance()->getKeyState(i);
 		if (state == KeyState::State_Press)
 		{
-			if (lane_info[i].sound_value != -1)
-				SoundPlay(lane_info[i].sound_value);
 			if (lane_info[i].closest_node != nullptr && lane_info[i].closest_node->node != nullptr)
 			{
 				auto judge = std::abs(bmsPlayer.getCurrentTime().count() - lane_info[i].closest_node->node->a_time.count());
@@ -150,7 +148,10 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 				{
 					lane_info[i].closest_node->node = nullptr;
 				}
+				SoundPlay(lane_info[i].sound_value);
 			}
+			else if (lane_info[i].sound_value != -1)
+				SoundPlay(lane_info[i].sound_value);
 		}
 		lane_info[i].closest_node = nullptr;
 	}
@@ -168,7 +169,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 	auto& nodes = bmsPlayer.getUpdated();
 	for (auto& node : nodes)
 	{
-		if (node.first != 1 && node.first < BMS::CH::P1)
+		if (node.first != 1)
 			continue;
 		SoundPlay(node.second.value);
 	}

@@ -33,11 +33,11 @@ public:
 		int val = 0;
 		while (*value != 0)
 		{
-			val *= 64;
+			val *= 36;
 			if (*value >= 'a' && *value <= 'z')
 				val += *value - 'a' + 10;
 			else if (*value >= 'A' && *value <= 'Z')
-				val += *value - 'A' + 10 + 'z' - 'a';
+				val += *value - 'A' + 10;
 			else
 				val += *value - '0';
 			value += 1;
