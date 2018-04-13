@@ -18,6 +18,9 @@ namespace gfx
 			return *sprite;
 		}
 
+		virtual ~gfxSprite();
+		virtual void Render();
+
 		inline void setColor(glm::vec4 color)
 		{
 			this->color = color;
@@ -26,8 +29,5 @@ namespace gfx
 		{
 			return color;
 		}
-
-		virtual ~gfxSprite();
-		virtual void Render();
 	};
 };

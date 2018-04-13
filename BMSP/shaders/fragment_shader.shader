@@ -5,5 +5,6 @@ out vec4 color;
 uniform sampler2D TextureSampler;
 void main(){
 	color = texture(TextureSampler, texCoord).rgba;
-	color = color * fragmentColor;
+	//color = vec4(1, 1, 1, color.r);
+	color = color *fragmentColor;
 }

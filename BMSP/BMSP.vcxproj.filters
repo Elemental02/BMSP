@@ -105,6 +105,15 @@
     <ClInclude Include="managers\InputManager.h">
       <Filter>헤더 파일\managers</Filter>
     </ClInclude>
+    <ClInclude Include="gfx\gfxFont.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxString.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\testScene.h">
+      <Filter>헤더 파일\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -155,12 +164,24 @@
     <ClCompile Include="managers\InputManager.cpp">
       <Filter>소스 파일\managers</Filter>
     </ClCompile>
+    <ClCompile Include="gfx\gfxFont.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxString.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\testScene.cpp">
+      <Filter>소스 파일\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex_shader.shader">
       <Filter>shaders</Filter>
     </None>
     <None Include="shaders\fragment_shader.shader">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\font_fragment_shader.shader">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

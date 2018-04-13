@@ -86,7 +86,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
@@ -135,11 +135,14 @@
     <ClInclude Include="BMS\BMSPlayer.h" />
     <ClInclude Include="common\Singleton.h" />
     <ClInclude Include="Game\PlayScene.h" />
+    <ClInclude Include="Game\testScene.h" />
+    <ClInclude Include="gfx\gfxFont.h" />
     <ClInclude Include="gfx\gfxGlobal.h" />
     <ClInclude Include="gfx\gfxObject.h" />
     <ClInclude Include="gfx\gfxPanel.h" />
     <ClInclude Include="gfx\gfxScene.h" />
     <ClInclude Include="gfx\gfxSprite.h" />
+    <ClInclude Include="gfx\gfxString.h" />
     <ClInclude Include="managers\InputManager.h" />
     <ClInclude Include="managers\ResourceManager.h" />
     <ClInclude Include="sfx\sfxGlobal.h" />
@@ -157,17 +160,21 @@
     <ClCompile Include="client\client.cpp" />
     <ClCompile Include="client\impl\winmain.cpp" />
     <ClCompile Include="Game\PlayScene.cpp" />
+    <ClCompile Include="Game\testScene.cpp" />
+    <ClCompile Include="gfx\gfxFont.cpp" />
     <ClCompile Include="gfx\gfxGlobal.cpp" />
     <ClCompile Include="gfx\gfxObject.cpp" />
     <ClCompile Include="gfx\gfxPanel.cpp" />
     <ClCompile Include="gfx\gfxScene.cpp" />
     <ClCompile Include="gfx\gfxSprite.cpp" />
+    <ClCompile Include="gfx\gfxString.cpp" />
     <ClCompile Include="managers\InputManager.cpp" />
     <ClCompile Include="managers\ResourceManager.cpp" />
     <ClCompile Include="sfx\sfxGlobal.cpp" />
     <ClCompile Include="sfx\sfxSound.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\font_fragment_shader.shader" />
     <None Include="shaders\fragment_shader.shader" />
     <None Include="shaders\vertex_shader.shader" />
   </ItemGroup>

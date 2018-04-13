@@ -1,6 +1,8 @@
 #include "../stdafx.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "ResourceManager.h"
 
@@ -216,29 +218,15 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 	if (sprites.find(path) != sprites.end())
 		return sprites[path];
 
-	unsigned int height, width, textureId;
-	textureId = loadSprite_ffmpeg(path.c_str(), height, width);
-	if (textureId == 0)
+	unsigned int height, width, texture_id;
+	texture_id = loadSprite_ffmpeg(path.c_str(), height, width);
+	if (texture_id == 0)
 		return nullptr;
 
 	std::shared_ptr<Sprite> res = std::shared_ptr<Sprite>(new Sprite);
-	res->textureId = textureId;
-
-	res->vertex[0] = glm::vec3(0.0f, 0.0f, 0.0f);
-	res->vertex[1] = glm::vec3(0.0f, height, 0.0f);
-	res->vertex[2] = glm::vec3(width, 0.0f, 0.0f);
-
-	res->vertex[3] = glm::vec3(0.0f, height, 0.0f);
-	res->vertex[4] = glm::vec3(width, height, 0.0f);
-	res->vertex[5] = glm::vec3(width, 0.0f, 0.0f);
-
-	res->uv[0] = glm::vec2(0.0f, 0.0f);
-	res->uv[1] = glm::vec2(0.0f, 1.0f);
-	res->uv[2] = glm::vec2(1.0f, 0.0f);
-
-	res->uv[3] = glm::vec2(0.0f, 1.0f);
-	res->uv[4] = glm::vec2(1.0f, 1.0f);
-	res->uv[5] = glm::vec2(1.0f, 0.0f);
+	res->texture_id = texture_id;
+	res->size = glm::vec2(width, height);
+	res->texture_rect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 
 	sprites[path] = res;
 	return res;
@@ -387,7 +375,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 
 Sprite::~Sprite()
 {
-	glDeleteTextures(1, &textureId);
+	glDeleteTextures(1, &texture_id);
 }
 
 Sound::Sound() :codec(nullptr), container(nullptr), is_load_complete(false), stream_id(-1)

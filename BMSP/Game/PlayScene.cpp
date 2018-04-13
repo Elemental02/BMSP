@@ -128,7 +128,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		double ypos = sprite_node.node->position - curr_progress;
 		lane_info[sprite_node.lane_index].closest_node = (lane_info[sprite_node.lane_index].closest_node==nullptr)|| (lane_info[sprite_node.lane_index].closest_node->node == nullptr) || (abs(ypos) < abs(lane_info[sprite_node.lane_index].closest_node->node->position - curr_progress)) ? &(sprite_node) : lane_info[sprite_node.lane_index].closest_node;
 		lane_info[sprite_node.lane_index].sound_value = lane_info[sprite_node.lane_index].closest_node->node->value;
-		pos.y = 465.0f - (ypos) * 550.0f;
+		pos.y = 465.0 - (ypos) * 550.0;
 		sprite_node.sprite->setPosition(pos);
 		if (ypos < -1.0f)
 		{

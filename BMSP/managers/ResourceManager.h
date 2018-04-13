@@ -1,10 +1,9 @@
 #pragma once
 struct Sprite
 {
-	std::array<glm::vec3, 6> vertex;
-	std::array<glm::vec2, 6> uv;
-	glm::uint textureId = 0;
-
+	glm::uint texture_id = 0;
+	glm::vec2 size;
+	glm::vec4 texture_rect;
 	~Sprite();
 };
 

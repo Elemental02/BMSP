@@ -7,11 +7,17 @@ namespace gfx
 	private:
 		struct renderlistGroup
 		{
-			std::vector<glm::vec3> vertex;
-			std::vector<glm::vec2> uv;
 			std::vector<glm::vec4> color;
+			std::vector<glm::vec2> size;
+			std::vector<glm::vec4> uv_rect;
 			std::vector<glm::mat4> matrix;
 			std::list<gfxSprite*> sprites;
+
+			int buffersize = 0;
+			GLuint colorbuffer = 0;
+			GLuint sizebuffer = 0;
+			GLuint uvbuffer = 0;
+			GLuint matrixbuffer = 0;
 		};
 		std::map<GLuint, renderlistGroup> renderlist;
 

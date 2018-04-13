@@ -24,6 +24,9 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
