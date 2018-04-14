@@ -13,6 +13,10 @@ void InputManager::Init(GLFWwindow * window)
 	keys_to_update.push_back(GLFW_KEY_K);
 	keys_to_update.push_back(GLFW_KEY_L);
 	keys_to_update.push_back(GLFW_KEY_SEMICOLON);
+	keys_to_update.push_back(GLFW_KEY_UP);
+	keys_to_update.push_back(GLFW_KEY_DOWN);
+	keys_to_update.push_back(GLFW_KEY_ENTER);
+	keys_to_update.push_back(GLFW_KEY_TAB);
 }
 
 void InputManager::Update()

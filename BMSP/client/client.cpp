@@ -5,18 +5,16 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include "../managers/ResourceManager.h"
-#include "../managers/InputManager.h"
+#include "../managers/GlobalManager.h"
 
-#include "../gfx/gfxGlobal.h"
 #include "../gfx/gfxSprite.h"
 #include "../gfx/gfxPanel.h"
 
-#include "../sfx/sfxGlobal.h"
 #include "../sfx/sfxSound.h"
 
 #include "../Game/PlayScene.h"
 #include "../Game/TestScene.h"
+#include "../Game/ListScene.h"
 
 GLFWwindow* window;
 
@@ -56,29 +54,29 @@ int main(void)
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-	gfxGlobal::Instance()->LoadShaders("sprite", "shaders/vertex_shader.shader", "shaders/fragment_shader.shader");
-	gfxGlobal::Instance()->LoadShaders("font", "shaders/vertex_shader.shader", "shaders/font_fragment_shader.shader");
+	IgfxGlobal->LoadShaders("sprite", "shaders/vertex_shader.shader", "shaders/fragment_shader.shader");
+	IgfxGlobal->LoadShaders("font", "shaders/vertex_shader.shader", "shaders/font_fragment_shader.shader");
 
-	InputManager::Instance()->Init(window);
+	IInputManager->Init(window);
 
-	sfx::sfxGlobal::Instance();
+	//sfx::sfxGlobal::Instance();
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	gfxGlobal::Instance()->initGlobalArrayBuffer();
+	IgfxGlobal->initGlobalArrayBuffer();
 
 	glm::mat4 Ortho = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f);
-	gfxGlobal::Instance()->setGlobalMatrix(Ortho);
+	IgfxGlobal->setGlobalMatrix(Ortho);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	PlayScene scene;
-	TestScene testScene;
-	scene.Init();
-	testScene.Init();
+	//TestScene testScene;
+	ListScene listScene;
+	listScene.Init();
+	//testScene.Init();
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	auto prev_time = std::chrono::system_clock::now();
 	int fps = 60;
@@ -88,11 +86,13 @@ int main(void)
 		std::chrono::milliseconds delta(std::chrono::duration_cast<std::chrono::milliseconds>(diff));
 		prev_time = curr_time;
 
-		InputManager::Instance()->Update();
-		scene.Update(delta);
+		IInputManager->Update();
+		//scene.Update(delta);
+		listScene.Update(delta);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		scene.Render();
+		//scene.Render();
+		listScene.Render();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		
@@ -104,7 +104,7 @@ int main(void)
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
 
-	sfx::sfxGlobal::Instance()->quit();
+	IsfxGlobal->quit();
 	return 0;
 }
 

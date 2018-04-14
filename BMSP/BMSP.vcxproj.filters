@@ -114,6 +114,12 @@
     <ClInclude Include="Game\testScene.h">
       <Filter>헤더 파일\Game</Filter>
     </ClInclude>
+    <ClInclude Include="Game\ListScene.h">
+      <Filter>헤더 파일\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="managers\GlobalManager.h">
+      <Filter>헤더 파일\managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -172,6 +178,12 @@
     </ClCompile>
     <ClCompile Include="Game\testScene.cpp">
       <Filter>소스 파일\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\ListScene.cpp">
+      <Filter>소스 파일\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="managers\GlobalManager.cpp">
+      <Filter>소스 파일\managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

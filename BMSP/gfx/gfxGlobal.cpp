@@ -3,7 +3,7 @@
 
 #include "gfxGlobal.h"
 
-gfxGlobal::~gfxGlobal()
+gfx::gfxGlobal::~gfxGlobal()
 {
 	for (auto programs : shader_map)
 	{
@@ -13,7 +13,21 @@ gfxGlobal::~gfxGlobal()
 		FT_Done_FreeType(ft_lib);
 }
 
-void gfxGlobal::initGlobalArrayBuffer()
+void gfx::gfxGlobal::setGlobalMatrix(const glm::mat4 & matrix)
+{
+	GlobalMatrix = matrix;
+}
+
+void gfx::gfxGlobal::setUniformMatrix(const glm::mat4 & matrix)
+{
+	int ProgramID;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &ProgramID);
+	GLuint MatrixID = glGetUniformLocation(ProgramID, "GlobalUniform");
+	glm::mat4 uniform = GlobalMatrix * matrix;
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &uniform[0][0]);
+}
+
+void gfx::gfxGlobal::initGlobalArrayBuffer()
 {
 	if (!VertexArrayBuffer)
 	{
@@ -70,42 +84,42 @@ void gfxGlobal::initGlobalArrayBuffer()
 	}
 }
 
-GLuint gfxGlobal::getGlobalVertexArrayBuffer()
+GLuint gfx::gfxGlobal::getGlobalVertexArrayBuffer()
 {
 	return VertexArrayBuffer;
 }
 
-GLuint gfxGlobal::getGlobalUVArrayBuffer()
+GLuint gfx::gfxGlobal::getGlobalUVArrayBuffer()
 {
 	return UVArrayBuffer;
 }
 
-GLuint gfxGlobal::getGlobalColorArrayBuffer()
+GLuint gfx::gfxGlobal::getGlobalColorArrayBuffer()
 {
 	return ColorArrayBuffer;
 }
 
-GLuint gfxGlobal::getGlobalMatrixArrayBuffer()
+GLuint gfx::gfxGlobal::getGlobalMatrixArrayBuffer()
 {
 	return MatrixArrayBuffer;
 }
 
-GLuint gfxGlobal::getGlobalSizeArrayBuffer()
+GLuint gfx::gfxGlobal::getGlobalSizeArrayBuffer()
 {
 	return SizeArrayBuffer;
 }
 
-GLuint gfxGlobal::getGlobalTexPosArrayBuffer()
+GLuint gfx::gfxGlobal::getGlobalTexPosArrayBuffer()
 {
 	return TexPositionArrayBuffer;
 }
 
-GLuint gfxGlobal::getGlobalTextureSamplerId()
+GLuint gfx::gfxGlobal::getGlobalTextureSamplerId()
 {
 	return TextureSamplerId;
 }
 
-FT_Library gfxGlobal::getFreeTypeLib()
+FT_Library gfx::gfxGlobal::getFreeTypeLib()
 {
 	if (ft_lib == nullptr)
 	{
@@ -114,7 +128,7 @@ FT_Library gfxGlobal::getFreeTypeLib()
 	return ft_lib;
 }
 
-GLuint gfxGlobal::LoadShaders(const std::string& shader_name, char * vertex_file_path, const char * fragment_file_path)
+GLuint gfx::gfxGlobal::LoadShaders(const std::string& shader_name, char * vertex_file_path, const char * fragment_file_path)
 {
 	if (shader_map.find(shader_name) != shader_map.end())
 		return 0;
@@ -183,8 +197,6 @@ GLuint gfxGlobal::LoadShaders(const std::string& shader_name, char * vertex_file
 		printf("%s\n", &FragmentShaderErrorMessage[0]);
 	}
 
-
-
 	// Link the program
 	printf("Linking program\n");
 	GLuint ProgramID = glCreateProgram();
@@ -212,15 +224,15 @@ GLuint gfxGlobal::LoadShaders(const std::string& shader_name, char * vertex_file
 	return ProgramID;
 }
 
-GLuint gfxGlobal::UseShaders(const std::string & shader_name)
+GLuint gfx::gfxGlobal::UseShaders(const std::string & shader_name)
 {
 	if (shader_map.find(shader_name) == shader_map.end())
 		return 0;
 	auto ProgramID = shader_map[shader_name];
 	glUseProgram(ProgramID);
 
-	TextureSamplerId = glGetUniformLocation(ProgramID, "myTextureSampler"); // glGetUniformLocation(ProgramID,"");
-	GLuint MatrixID = glGetUniformLocation(ProgramID, "MVP");
+	TextureSamplerId = glGetUniformLocation(ProgramID, "myTextureSampler");
+	GLuint MatrixID = glGetUniformLocation(ProgramID, "GlobalUniform");
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &GlobalMatrix[0][0]);
 
 	return ProgramID;

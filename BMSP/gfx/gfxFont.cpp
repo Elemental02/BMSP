@@ -1,6 +1,6 @@
 #include "../stdafx.h"
 #include "gfxFont.h"
-#include "gfxGlobal.h"
+#include "../managers/GlobalManager.h"
 
 gfx::gfxFont::gfxFont()
 {
@@ -14,7 +14,7 @@ gfx::gfxFont::~gfxFont()
 
 void gfx::gfxFont::LoadFont(std::string font)
 {
-	auto ft = gfxGlobal::Instance()->getFreeTypeLib();
+	auto ft = IgfxGlobal->getFreeTypeLib();
 	FT_New_Face(ft, font.c_str(), 0, &face);
 
 }

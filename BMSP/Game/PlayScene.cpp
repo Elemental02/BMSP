@@ -1,6 +1,5 @@
 #include "../stdafx.h"
-#include "../managers/ResourceManager.h"
-#include "../managers/InputManager.h"
+#include "../managers/GlobalManager.h"
 #include "../sfx/sfxSound.h"
 #include "PlayScene.h"
 #include "../BMS/BMSParser.h"
@@ -138,7 +137,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 	
 	for (int i = 0; i < 8; i++)
 	{
-		auto state = InputManager::Instance()->getKeyState(i);
+		auto state = IInputManager->getKeyState(i);
 		if (state == KeyState::State_Press)
 		{
 			if (lane_info[i].closest_node != nullptr && lane_info[i].closest_node->node != nullptr)
@@ -192,7 +191,7 @@ void PlayScene::Init()
 	{
 		auto dir = path.parent_path();
 		auto wav_filename = dir.append(wav.second);
-		sounds[wav.first] = ResourceManager::Instance()->LoadSound(wav_filename.string());
+		sounds[wav.first] = IResourceManager->LoadSound(wav_filename.string());
 	}
 
 	for (int i = 0; i < 8; i++)
@@ -209,6 +208,6 @@ void PlayScene::Init()
 	lane_info[7].lane_value = BMS::CH::P1+8;
 
 	skinSprite = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	skinSprite->setSprite(ResourceManager::Instance()->LoadSprite("resource/ui/skin.png"));
-	nodeSprite = ResourceManager::Instance()->LoadSprite("resource/ui/note.png");
+	skinSprite->setSprite(IResourceManager->LoadSprite("resource/ui/skin.png"));
+	nodeSprite = IResourceManager->LoadSprite("resource/ui/note.png");
 }

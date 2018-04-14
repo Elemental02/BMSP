@@ -3,14 +3,17 @@
 #include "../managers/ResourceManager.h"
 #include "gfxPanel.h"
 
-#include "gfxGlobal.h"
+#include "../managers/GlobalManager.h"
 
 void gfx::gfxPanel::Render()
 {
-	gfxGlobal::Instance()->UseShaders("sprite");
-	GLuint vertexbuffer = gfxGlobal::Instance()->getGlobalVertexArrayBuffer();
-	GLuint uvbuffer = gfxGlobal::Instance()->getGlobalUVArrayBuffer();
-	GLuint samplerId = gfxGlobal::Instance()->getGlobalTextureSamplerId();
+	IgfxGlobal->UseShaders("sprite");
+	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();
+	GLuint uvbuffer = IgfxGlobal->getGlobalUVArrayBuffer();
+	GLuint samplerId = IgfxGlobal->getGlobalTextureSamplerId();
+
+	glm::mat4 panelTransform = this->getTransform();
+	IgfxGlobal->setUniformMatrix(panelTransform);
 
 	for (auto& group : renderlist)
 	{
@@ -59,8 +62,6 @@ void gfx::gfxPanel::Render()
 
 		glUniform1i(samplerId, 0);
 
-		glm::mat4 panelTransform = this->getTransform();
-
 		int color_count = 0;
 		for (auto& sprite : group.second.sprites)
 		{			
@@ -68,7 +69,7 @@ void gfx::gfxPanel::Render()
 			group.second.size[color_count] = sprite->getSprite().size;
 			group.second.uv_rect[color_count] = sprite->getSprite().texture_rect;
 
-			group.second.matrix[color_count] = panelTransform * sprite->getTransform();
+			group.second.matrix[color_count] = sprite->getTransform();
 			color_count++;
 		}
 

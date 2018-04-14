@@ -1,6 +1,6 @@
 #include "../stdafx.h"
 
-#include "../managers/ResourceManager.h"
+#include "../managers/GlobalManager.h"
 #include "sfxSound.h"
 
 void sfx::sfxSound::setSource()
@@ -8,9 +8,9 @@ void sfx::sfxSound::setSource()
 	if (sourceId != 0)
 	{
 		Stop();
-		sfxGlobal::Instance()->ReleaseSource(sourceId);
+		IsfxGlobal->ReleaseSource(sourceId);
 	}
-	sourceId = sfxGlobal::Instance()->TryGetSource();
+	sourceId = IsfxGlobal->TryGetSource();
 }
 
 sfx::sfxSound::~sfxSound()
@@ -18,7 +18,7 @@ sfx::sfxSound::~sfxSound()
 	if (sourceId != 0)
 	{
 		Stop();
-		sfxGlobal::Instance()->ReleaseSource(sourceId);
+		IsfxGlobal->ReleaseSource(sourceId);
 	}
 	sound.reset();
 }
@@ -45,7 +45,7 @@ void sfx::sfxSound::Play()
 	if (!sound->is_load_complete)
 	{
 		std::shared_ptr<sfxObject> streaming_obj(new StreamingObj(this));
-		sfxGlobal::Instance()->ApplyStreamingObject(streaming_obj);
+		IsfxGlobal->ApplyStreamingObject(streaming_obj);
 	}
 }
 
@@ -71,7 +71,7 @@ bool sfx::sfxSound::Update()
 		return false;
 	if (sound->is_load_complete)
 	{
-		//sfxGlobal::Instance();
+		//IsfxGlobal;
 		return false;
 	}
 	int curr_state = 0;
@@ -83,7 +83,7 @@ bool sfx::sfxSound::Update()
 		alGetSourcei(sourceId, AL_BUFFERS_QUEUED, &queued);
 		if (queued - processed < 5)
 		{
-			ResourceManager::Instance()->LoadSoundFrame(sound);
+			IResourceManager->LoadSoundFrame(sound);
 			alSourceQueueBuffers(sourceId, sound->buffers.size() - queued, sound->buffers.data() + queued);
 			assert(alGetError() == AL_NO_ERROR && "alsourcequeuebuffer");
 		}

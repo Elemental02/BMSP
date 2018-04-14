@@ -134,6 +134,7 @@
     <ClInclude Include="BMS\BMSParser.h" />
     <ClInclude Include="BMS\BMSPlayer.h" />
     <ClInclude Include="common\Singleton.h" />
+    <ClInclude Include="Game\ListScene.h" />
     <ClInclude Include="Game\PlayScene.h" />
     <ClInclude Include="Game\testScene.h" />
     <ClInclude Include="gfx\gfxFont.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="gfx\gfxScene.h" />
     <ClInclude Include="gfx\gfxSprite.h" />
     <ClInclude Include="gfx\gfxString.h" />
+    <ClInclude Include="managers\GlobalManager.h" />
     <ClInclude Include="managers\InputManager.h" />
     <ClInclude Include="managers\ResourceManager.h" />
     <ClInclude Include="sfx\sfxGlobal.h" />
@@ -159,6 +161,7 @@
     <ClCompile Include="BMS\BMSPlayer.cpp" />
     <ClCompile Include="client\client.cpp" />
     <ClCompile Include="client\impl\winmain.cpp" />
+    <ClCompile Include="Game\ListScene.cpp" />
     <ClCompile Include="Game\PlayScene.cpp" />
     <ClCompile Include="Game\testScene.cpp" />
     <ClCompile Include="gfx\gfxFont.cpp" />
@@ -168,6 +171,7 @@
     <ClCompile Include="gfx\gfxScene.cpp" />
     <ClCompile Include="gfx\gfxSprite.cpp" />
     <ClCompile Include="gfx\gfxString.cpp" />
+    <ClCompile Include="managers\GlobalManager.cpp" />
     <ClCompile Include="managers\InputManager.cpp" />
     <ClCompile Include="managers\ResourceManager.cpp" />
     <ClCompile Include="sfx\sfxGlobal.cpp" />

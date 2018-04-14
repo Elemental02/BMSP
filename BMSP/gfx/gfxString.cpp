@@ -1,5 +1,5 @@
 #include "../stdafx.h"
-#include "gfxGlobal.h"
+#include "../managers/GlobalManager.h"
 #include "gfxString.h"
 
 void gfx::gfxString::RenderString()
@@ -88,12 +88,14 @@ void gfx::gfxString::Render()
 	{
 		RenderString();
 	}
-	gfxGlobal::Instance()->UseShaders("font");
+	IgfxGlobal->UseShaders("font");
 
-	GLuint vertexbuffer = gfxGlobal::Instance()->getGlobalVertexArrayBuffer();
-	GLuint colorbuffer = gfxGlobal::Instance()->getGlobalColorArrayBuffer();
-	GLuint uvbuffer = gfxGlobal::Instance()->getGlobalUVArrayBuffer();
-	GLuint samplerId = gfxGlobal::Instance()->getGlobalTextureSamplerId();
+	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();
+	GLuint colorbuffer = IgfxGlobal->getGlobalColorArrayBuffer();
+	GLuint uvbuffer = IgfxGlobal->getGlobalUVArrayBuffer();
+	GLuint samplerId = IgfxGlobal->getGlobalTextureSamplerId();
+
+	IgfxGlobal->setUniformMatrix(getTransform());
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture_id);

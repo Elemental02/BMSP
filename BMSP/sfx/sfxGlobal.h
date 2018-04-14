@@ -18,16 +18,10 @@ namespace sfx
 		bool quit_loop;
 		std::thread sfx_loop_thread;
 		void sfx_loop();
-		sfxGlobal();
 	public:
+		sfxGlobal();
 		~sfxGlobal();
-		static sfxGlobal* Instance()
-		{
-			static sfxGlobal* instance = nullptr;
-			if (instance == nullptr)
-				instance = new sfxGlobal();
-			return instance;
-		}
+
 		void quit();
 
 		ALuint TryGetSource();

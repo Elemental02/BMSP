@@ -4,7 +4,7 @@
 #include "../managers/ResourceManager.h"
 #include "gfxSprite.h"
 
-#include "gfxGlobal.h"
+#include "../managers/GlobalManager.h"
 
 gfx::gfxSprite::gfxSprite()
 {
@@ -21,16 +21,18 @@ gfx::gfxSprite::~gfxSprite()
 
 void gfx::gfxSprite::Render()
 {
-	gfxGlobal::Instance()->UseShaders("sprite");
+	IgfxGlobal->UseShaders("sprite");
 	auto transform = getTransform();
 
-	GLuint vertexbuffer = gfxGlobal::Instance()->getGlobalVertexArrayBuffer();
-	GLuint colorbuffer = gfxGlobal::Instance()->getGlobalColorArrayBuffer();
-	GLuint uvbuffer = gfxGlobal::Instance()->getGlobalUVArrayBuffer();
-	GLuint transformBuffer = gfxGlobal::Instance()->getGlobalMatrixArrayBuffer();
-	GLuint sizebuffer = gfxGlobal::Instance()->getGlobalSizeArrayBuffer();
-	GLuint texturerectbuffer = gfxGlobal::Instance()->getGlobalTexPosArrayBuffer();
-	GLuint samplerId = gfxGlobal::Instance()->getGlobalTextureSamplerId();
+	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();
+	GLuint colorbuffer = IgfxGlobal->getGlobalColorArrayBuffer();
+	GLuint uvbuffer = IgfxGlobal->getGlobalUVArrayBuffer();
+	GLuint transformBuffer = IgfxGlobal->getGlobalMatrixArrayBuffer();
+	GLuint sizebuffer = IgfxGlobal->getGlobalSizeArrayBuffer();
+	GLuint texturerectbuffer = IgfxGlobal->getGlobalTexPosArrayBuffer();
+	GLuint samplerId = IgfxGlobal->getGlobalTextureSamplerId();
+
+	IgfxGlobal->setUniformMatrix(glm::mat4());
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, sprite->texture_id);

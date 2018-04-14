@@ -1,5 +1,5 @@
 #include "../stdafx.h"
-#include "../managers/ResourceManager.h"
+#include "../managers/GlobalManager.h"
 #include "../gfx/gfxString.h"
 #include "../gfx/gfxSprite.h"
 #include "testScene.h"
@@ -41,6 +41,6 @@ void TestScene::Init()
 	}
 	
 	sprites.push_back(std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite));
-	auto sprite = ResourceManager::Instance()->LoadSprite("resource/action1_01.bmp");
+	auto sprite = IResourceManager->LoadSprite("resource/action1_01.bmp");
 	sprites[0]->setSprite(sprite);
 }
