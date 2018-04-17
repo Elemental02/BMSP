@@ -20,11 +20,33 @@ private:
 	
 	gfx::gfxString str_list_corsor;
 
+	struct mutex_string
+	{
+		std::mutex mutex;
+		std::string string;
+
+		void setString(std::string str)
+		{
+			std::lock_guard<std::mutex> lock(mutex);
+			string = str;
+		}
+
+		std::string getString()
+		{
+			std::lock_guard<std::mutex> lock(mutex);
+			std::string res = string;
+			return res;
+		}
+	};
+
+	std::future<int> init_future;
+	mutex_string init_string;
+
 public:
 	ListScene();
 	virtual ~ListScene();
 	virtual void Update(std::chrono::milliseconds delta);
 	virtual void Render();
 
-	void Init();
+	virtual void Init();
 };

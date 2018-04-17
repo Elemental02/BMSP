@@ -74,8 +74,11 @@ int main(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//TestScene testScene;
-	ListScene listScene;
-	listScene.Init();
+	//PlayScene scene;
+	//ListScene listScene;
+	//listScene.Init();
+	IGlobalManager->Push_Scene(std::shared_ptr<gfx::gfxScene>(new ListScene));
+	//scene.Init();
 	//testScene.Init();
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	auto prev_time = std::chrono::system_clock::now();
@@ -88,11 +91,11 @@ int main(void)
 
 		IInputManager->Update();
 		//scene.Update(delta);
-		listScene.Update(delta);
+		IGlobalManager->Update(delta);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//scene.Render();
-		listScene.Render();
+		IGlobalManager->Render();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		

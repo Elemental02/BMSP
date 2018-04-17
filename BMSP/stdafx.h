@@ -10,6 +10,7 @@
 #include <set>
 #include <memory>
 #include <thread>
+#include <future>
 #include <mutex>
 #include <filesystem>
 

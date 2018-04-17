@@ -13,5 +13,5 @@ public:
 	virtual void Update(std::chrono::milliseconds delta);
 	virtual void Render();
 
-	void Init();
+	virtual void Init();
 };

@@ -4,6 +4,8 @@
 #include "../gfx/gfxGlobal.h"
 #include "../sfx/sfxGlobal.h"
 
+#include "../gfx/gfxScene.h"
+
 class GlobalManager
 {
 private:
@@ -12,6 +14,8 @@ private:
 	std::shared_ptr<InputManager> inputManager;
 	std::shared_ptr<gfx::gfxGlobal> gfxManager;
 	std::shared_ptr<sfx::sfxGlobal> sfxManager;
+
+	std::list<std::shared_ptr<gfx::gfxScene>> scene_stack;
 
 public:
 	static GlobalManager* Instance()
@@ -41,8 +45,14 @@ public:
 	{
 		return sfxManager;
 	}
+
+	void Pop_Scene();
+	void Push_Scene(std::shared_ptr<gfx::gfxScene> scene);
+	void Update(std::chrono::milliseconds delta);
+	void Render();
 };
 
+#define IGlobalManager (GlobalManager::Instance())
 #define IResourceManager (GlobalManager::Instance()->getResourceManager())
 #define IInputManager (GlobalManager::Instance()->getInputManager())
 #define IgfxGlobal (GlobalManager::Instance()->getGfxManager())
