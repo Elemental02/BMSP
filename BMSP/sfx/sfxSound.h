@@ -8,11 +8,14 @@ namespace sfx
 	private:
 		class StreamingObj : public sfxObject
 		{
+			std::mutex mutex;
 			sfxSound * soundObj;
 		public:
 			StreamingObj(sfxSound* sound);
 			virtual bool Update();
+			void reset();
 		};
+		std::shared_ptr<StreamingObj> streaming_obj;
 		std::shared_ptr<Sound> sound;
 		ALuint sourceId;
 		void setSource();

@@ -25,14 +25,8 @@ void GlobalManager::Update(std::chrono::milliseconds delta)
 {
 	if (!scene_stack.empty() && scene_stack.back().get() != nullptr)
 	{
-		scene_stack.back()->Update(delta);
-	}
-}
-
-void GlobalManager::Render()
-{
-	if (!scene_stack.empty() && scene_stack.back().get() != nullptr)
-	{
-		scene_stack.back()->Render();
+		auto back = scene_stack.back();
+		back->Update(delta);
+		back->Render();
 	}
 }

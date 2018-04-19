@@ -11,6 +11,7 @@ void sfx::sfxSound::setSource()
 		IsfxGlobal->ReleaseSource(sourceId);
 	}
 	sourceId = IsfxGlobal->TryGetSource();
+	this->sound.reset();
 }
 
 sfx::sfxSound::~sfxSound()
@@ -20,13 +21,13 @@ sfx::sfxSound::~sfxSound()
 		Stop();
 		IsfxGlobal->ReleaseSource(sourceId);
 	}
-	sound.reset();
 }
 
 void sfx::sfxSound::setSound(std::shared_ptr<Sound> sound)
 {
 	if (sourceId == 0 || this->sound != nullptr)
 		setSource();
+	this->sound.reset();
 	this->sound = sound;
 	int queued;
 	alGetSourcei(sourceId, AL_BUFFERS_QUEUED, &queued);
@@ -44,7 +45,9 @@ void sfx::sfxSound::Play()
 	assert(alGetError() == AL_NO_ERROR && "alPlay");
 	if (!sound->is_load_complete)
 	{
-		std::shared_ptr<sfxObject> streaming_obj(new StreamingObj(this));
+		if(streaming_obj)
+			streaming_obj->reset();
+		streaming_obj = std::shared_ptr<StreamingObj>(new StreamingObj(this));
 		IsfxGlobal->ApplyStreamingObject(streaming_obj);
 	}
 }
@@ -61,6 +64,8 @@ void sfx::sfxSound::Stop()
 {
 	if (sourceId == 0)
 		return;
+	if(streaming_obj)
+		streaming_obj->reset();
 	alSourceStop(sourceId);
 	assert(alGetError() == AL_NO_ERROR);
 }
@@ -71,7 +76,6 @@ bool sfx::sfxSound::Update()
 		return false;
 	if (sound->is_load_complete)
 	{
-		//IsfxGlobal;
 		return false;
 	}
 	int curr_state = 0;
@@ -108,7 +112,14 @@ sfx::sfxSound::StreamingObj::StreamingObj(sfxSound * sound) :soundObj(sound)
 
 bool sfx::sfxSound::StreamingObj::Update()
 {
+	std::lock_guard<std::mutex> guard(mutex);
 	if (soundObj != nullptr)
 		return soundObj->Update();
 	return false;
+}
+
+void sfx::sfxSound::StreamingObj::reset()
+{
+	std::lock_guard<std::mutex> guard(mutex);
+	soundObj = nullptr;
 }

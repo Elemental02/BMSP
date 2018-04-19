@@ -2,18 +2,17 @@
 #include "../BMS/BMSPlayer.h"
 #include "../gfx/gfxScene.h"
 #include "../gfx/gfxSprite.h"
+#include "../sfx/sfxSound.h"
 #include "../gfx/gfxPanel.h"
 
 class PlayScene : public gfx::gfxScene
 {
 private:
+	enum SceneState {Loading, Playing, End };
+	SceneState scene_state = Loading;
 	BMSPlayer bmsPlayer;
 	std::map<int, std::shared_ptr<Sound>> sounds;
-
-	//std::chrono::system_clock::time_point start_time;
-	//std::chrono::system_clock::duration prev_time;
-
-	//std::chrono::milliseconds processed_time;
+	std::map<int, std::shared_ptr<Sprite>> bga_sprites;
 
 	struct SoundPool
 	{
@@ -45,8 +44,14 @@ private:
 	};
 	std::array<LaneInfo, 8> lane_info;
 
+	std::shared_ptr<gfx::gfxSprite> bgaSprite;
+	std::shared_ptr<gfx::gfxSprite> bgaLayerSprite;
 	std::shared_ptr<gfx::gfxSprite> skinSprite;
 	std::shared_ptr<Sprite> nodeSprite;
+
+	float noteSpeed = 550.0f;
+
+	std::string path_to_load;
 
 	void SoundPlay(int value);
 public:
@@ -56,4 +61,6 @@ public:
 	virtual void Render();
 
 	virtual void Init();
+
+	void SetBMSPath(std::string path);
 };

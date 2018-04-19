@@ -9,6 +9,10 @@ private:
 	SceneState scene_state = Initializing;
 	std::shared_ptr<gfx::gfxFont> mainfont;
 
+	gfx::gfxString str_artist;
+	gfx::gfxString str_genre;
+	gfx::gfxString str_bpm;
+
 	gfx::gfxString str_autoplay;
 	gfx::gfxString str_autoplay_on;
 	gfx::gfxString str_autoplay_off;
@@ -19,6 +23,8 @@ private:
 	std::vector<BMS> bms_list;
 	
 	gfx::gfxString str_list_corsor;
+
+	int cursor_index = 0;
 
 	struct mutex_string
 	{

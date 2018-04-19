@@ -46,10 +46,13 @@ public:
 		return sfxManager;
 	}
 
+	int StackSize()
+	{
+		return scene_stack.size();
+	}
 	void Pop_Scene();
 	void Push_Scene(std::shared_ptr<gfx::gfxScene> scene);
 	void Update(std::chrono::milliseconds delta);
-	void Render();
 };
 
 #define IGlobalManager (GlobalManager::Instance())

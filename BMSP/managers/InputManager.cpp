@@ -17,6 +17,7 @@ void InputManager::Init(GLFWwindow * window)
 	keys_to_update.push_back(GLFW_KEY_DOWN);
 	keys_to_update.push_back(GLFW_KEY_ENTER);
 	keys_to_update.push_back(GLFW_KEY_TAB);
+	keys_to_update.push_back(GLFW_KEY_ESCAPE);
 }
 
 void InputManager::Update()

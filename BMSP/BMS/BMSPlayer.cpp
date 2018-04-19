@@ -3,7 +3,7 @@
 
 void BMSPlayer::Update()
 {
-	if (!isPlaying)
+	if (!is_playing)
 		return;
 	if (start_time == std::chrono::system_clock::time_point())
 	{
@@ -50,10 +50,10 @@ void BMSPlayer::Update()
 		if (play_time >= measure.during_time)
 		{
 			current_measure++;
-			std::cout << "measure: " << current_measure << std::endl;
 			if (current_measure >= bms.measures.size())
 			{
-				isPlaying = false;
+				is_playing = false;
+				is_complete = true;
 				return;
 			}
 			loop = true;

@@ -196,5 +196,8 @@
     <None Include="shaders\font_fragment_shader.shader">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\bga_layer_fragment_shader.shader">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

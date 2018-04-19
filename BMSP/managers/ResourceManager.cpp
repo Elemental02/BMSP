@@ -147,8 +147,26 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 		avformat_free_context(container);
 		return 0;
 	}
+	AVPixelFormat pixFormat;
+	switch (ctx->pix_fmt) {
+	case AV_PIX_FMT_YUVJ420P:
+		pixFormat = AV_PIX_FMT_YUV420P;
+		break;
+	case AV_PIX_FMT_YUVJ422P:
+		pixFormat = AV_PIX_FMT_YUV422P;
+		break;
+	case AV_PIX_FMT_YUVJ444P:
+		pixFormat = AV_PIX_FMT_YUV444P;
+		break;
+	case AV_PIX_FMT_YUVJ440P:
+		pixFormat = AV_PIX_FMT_YUV440P;
+		break;
+	default:
+		pixFormat = ctx->pix_fmt;
+		break;
+	}
 
-	struct SwsContext *sws_ctx = sws_getContext(ctx->width, ctx->height, ctx->pix_fmt,
+	struct SwsContext *sws_ctx = sws_getContext(ctx->width, ctx->height, pixFormat,
 		width_conv, height_conv, AV_PIX_FMT_RGBA, SWS_BICUBIC, NULL, NULL, NULL);
 
 	if (!sws_ctx) {
@@ -161,24 +179,25 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 
 	AVPacket packet;
 	av_init_packet(&packet);
-	AVFrame *frame = av_frame_alloc();
-	AVFrame *frameRGBA = av_frame_alloc();
-
-	av_image_alloc(frameRGBA->data, frameRGBA->linesize, width_conv, height_conv, AV_PIX_FMT_RGBA, 1);
 
 	GLuint textureID = 0;
 
 	while (av_read_frame(container, &packet) >= 0)
 	{
 		if (packet.stream_index != stream_id) {
+			av_packet_unref(&packet);
 			continue;
 		}
 
+		AVFrame *frame = av_frame_alloc();
 		int len = avcodec_send_packet(ctx, &packet);
 		int frameFinished = avcodec_receive_frame(ctx, frame);
 		if (frameFinished == 0)
 		{
-			sws_scale(sws_ctx, frame->data, frame->linesize, 0, ctx->height, frameRGBA->data, frameRGBA->linesize);
+			AVFrame *frameRGBA = av_frame_alloc();
+			//uint8_t *buffer = (uint8_t *)av_malloc(size);
+			av_image_alloc(frameRGBA->data, frameRGBA->linesize, width_conv, height_conv, AV_PIX_FMT_RGBA, 1);
+			sws_scale(sws_ctx, &frame->data[0], frame->linesize, 0, ctx->height, &frameRGBA->data[0], frameRGBA->linesize);
 			
 			// Create one OpenGL texture
 			glGenTextures(1, &textureID);
@@ -189,6 +208,8 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 			// Give the image to OpenGL
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_conv, height_conv, 0, GL_RGBA, GL_UNSIGNED_BYTE, frameRGBA->data[0]);
 			auto err = glGetError();
+			av_freep(&frameRGBA->data[0]);
+			av_frame_free(&frameRGBA);
 			
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -197,17 +218,14 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		av_packet_unref(&packet);
+		av_frame_unref(frame);
+		av_frame_free(&frame);
 	}
-
-	// Return the ID of the texture we just created
-	av_freep(&frameRGBA->data[0]);
-	av_freep(&frameRGBA);
-	av_freep(&frame);
+	sws_freeContext(sws_ctx);
 
 	avcodec_free_context(&ctx);
 	avformat_close_input(&container);
 	avformat_free_context(container);
-	sws_freeContext(sws_ctx);
 
 	return textureID;
 }
@@ -227,7 +245,7 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 	res->texture_id = texture_id;
 	res->size = glm::vec2(width, height);
 	res->texture_rect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-
+	res->delete_itself = true;
 	sprites[path] = res;
 	return res;
 }
@@ -238,6 +256,7 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 		return sounds[path];
 	AVFormatContext* container = avformat_alloc_context();
 	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
+		avformat_free_context(container);
 		return nullptr;
 	}
 
@@ -318,7 +337,6 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 		return;
 	AVPacket packet;
 	av_init_packet(&packet);
-	AVFrame *frame = av_frame_alloc();
 	for (int i = 0; i < 5; i++)
 	{
 		std::vector<uint8_t> bufferdata;
@@ -333,6 +351,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 			}
 			if (packet.stream_index == sound->stream_id) 
 			{
+				AVFrame *frame = av_frame_alloc();
 				int len = avcodec_send_packet(sound->codec, &packet);
 				int frameFinished = avcodec_receive_frame(sound->codec, frame);
 				if (frameFinished == 0)
@@ -341,9 +360,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 					if (sound->swr_ctx != nullptr)
 					{
 						int bufferSize = av_samples_alloc(&output, nullptr, sound->codec->channels > 1 ? 2 : 1, frame->nb_samples, AV_SAMPLE_FMT_S16, 0);
-						//int bufferSize = av_samples_get_buffer_size(NULL, sound->codec->channels>1 ? 2 : 1, frame->nb_samples,
-							//AV_SAMPLE_FMT_S16, 0);
-						auto out_samples = swr_convert(sound->swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(frame->extended_data), frame->nb_samples);
+						auto out_samples = swr_convert(sound->swr_ctx, &output, frame->nb_samples, const_cast<const uint8_t**>(&frame->data[0]), frame->nb_samples);
 						bufferdata.insert(bufferdata.end(), output, output + (bufferSize));
 						av_freep(&output);
 					}
@@ -353,6 +370,8 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 					}
 					packetcnt++;
 				}
+				av_frame_unref(frame);
+				av_frame_free(&frame);
 			}
 			av_packet_unref(&packet);
 		}
@@ -369,13 +388,55 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 			break;
 		}
 	}
-	av_freep(&frame->data[0]);
-	av_freep(&frame);
+	
+}
+
+void ResourceManager::UnloadSprite(const std::string & path)
+{
+	auto& it = sprites.find(path);
+	if (it != sprites.end())
+	{
+		sprites.erase(it);
+	}
+}
+
+void ResourceManager::UnloadSound(const std::string & path)
+{
+	auto& it = sounds.find(path);
+	if (it != sounds.end())
+	{
+		sounds.erase(it);
+	}
+}
+
+void ResourceManager::UnloadSprite(std::shared_ptr<Sprite> sprite)
+{
+	for (const auto& it : sprites)
+	{
+		if (it.second == sprite)
+		{
+			sprites.erase(it.first);
+			break;
+		}
+	}
+}
+
+void ResourceManager::UnloadSound(std::shared_ptr<Sound> sound)
+{
+	for (const auto& it : sounds)
+	{
+		if (it.second == sound)
+		{
+			sounds.erase(it.first);
+			break;
+		}
+	}
 }
 
 Sprite::~Sprite()
 {
-	glDeleteTextures(1, &texture_id);
+	if(delete_itself)
+		glDeleteTextures(1, &texture_id);
 }
 
 Sound::Sound() :codec(nullptr), container(nullptr), is_load_complete(false), stream_id(-1)

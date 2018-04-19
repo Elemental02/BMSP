@@ -17,7 +17,8 @@ private:
 
 	std::list<std::pair<int,BMSNode>> updated_nodes;
 
-	bool isPlaying = true;
+	bool is_playing = true;
+	bool is_complete = false;
 public:
 	void setBMS(BMS bms)
 	{
@@ -51,5 +52,10 @@ public:
 	inline const decltype(updated_nodes)& getUpdated()
 	{
 		return updated_nodes;
+	}
+
+	inline bool IsComplete()
+	{
+		return is_complete;
 	}
 };

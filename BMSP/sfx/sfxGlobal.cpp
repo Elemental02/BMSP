@@ -11,7 +11,6 @@ void sfx::sfxGlobal::sfx_loop()
 		decltype(streaming_objects) copylist;
 		streaming_mutex.lock();
 		copylist.insert(copylist.end(), streaming_objects.begin(), streaming_objects.end());
-		//std::copy(streaming_objects.begin(), streaming_objects.end(), copylist);
 		streaming_mutex.unlock();
 
 		for (auto& obj : copylist)

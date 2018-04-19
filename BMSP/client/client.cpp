@@ -56,6 +56,7 @@ int main(void)
 
 	IgfxGlobal->LoadShaders("sprite", "shaders/vertex_shader.shader", "shaders/fragment_shader.shader");
 	IgfxGlobal->LoadShaders("font", "shaders/vertex_shader.shader", "shaders/font_fragment_shader.shader");
+	IgfxGlobal->LoadShaders("layer", "shaders/vertex_shader.shader", "shaders/bga_layer_fragment_shader.shader");
 
 	IInputManager->Init(window);
 
@@ -73,13 +74,8 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//TestScene testScene;
-	//PlayScene scene;
-	//ListScene listScene;
-	//listScene.Init();
 	IGlobalManager->Push_Scene(std::shared_ptr<gfx::gfxScene>(new ListScene));
-	//scene.Init();
-	//testScene.Init();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	auto prev_time = std::chrono::system_clock::now();
 	int fps = 60;
@@ -90,18 +86,14 @@ int main(void)
 		prev_time = curr_time;
 
 		IInputManager->Update();
-		//scene.Update(delta);
-		IGlobalManager->Update(delta);
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//scene.Render();
-		IGlobalManager->Render();
+		IGlobalManager->Update(delta);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		
 		std::this_thread::sleep_until(curr_time + std::chrono::milliseconds(1000 / fps));
 	} // Check if the ESC key was pressed or the window was closed
-	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+	while (IGlobalManager->StackSize() != 0 &&
 		glfwWindowShouldClose(window) == 0);
 
 	// Close OpenGL window and terminate GLFW

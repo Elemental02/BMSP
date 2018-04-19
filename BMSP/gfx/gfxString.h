@@ -26,6 +26,8 @@ namespace gfx
 
 		void RenderString();
 	public:
+		virtual ~gfxString();
+
 		void setString(std::string str);
 		inline std::string getString() {
 			return str;

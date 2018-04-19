@@ -22,6 +22,7 @@ namespace gfx
 		std::map<GLuint, renderlistGroup> renderlist;
 
 	public:
+		virtual ~gfxPanel();
 		virtual void Render();
 
 		void addSprite(gfxSprite* sprite);

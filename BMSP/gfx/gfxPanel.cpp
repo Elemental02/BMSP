@@ -5,6 +5,17 @@
 
 #include "../managers/GlobalManager.h"
 
+gfx::gfxPanel::~gfxPanel()
+{
+	for (auto& group : renderlist)
+	{
+		glDeleteBuffers(1, &group.second.colorbuffer);
+		glDeleteBuffers(1, &group.second.sizebuffer);
+		glDeleteBuffers(1, &group.second.matrixbuffer);
+		glDeleteBuffers(1, &group.second.uvbuffer);
+	}
+}
+
 void gfx::gfxPanel::Render()
 {
 	IgfxGlobal->UseShaders("sprite");

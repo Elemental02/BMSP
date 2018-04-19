@@ -9,6 +9,7 @@ namespace gfx
 	private:
 		std::shared_ptr<Sprite> sprite;
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		std::string shader="sprite";
 	public:
 		gfxSprite();
 
@@ -28,6 +29,10 @@ namespace gfx
 		inline glm::vec4& getColor()
 		{
 			return color;
+		}
+		inline void setShader(std::string str)
+		{
+			shader = str;
 		}
 	};
 };

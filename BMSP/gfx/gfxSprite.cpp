@@ -21,7 +21,9 @@ gfx::gfxSprite::~gfxSprite()
 
 void gfx::gfxSprite::Render()
 {
-	IgfxGlobal->UseShaders("sprite");
+	if (sprite == nullptr)
+		return;
+	IgfxGlobal->UseShaders(shader);
 	auto transform = getTransform();
 
 	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();

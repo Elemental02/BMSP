@@ -6,7 +6,7 @@ enum KeyState
 };
 enum KeyIndex
 {
-	Up = 8, Down, Enter, Tab
+	Up = 8, Down, Enter, Tab, ESC
 };
 
 struct GLFWwindow;

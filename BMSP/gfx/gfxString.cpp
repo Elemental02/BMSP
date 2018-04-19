@@ -76,6 +76,15 @@ void gfx::gfxString::RenderString()
 	is_dirty = false;
 }
 
+gfx::gfxString::~gfxString()
+{
+	glDeleteBuffers(1, &sizebuffer);
+	glDeleteBuffers(1, &matrixbuffer);
+	glDeleteBuffers(1, &uvrectbuffer);
+	
+	glDeleteTextures(1, &texture_id);
+}
+
 void gfx::gfxString::setString(std::string str)
 {
 	is_dirty = true;
@@ -84,6 +93,8 @@ void gfx::gfxString::setString(std::string str)
 
 void gfx::gfxString::Render()
 {
+	if (str.length() == 0)
+		return;
 	if (is_dirty)
 	{
 		RenderString();
