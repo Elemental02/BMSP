@@ -22,6 +22,13 @@ struct Sound
 	~Sound();
 };
 
+struct SpritePackage
+{
+	glm::uint texture_id = 0;
+	glm::vec2 size;
+	std::map<std::string, Sprite> sprite_map;
+};
+
 class ResourceManager
 {
 private:

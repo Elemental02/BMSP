@@ -1,5 +1,5 @@
 #pragma once
-#include "gfxObject.h"
+#include "gfxSprite.h"
 namespace gfx
 {
 	class gfxPanel : public gfxObject
@@ -11,7 +11,7 @@ namespace gfx
 			std::vector<glm::vec2> size;
 			std::vector<glm::vec4> uv_rect;
 			std::vector<glm::mat4> matrix;
-			std::list<gfxSprite*> sprites;
+			std::set<gfxSprite*> sprites;
 
 			int buffersize = 0;
 			GLuint colorbuffer = 0;

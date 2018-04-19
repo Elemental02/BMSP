@@ -10,6 +10,8 @@ namespace gfx
 		glm::mat4 mat;
 
 		bool is_dirty = true;
+	protected:
+		std::string shader = "sprite";
 	public:
 		gfxObject();
 		virtual ~gfxObject();
@@ -37,6 +39,11 @@ namespace gfx
 		{
 			rotation = rot;
 			is_dirty = true;
+		}
+
+		inline void setShader(std::string str)
+		{
+			shader = str;
 		}
 	};
 };

@@ -18,7 +18,7 @@ gfx::gfxPanel::~gfxPanel()
 
 void gfx::gfxPanel::Render()
 {
-	IgfxGlobal->UseShaders("sprite");
+	IgfxGlobal->UseShaders(shader);
 	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();
 	GLuint uvbuffer = IgfxGlobal->getGlobalUVArrayBuffer();
 	GLuint samplerId = IgfxGlobal->getGlobalTextureSamplerId();
@@ -189,12 +189,7 @@ void gfx::gfxPanel::addSprite(gfxSprite* sprite)
 	}
 	auto& group = renderlist[texture_id];
 
-	/*group.color.push_back(sprite->getColor());
-	group.size.push_back(sprite->getSprite().size);
-	group.size.push_back(sprite->getSprite().size);
-	group.matrix.push_back(sprite->getTransform());*/
-
-	group.sprites.push_back(sprite);
+	group.sprites.insert(sprite);
 }
 
 void gfx::gfxPanel::RemoveSprite(gfxSprite* sprite)
@@ -206,7 +201,5 @@ void gfx::gfxPanel::RemoveSprite(gfxSprite* sprite)
 		return;
 	}
 	auto& group = pair->second;
-	/*group.color.pop_back();
-	group.matrix.pop_back();*/
-	group.sprites.remove(sprite);
+	group.sprites.erase(sprite);
 }

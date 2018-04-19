@@ -6,26 +6,33 @@ namespace gfx
 	class gfxString : public gfxObject
 	{
 	private:
-		std::vector<glm::vec2> size;
-		std::vector<glm::vec4> uv_rect;
-		std::vector<glm::mat4> mats;
 		glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		std::shared_ptr<gfxFont> font;
 
-		int buffersize = 0;
-		GLuint sizebuffer = 0;
-		GLuint uvrectbuffer = 0;
-		GLuint matrixbuffer = 0;
+		struct renderlistGroup
+		{
+			int strsize;
+			std::vector<glm::vec2> size;
+			std::vector<glm::vec4> uv_rect;
+			std::vector<glm::mat4> matrix;
 
-		GLuint texture_id = 0;
+			int buffersize = 0;
+			GLuint colorbuffer = 0;
+			GLuint sizebuffer = 0;
+			GLuint uvbuffer = 0;
+			GLuint matrixbuffer = 0;
+		};
+		std::map<GLuint, renderlistGroup> renderlist;
+
 		std::string str;
+
+		int pixelSize = 15;
 
 		bool is_dirty = true;
 
-		int pixelSize = 200;
-
 		void RenderString();
 	public:
+		gfxString();
 		virtual ~gfxString();
 
 		void setString(std::string str);
