@@ -8,8 +8,8 @@
 class PlayScene : public gfx::gfxScene
 {
 private:
-	enum SceneState {Loading, Playing, End };
-	SceneState scene_state = Loading;
+	enum SceneState {Initialzing, Loading, Playing, End };
+	SceneState scene_state = SceneState::Initialzing;
 	BMSPlayer bmsPlayer;
 	std::map<int, std::shared_ptr<Sound>> sounds;
 	std::map<int, std::shared_ptr<Sprite>> bga_sprites;
@@ -35,6 +35,7 @@ private:
 	};
 	SpritePool node_pool;
 	int processed_measure = -1;
+	double processed_progress = -1;
 
 	struct LaneInfo
 	{
@@ -46,7 +47,12 @@ private:
 
 	std::shared_ptr<gfx::gfxSprite> bgaSprite;
 	std::shared_ptr<gfx::gfxSprite> bgaLayerSprite;
-	std::shared_ptr<gfx::gfxSprite> skinSprite;
+	
+	std::shared_ptr<SpritePackage> sprite_pack1;
+	std::shared_ptr<SpritePackage> sprite_pack2;
+	
+	std::shared_ptr<gfx::gfxSprite> skin_top;
+	std::shared_ptr<gfx::gfxSprite> skin_bottom;
 	std::shared_ptr<Sprite> nodeSprite;
 
 	float noteSpeed = 550.0f;

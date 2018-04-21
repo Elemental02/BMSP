@@ -1,13 +1,23 @@
 #include "../stdafx.h"
 #include <AL/al.h>
 #include <AL/alc.h>
-#include "../managers/ResourceManager.h"
 #include "sfxGlobal.h"
+
+#include "../managers/GlobalManager.h"
 
 void sfx::sfxGlobal::sfx_loop()
 {
+	auto prev_time = std::chrono::system_clock::now();
+	int fps = IGlobalManager->getFPS();
+	if (fps == 0)
+		fps = 10;
 	while (quit_loop == false)
 	{
+		auto curr_time = std::chrono::system_clock::now();
+		auto diff = curr_time - prev_time;
+		std::chrono::milliseconds delta(std::chrono::duration_cast<std::chrono::milliseconds>(diff));
+		prev_time = curr_time;
+
 		decltype(streaming_objects) copylist;
 		streaming_mutex.lock();
 		copylist.insert(copylist.end(), streaming_objects.begin(), streaming_objects.end());
@@ -23,8 +33,7 @@ void sfx::sfxGlobal::sfx_loop()
 		}
 
 		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(10ms);
-		std::this_thread::yield();
+		std::this_thread::sleep_until(curr_time + std::chrono::milliseconds(fps));
 	}
 }
 
@@ -38,13 +47,16 @@ sfx::sfxGlobal::sfxGlobal()
 		alContext = alcCreateContext(alDevice, nullptr);
 		alcMakeContextCurrent(alContext);
 	}
-
-	sfx_loop_thread = std::thread(std::bind(&sfxGlobal::sfx_loop, this));
 }
 
 sfx::sfxGlobal::~sfxGlobal()
 {
 	quit();
+}
+
+void sfx::sfxGlobal::start()
+{
+	sfx_loop_thread = std::thread(std::bind(&sfxGlobal::sfx_loop, this));
 }
 
 void sfx::sfxGlobal::quit()
@@ -88,6 +100,7 @@ void sfx::sfxGlobal::ReleaseSource(ALuint source)
 		if (processed > 20)
 			processed = 20;
 		alSourceUnqueueBuffers(source, processed, tempbuf);
+		assert(alGetError() == AL_NO_ERROR && "alsourceunqueuebuffer_global");
 		alGetSourcei(source, AL_BUFFERS_QUEUED, &processed);
 	}
 	auto err = alGetError();

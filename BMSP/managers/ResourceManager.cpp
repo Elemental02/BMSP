@@ -323,13 +323,271 @@ std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
 	sound->codec = ctx;
 	sound->swr_ctx = swr_ctx;
 	sound->stream_id = stream_id;
-	LoadSoundFrame(sound);
+	LoadSoundFrame(sound, 5);
 
 	sounds[path] = sound;
 	return sound;
 }
 
-void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
+std::shared_ptr<SpritePackage> ResourceManager::LoadSpritePackage(const std::string & path)
+{
+	if (sprite_packs.find(path) != sprite_packs.end())
+		return sprite_packs[path];
+	if (path == "skin1")
+	{
+		std::string filename = "resource/skin1.bmp";
+		unsigned int height, width, texture_id;
+		texture_id = loadSprite_ffmpeg(filename.c_str(), height, width);
+		
+		std::shared_ptr<SpritePackage> pack(new SpritePackage);
+		pack->texture_id = texture_id;
+		pack->size = glm::vec2(width, height);
+		float size_ratio = 800.0f / 640.0f;
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 640, sizey = 20;
+			float posx = 0, posy = 69;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			pack->sprite_map["top"] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 640, sizey = 47;
+			float posx = 0, posy = 90;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			pack->sprite_map["bottom"] = sprite;
+		}
+
+		for (int i = 0; i < 10; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 12, sizey = 16;
+			float posx = 13 * i, posy = 138;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = std::to_string(i) + "_s";
+			pack->sprite_map[name] = sprite;
+		}
+
+		for (int i = 0; i < 10; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 18, sizey = 24;
+			float posx = 19 * i + 143, posy = 138;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = std::to_string(i) + "_l";
+			pack->sprite_map[name] = sprite;
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 0, posy = 163 + 33 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "cool_"+std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+
+
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126, posy = 163 + 33 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "great_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+
+
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126*2, posy = 163 + 33 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "good_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+
+
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126*3, posy = 163 + 33 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "bad_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+
+
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126*4, posy = 163 + 33 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "miss_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 0, posy = 163 + 33 * 4;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "autoplay";
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126, posy = 163 + 33 * 4;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "replay";
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126*2, posy = 163 + 33 * 4;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "cleared";
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 125, sizey = 32;
+			float posx = 126 * 3, posy = 163 + 33 * 4;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "failed";
+			pack->sprite_map[name] = sprite;
+		}
+		sprite_packs[path] = pack;
+	}
+	else if (path == "skin2")
+	{
+		std::string filename = "resource/skin2.bmp";
+		unsigned int height, width, texture_id;
+		texture_id = loadSprite_ffmpeg(filename.c_str(), height, width);
+	}
+	else
+	{
+
+	}
+	return sprite_packs[path];
+}
+
+void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize)
 {
 	if (sound->container == nullptr || sound->codec == nullptr)
 		return;
@@ -337,11 +595,11 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 		return;
 	AVPacket packet;
 	av_init_packet(&packet);
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < framesize; i++)
 	{
 		std::vector<uint8_t> bufferdata;
 		int packetcnt = 0;
-		while (packetcnt < 3)
+		while (packetcnt < 10)
 		{
 			int res_read_frame = av_read_frame(sound->container, &packet);
 			if (res_read_frame < 0)
@@ -385,6 +643,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound)
 		else
 		{
 			sound->is_load_complete = true;
+			sound->unload_ffmpeg();
 			break;
 		}
 	}
@@ -445,22 +704,34 @@ Sound::Sound() :codec(nullptr), container(nullptr), is_load_complete(false), str
 
 Sound::~Sound()
 {
+	unload_ffmpeg();
+	if (!buffers.empty())
+	{
+		alDeleteBuffers(buffers.size(), buffers.data());
+	}
+}
+
+void Sound::unload_ffmpeg()
+{
 	if (swr_ctx != nullptr)
 	{
 		swr_free(&swr_ctx);
+		swr_ctx = nullptr;
 	}
 	if (codec != nullptr)
 	{
 		avcodec_free_context(&codec);
+		codec = nullptr;
 	}
 	if (container != nullptr)
 	{
 		avformat_close_input(&container);
 		avformat_free_context(container);
+		container = nullptr;
 	}
+}
 
-	if (!buffers.empty())
-	{
-		alDeleteBuffers(buffers.size(), buffers.data());
-	}
+SpritePackage::~SpritePackage()
+{
+	glDeleteTextures(1, &texture_id);
 }

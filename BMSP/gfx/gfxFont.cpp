@@ -47,6 +47,7 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(unsigned int ch, int pixel)
 			{
 				texture_cursor.current_position_x = 0;
 				texture_cursor.current_position_y += texture_cursor.current_height + 1;
+				texture_cursor.current_height = 0;
 			}
 			if (texture_cursor.current_position_y + face->glyph->bitmap.rows > maxTextureSize)
 			{
@@ -96,7 +97,7 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(unsigned int ch, int pixel)
 		sprite->texture_rect = glm::vec4(uv_left, uv_up, uv_right, uv_down);
 		sprite->texture_id = texture_cursor.texture_id;
 		texture_cursor.current_position_x += glyph->bitmap.width + 1;
-		texture_cursor.current_position_y = texture_cursor.current_height > glyph->bitmap.rows ? texture_cursor.current_height : glyph->bitmap.rows;
+		texture_cursor.current_height = texture_cursor.current_height > glyph->bitmap.rows ? texture_cursor.current_height : glyph->bitmap.rows;
 		FontSprite font_sprite;
 		font_sprite.sprite = sprite;
 		font_sprite.left = glyph->bitmap_left;

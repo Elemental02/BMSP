@@ -80,20 +80,32 @@ bool sfx::sfxSound::Update()
 	}
 	int curr_state = 0;
 	alGetSourcei(sourceId, AL_SOURCE_STATE, &curr_state);
+	int processed, queued;
+	alGetSourcei(sourceId, AL_BUFFERS_PROCESSED, &processed);
+	alGetSourcei(sourceId, AL_BUFFERS_QUEUED, &queued);
 	if (curr_state == AL_PLAYING)
 	{
-		int processed, queued;
-		alGetSourcei(sourceId, AL_BUFFERS_PROCESSED, &processed);
-		alGetSourcei(sourceId, AL_BUFFERS_QUEUED, &queued);
-		if (queued - processed < 5)
+		if (queued - processed <= 3)
 		{
-			IResourceManager->LoadSoundFrame(sound);
+			/*while (processed != 0)
+			{
+				unsigned int tempbuf[20] = { 0, };
+				if (processed > 20)
+					processed = 20;
+				alSourceUnqueueBuffers(sourceId, processed, tempbuf);
+				alGetSourcei(sourceId, AL_BUFFERS_PROCESSED, &processed);
+				assert(alGetError() == AL_NO_ERROR && "alsourcequeuebuffer");
+			}*/
+
+			IResourceManager->LoadSoundFrame(sound, 2);
 			alSourceQueueBuffers(sourceId, sound->buffers.size() - queued, sound->buffers.data() + queued);
+			
 			assert(alGetError() == AL_NO_ERROR && "alsourcequeuebuffer");
 		}
 	}
 	else
 	{
+		std::cout << "Load failed?: " << sound->container->url << "," << queued << ", " << processed << std::endl;
 		return false;
 	}
 	return true;

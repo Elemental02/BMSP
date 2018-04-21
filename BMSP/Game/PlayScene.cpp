@@ -7,15 +7,18 @@
 void PlayScene::SoundPlay(int value)
 {
 	if (sounds.find(value) != sounds.end()) {
-		if (soundpool.pool.empty())
+		if (sounds[value])
 		{
-			soundpool.pool.push_back(std::shared_ptr<sfx::sfxSound>(new sfx::sfxSound()));
+			if (soundpool.pool.empty())
+			{
+				soundpool.pool.push_back(std::shared_ptr<sfx::sfxSound>(new sfx::sfxSound()));
+			}
+			auto source = soundpool.pool.back();
+			soundpool.pool.pop_back();
+			source->setSound(sounds[value]);
+			source->Play();
+			soundpool.playing.push_back(source);
 		}
-		auto source = soundpool.pool.back();
-		soundpool.pool.pop_back();
-		source->setSound(sounds[value]);
-		source->Play();
-		soundpool.playing.push_back(source);
 	}
 }
 
@@ -51,9 +54,10 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 	bmsPlayer.Update();
 	auto curr_measure = bmsPlayer.getCurrentMeasure();
 	auto curr_progress = bmsPlayer.getCurrentPosition();
-	while (processed_measure < curr_measure + 5 && (processed_measure + 1) < bms.measures.size())
+	while ((processed_progress - curr_progress)*noteSpeed < 800.0f && (processed_measure + 1) < bms.measures.size())
 	{
 		processed_measure++;
+		processed_progress = bms.measures[processed_measure].position + bms.measures[processed_measure].length;
 		auto& measure = bms.measures[processed_measure];
 		for (int i = 0; i < 9; i++)
 		{
@@ -223,27 +227,59 @@ void PlayScene::Render()
 	bgaSprite->Render();
 	bgaLayerSprite->Render();
 	node_panel.Render();
-	skinSprite->Render();
+	skin_bottom->Render();
+	skin_top->Render();
 }
 
 void PlayScene::Init()
 {
 	std::experimental::filesystem::path path(path_to_load);
 	BMSParser parser;
-	bmsPlayer.setBMS(parser.Parse(path_to_load));
-	for (auto& wav : bmsPlayer.getBMS().wavs)
-	{
-		auto dir = path.parent_path();
-		auto wav_filename = dir.string() + "\\" + wav.second;
-		sounds[wav.first] = IResourceManager->LoadSound(wav_filename);
-	}
-	
-	for (auto& bmp : bmsPlayer.getBMS().bmps)
-	{
-		auto dir = path.parent_path();
-		auto bmp_filename = dir.string() + "\\" + bmp.second;
-		bga_sprites[bmp.first] = IResourceManager->LoadSprite(bmp_filename);
-	}
+	//[&]() {
+		bmsPlayer.setBMS(parser.Parse(path_to_load));
+		for (auto& wav : bmsPlayer.getBMS().wavs)
+		{
+			auto dir = path.parent_path();
+			auto wav_filename = dir.string() + "\\" + wav.second;
+			auto wavptr = IResourceManager->LoadSound(wav_filename);
+			if (!wavptr)
+			{
+				wav_filename.replace(wav_filename.size() - 3, 3, "mp3");
+				wavptr = IResourceManager->LoadSound(wav_filename);
+			}
+			if (!wavptr)
+			{
+				wav_filename.replace(wav_filename.size() - 3, 3, "ogg");
+				wavptr = IResourceManager->LoadSound(wav_filename);
+			}
+			if (!wavptr)
+				std::cout << "load failed?: " << wav.second <<std::endl;
+			sounds[wav.first] = wavptr;
+		}
+
+		for (auto& bmp : bmsPlayer.getBMS().bmps)
+		{
+			auto dir = path.parent_path();
+			auto bmp_filename = dir.string() + "\\" + bmp.second;
+			auto bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+			if (!bmp_ptr)
+			{
+				bmp_filename.replace(bmp_filename.size() - 3, 3, "png");
+				bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+			}
+			if (!bmp_ptr)
+			{
+				bmp_filename.replace(bmp_filename.size() - 3, 3, "jpg");
+				bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+			}
+			if (!bmp_ptr)
+			{
+				bmp_filename.replace(bmp_filename.size() - 3, 4, "jpeg");
+				bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+			}
+			bga_sprites[bmp.first] = bmp_ptr;
+		}
+	//};
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -261,9 +297,15 @@ void PlayScene::Init()
 	bgaSprite = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
 	bgaLayerSprite = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
 	bgaLayerSprite->setShader("layer");
-	skinSprite = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	skinSprite->setSprite(IResourceManager->LoadSprite("resource/ui/skin.png"));
 	nodeSprite = IResourceManager->LoadSprite("resource/ui/note.png");
+
+	sprite_pack1 = IResourceManager->LoadSpritePackage("skin1");
+	skin_top = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
+	skin_top->setSprite(IResourceManager->LoadSprite("resource/ui/skin.png"));
+	skin_bottom = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
+	skin_bottom->setSprite(sprite_pack1->sprite_map["bottom"]);
+	skin_bottom->setPosition(glm::vec3(0.0f, 600.0f - skin_bottom->getSprite().size.y, 0.0f));
+
 }
 
 void PlayScene::SetBMSPath(std::string path)

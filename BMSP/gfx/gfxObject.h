@@ -29,6 +29,11 @@ namespace gfx
 			is_dirty = true;
 		}
 
+		inline glm::vec3 getScale()
+		{
+			return scale;
+		}
+
 		inline void setScale(glm::vec3 scale)
 		{
 			this->scale = scale;

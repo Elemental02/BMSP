@@ -55,7 +55,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 		std::string line;
 		std::getline(file, line);
 		std::smatch match;
-		if (std::regex_match(line, match, std::regex("^#([a-zA-Z][a-zA-Z0-9]*)[ \\t]*(.*?)(?:[;(?://)].*)?"))) // header
+		if (std::regex_match(line, match, std::regex("^#([a-zA-Z][a-zA-Z0-9]*)[ \\t]*(.*?)"))) // header
 		{
 			// name value
 			std::string name = match[1];

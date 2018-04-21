@@ -17,6 +17,7 @@ private:
 
 	std::list<std::shared_ptr<gfx::gfxScene>> scene_stack;
 
+	float fps;
 public:
 	static GlobalManager* Instance()
 	{
@@ -46,10 +47,27 @@ public:
 		return sfxManager;
 	}
 
-	int StackSize()
+	inline int StackSize()
 	{
 		return scene_stack.size();
 	}
+
+	inline void setFPS(float fps) 
+	{
+		if (fps < 0.0001)
+		{
+			this->fps = 0.0f;
+		}
+		else
+		{
+			this->fps = 1000.0f / fps;
+		}
+	}
+	inline float getFPS()
+	{
+		return fps;
+	}
+
 	void Pop_Scene();
 	void Push_Scene(std::shared_ptr<gfx::gfxScene> scene);
 	void Update(std::chrono::milliseconds delta);

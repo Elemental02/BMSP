@@ -14,7 +14,7 @@ namespace gfx
 			int strsize;
 			std::vector<glm::vec2> size;
 			std::vector<glm::vec4> uv_rect;
-			std::vector<glm::mat4> matrix;
+			std::vector<glm::vec3> matrix;
 
 			int buffersize = 0;
 			GLuint colorbuffer = 0;

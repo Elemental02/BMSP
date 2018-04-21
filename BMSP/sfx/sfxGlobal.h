@@ -22,6 +22,7 @@ namespace sfx
 		sfxGlobal();
 		~sfxGlobal();
 
+		void start();
 		void quit();
 
 		ALuint TryGetSource();

@@ -120,6 +120,15 @@
     <ClInclude Include="managers\GlobalManager.h">
       <Filter>헤더 파일\managers</Filter>
     </ClInclude>
+    <ClInclude Include="gfx\gfxSpriteAnimation.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxSpriteFont.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxUpdatable.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -184,6 +193,15 @@
     </ClCompile>
     <ClCompile Include="managers\GlobalManager.cpp">
       <Filter>소스 파일\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxSpriteAnimation.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxSpriteFont.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxUpdatable.cpp">
+      <Filter>소스 파일\gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

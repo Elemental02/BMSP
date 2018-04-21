@@ -56,7 +56,7 @@ void gfx::gfxPanel::Render()
 			group.second.color.resize(group.second.buffersize);
 			group.second.size.resize(group.second.buffersize);
 			group.second.uv_rect.resize(group.second.buffersize);
-			group.second.matrix.resize(group.second.buffersize);
+			group.second.matrix.resize(group.second.buffersize * 2);
 
 			glBindBuffer(GL_ARRAY_BUFFER, group.second.colorbuffer);
 			glBufferData(GL_ARRAY_BUFFER, group.second.buffersize * sizeof(glm::vec4), 0, GL_DYNAMIC_DRAW);
@@ -68,7 +68,7 @@ void gfx::gfxPanel::Render()
 			glBufferData(GL_ARRAY_BUFFER, group.second.buffersize * sizeof(glm::vec4), 0, GL_DYNAMIC_DRAW);
 
 			glBindBuffer(GL_ARRAY_BUFFER, group.second.matrixbuffer);
-			glBufferData(GL_ARRAY_BUFFER, group.second.buffersize * sizeof(glm::mat4), 0, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, group.second.buffersize * sizeof(glm::vec3) * 2, 0, GL_DYNAMIC_DRAW);
 		}
 
 		glUniform1i(samplerId, 0);
@@ -80,7 +80,8 @@ void gfx::gfxPanel::Render()
 			group.second.size[color_count] = sprite->getSprite().size;
 			group.second.uv_rect[color_count] = sprite->getSprite().texture_rect;
 
-			group.second.matrix[color_count] = sprite->getTransform();
+			group.second.matrix[color_count * 2] = sprite->getPosition();
+			group.second.matrix[color_count * 2 + 1] = sprite->getScale();
 			color_count++;
 		}
 
@@ -152,18 +153,18 @@ void gfx::gfxPanel::Render()
 		int pos4 = pos + 3;
 		glEnableVertexAttribArray(pos1);
 		glEnableVertexAttribArray(pos2);
-		glEnableVertexAttribArray(pos3);
-		glEnableVertexAttribArray(pos4);
+		//glEnableVertexAttribArray(pos3);
+		//glEnableVertexAttribArray(pos4);
 		glBindBuffer(GL_ARRAY_BUFFER, group.second.matrixbuffer);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4)*group.second.matrix.size(), static_cast<void*>(group.second.matrix.data()));
-		glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
-		glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
-		glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
-		glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3)*group.second.matrix.size(), static_cast<void*>(group.second.matrix.data()));
+		glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(0));
+		glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(sizeof(float) * 3));
+		//glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+		//glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
 		glVertexAttribDivisor(pos1, 1);
 		glVertexAttribDivisor(pos2, 1);
-		glVertexAttribDivisor(pos3, 1);
-		glVertexAttribDivisor(pos4, 1);
+		//glVertexAttribDivisor(pos3, 1);
+		//glVertexAttribDivisor(pos4, 1);
 
 		// Draw the triangle !
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, group.second.sprites.size());
@@ -174,8 +175,8 @@ void gfx::gfxPanel::Render()
 		glDisableVertexAttribArray(4);
 		glDisableVertexAttribArray(pos1);
 		glDisableVertexAttribArray(pos2);
-		glDisableVertexAttribArray(pos3);
-		glDisableVertexAttribArray(pos4);
+		//glDisableVertexAttribArray(pos3);
+		//glDisableVertexAttribArray(pos4);
 	}
 }
 

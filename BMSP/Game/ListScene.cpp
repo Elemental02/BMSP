@@ -26,27 +26,41 @@ void ListScene::Update(std::chrono::milliseconds delta)
 		if (init_future.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 		{
 			init_future.get();
-			for(auto& bms : bms_list)
+			/*for(auto& bms : bms_list)
 			{
 				str_bms_list.push_back(gfx::gfxString());
 				auto& str = str_bms_list.back();
 				str.setFont(mainfont);
 				str.setPixelSize(pixelSize);
 				str.setString(bms.metadata["TITLE"]);
+			}*/
+			for (int i = 0; i < 21; i++)
+			{
+				str_bms_list.push_back(gfx::gfxString());
+				auto& str = str_bms_list.back();
+				str.setFont(mainfont);
+				str.setPixelSize(pixelSize);
 			}
 			scene_state = List_Loading;
 		}
 		break;
 	case SceneState::List_Loading:
+	{
 		str_artist.setString("Artist: " + bms_list[cursor_index].metadata["ARTIST"]);
 		str_genre.setString("Genre: " + bms_list[cursor_index].metadata["GENRE"]);
 		str_bpm.setString("BPM: " + std::to_string(bms_list[cursor_index].bpm));
 		scene_state = SceneState::List_Playing;
-
-		for (int i = 0; i < bms_count; i++)
+		int start_index = cursor_index - 10;
+		for (int i = 0; i < 21; i++, start_index++)
 		{
-			str_bms_list[i].setPosition(glm::vec3(240.0f, (i - cursor_index) * pixelSize + 285, 0.0f));
+			if(start_index<0)
+				start_index+= bms_list.size();
+			else if(start_index>=bms_list.size())
+				start_index -= bms_list.size();
+			str_bms_list[i].setPosition(glm::vec3(240.0f, (i - 10) * pixelSize + 285, 0.0f));
+			str_bms_list[i].setString(bms_list[start_index].metadata["TITLE"]);
 		}
+	}
 		break;
 
 	case SceneState::List_Playing:
@@ -150,7 +164,7 @@ void ListScene::Init()
 		auto curr_path = path_queue.begin();
 		do
 		{
-			init_string.setString("search path: " + curr_path->string());
+			init_string.setString("search path: " + curr_path->relative_path().string());
 			std::experimental::filesystem::directory_iterator dir_it(*curr_path);
 			for (auto& path : dir_it)
 			{
@@ -158,7 +172,7 @@ void ListScene::Init()
 				{
 					path_queue.push_back(path.path());
 				}
-				else if (path.path().extension().string() == ".bms" || path.path().extension().string() == ".bml" || path.path().extension().string() == ".bme")
+				else if (path.path().extension().string() == ".bms"|| path.path().extension().string() == ".bme")
 				{
 					str_list.push_back(path.path().string());
 				}

@@ -10,7 +10,8 @@ namespace gfx
 			std::vector<glm::vec4> color;
 			std::vector<glm::vec2> size;
 			std::vector<glm::vec4> uv_rect;
-			std::vector<glm::mat4> matrix;
+			std::vector<glm::vec3> matrix;
+			//std::vector<glm::mat4> matrix;
 			std::set<gfxSprite*> sprites;
 
 			int buffersize = 0;

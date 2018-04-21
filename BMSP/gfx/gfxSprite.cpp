@@ -24,7 +24,7 @@ void gfx::gfxSprite::Render()
 	if (sprite == nullptr)
 		return;
 	IgfxGlobal->UseShaders(shader);
-	auto transform = getTransform();
+	//auto transform = getTransform();
 
 	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();
 	GLuint colorbuffer = IgfxGlobal->getGlobalColorArrayBuffer();
@@ -108,18 +108,19 @@ void gfx::gfxSprite::Render()
 	int pos4 = pos + 3;
 	glEnableVertexAttribArray(pos1);
 	glEnableVertexAttribArray(pos2);
-	glEnableVertexAttribArray(pos3);
-	glEnableVertexAttribArray(pos4);
+	//glEnableVertexAttribArray(pos3);
+	//glEnableVertexAttribArray(pos4);
+	glm::vec3 posscale[2] = { getPosition(),getScale() };
 	glBindBuffer(GL_ARRAY_BUFFER, transformBuffer);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(transform), static_cast<void*>(&transform));
-	glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
-	glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
-	glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
-	glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(posscale), static_cast<void*>(&posscale));
+	glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(0));
+	glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(sizeof(float) * 3));
+	//glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+	//glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
 	glVertexAttribDivisor(pos1, 1);
 	glVertexAttribDivisor(pos2, 1);
-	glVertexAttribDivisor(pos3, 1);
-	glVertexAttribDivisor(pos4, 1);
+	//glVertexAttribDivisor(pos3, 1);
+	//glVertexAttribDivisor(pos4, 1);
 
 	// Draw the triangle !
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -130,6 +131,6 @@ void gfx::gfxSprite::Render()
 	glDisableVertexAttribArray(4);
 	glDisableVertexAttribArray(pos1);
 	glDisableVertexAttribArray(pos2);
-	glDisableVertexAttribArray(pos3);
-	glDisableVertexAttribArray(pos4);
+	//glDisableVertexAttribArray(pos3);
+	//glDisableVertexAttribArray(pos4);
 }

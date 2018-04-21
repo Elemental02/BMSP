@@ -4,17 +4,20 @@ layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec4 vertexColor;
 layout(location = 3) in vec2 vertexSize;
 layout(location = 4) in vec4 rectUV;
-layout(location = 5) in mat4 vertexMatrix;
+//layout(location = 5) in mat4 vertexMatrix;
+layout(location = 5) in vec3 objPosition;
+layout(location = 6) in vec3 objScale;
 out vec4 fragmentColor;
 out vec2 texCoord;
 uniform mat4 GlobalUniform;
 void main()
 {
 	vec4 pos= vec4(vertexPosition, 1);
-	pos.x = pos.x*vertexSize.x;
-	pos.y = pos.y*vertexSize.y;
+	pos.x = (pos.x*vertexSize.x)*objScale.x + objPosition.x;
+	pos.y = (pos.y*vertexSize.y)*objScale.y + objPosition.y;
+	//pos.z = (pos.z*vertexSize.z + objPosition.y)*objScale.z;
 	texCoord.x = vertexUV.x*rectUV.z + rectUV.x;
 	texCoord.y = vertexUV.y*rectUV.w + rectUV.y;
-	gl_Position = GlobalUniform * vertexMatrix * pos;
+	gl_Position = GlobalUniform * pos;
 	fragmentColor = vertexColor;
 }

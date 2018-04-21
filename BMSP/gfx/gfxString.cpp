@@ -29,10 +29,16 @@ void gfx::gfxString::RenderString()
 		else
 			renderlist[texture_id].uv_rect.push_back(glyph.sprite->texture_rect);
 		
-		if (renderlist[texture_id].matrix.size() > str_cnt)
-			renderlist[texture_id].matrix[str_cnt] = glm::translate(glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f));
+		if (renderlist[texture_id].matrix.size() > str_cnt * 2)
+		{
+			renderlist[texture_id].matrix[str_cnt * 2] = glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f);
+			renderlist[texture_id].matrix[str_cnt * 2 + 1] = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
 		else
-			renderlist[texture_id].matrix.push_back(glm::translate(glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f)));
+		{
+			renderlist[texture_id].matrix.push_back(glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f));
+			renderlist[texture_id].matrix.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+		}
 		renderlist[texture_id].strsize++;
 		pos += glyph.advance;
 	}
@@ -61,7 +67,7 @@ void gfx::gfxString::RenderString()
 			glBufferData(GL_ARRAY_BUFFER, rendergroup.second.buffersize * sizeof(glm::vec4), 0, GL_DYNAMIC_DRAW);
 
 			glBindBuffer(GL_ARRAY_BUFFER, rendergroup.second.matrixbuffer);
-			glBufferData(GL_ARRAY_BUFFER, rendergroup.second.buffersize * sizeof(glm::mat4), 0, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, rendergroup.second.buffersize * sizeof(glm::vec3) * 2, 0, GL_DYNAMIC_DRAW);
 		}
 	}
 
@@ -180,23 +186,26 @@ void gfx::gfxString::Render()
 		int pos4 = pos + 3;
 		glEnableVertexAttribArray(pos1);
 		glEnableVertexAttribArray(pos2);
-		glEnableVertexAttribArray(pos3);
-		glEnableVertexAttribArray(pos4);
+		//glEnableVertexAttribArray(pos3);
+		//glEnableVertexAttribArray(pos4);
 		glBindBuffer(GL_ARRAY_BUFFER, rendergroup.second.matrixbuffer);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4)*rendergroup.second.strsize, static_cast<void*>(rendergroup.second.matrix.data()));
-		glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(0));
-		glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 4));
-		glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
-		glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3)*rendergroup.second.matrix.size(), static_cast<void*>(rendergroup.second.matrix.data()));
+		glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(0));
+		glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(sizeof(float) * 3));
+		//glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+		//glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
 		glVertexAttribDivisor(pos1, 1);
 		glVertexAttribDivisor(pos2, 1);
-		glVertexAttribDivisor(pos3, 1);
-		glVertexAttribDivisor(pos4, 1);
+		//glVertexAttribDivisor(pos3, 1);
+		//glVertexAttribDivisor(pos4, 1);
 
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, rendergroup.second.strsize);
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
+		glDisableVertexAttribArray(pos1);
+		glDisableVertexAttribArray(pos2);
 	}
 }

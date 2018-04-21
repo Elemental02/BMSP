@@ -57,10 +57,14 @@ int main(void)
 	IgfxGlobal->LoadShaders("sprite", "shaders/vertex_shader.shader", "shaders/fragment_shader.shader");
 	IgfxGlobal->LoadShaders("font", "shaders/vertex_shader.shader", "shaders/font_fragment_shader.shader");
 	IgfxGlobal->LoadShaders("layer", "shaders/vertex_shader.shader", "shaders/bga_layer_fragment_shader.shader");
+	
+	IGlobalManager->setFPS(120);
+	int fps = IGlobalManager->getFPS();
 
 	IInputManager->Init(window);
 
 	//sfx::sfxGlobal::Instance();
+	IsfxGlobal->start();
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -74,11 +78,13 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	IGlobalManager->Push_Scene(std::shared_ptr<gfx::gfxScene>(new ListScene));
-
+	auto playscene = std::shared_ptr<PlayScene>(new PlayScene);
+	//playscene->SetBMSPath("resource/Cheetahmen 2/Cheetahmen 2 -7keys-.bme");
+	playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_A.bms");
+	//Altale_A.bms
+	IGlobalManager->Push_Scene(playscene);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	auto prev_time = std::chrono::system_clock::now();
-	int fps = 60;
 	do {
 		auto curr_time = std::chrono::system_clock::now();
 		auto diff = curr_time - prev_time;
@@ -91,7 +97,7 @@ int main(void)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		
-		std::this_thread::sleep_until(curr_time + std::chrono::milliseconds(1000 / fps));
+		std::this_thread::sleep_until(curr_time + std::chrono::milliseconds(fps));
 	} // Check if the ESC key was pressed or the window was closed
 	while (IGlobalManager->StackSize() != 0 &&
 		glfwWindowShouldClose(window) == 0);
