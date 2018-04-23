@@ -411,6 +411,22 @@ std::shared_ptr<SpritePackage> ResourceManager::LoadSpritePackage(const std::str
 			pack->sprite_map[name] = sprite;
 		}
 
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 63, sizey = 24;
+			float posx = 333, posy = 138;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "max";
+			pack->sprite_map[name] = sprite;
+		}
 		for (int i = 0; i < 4; i++)
 		{
 			std::shared_ptr<Sprite> sprite(new Sprite);
@@ -572,6 +588,59 @@ std::shared_ptr<SpritePackage> ResourceManager::LoadSpritePackage(const std::str
 			std::string name = "failed";
 			pack->sprite_map[name] = sprite;
 		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 87, sizey = 103;
+			float posx = 384, posy = 353;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "judgement";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 35, sizey = 86;
+			float posx = 472, posy = 366;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "judgement_overlay";
+			pack->sprite_map[name] = sprite;
+		}
+		for (int i = 0; i < 6; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 63, sizey = 63;
+			float posx = 64 * i + 0, posy = 328;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "effect_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+		for (auto& sprite : pack->sprite_map)
+		{
+			sprite.second->size = glm::vec2(::ceil(sprite.second->size.x), ::ceil(sprite.second->size.y));
+		}
 		sprite_packs[path] = pack;
 	}
 	else if (path == "skin2")
@@ -579,6 +648,311 @@ std::shared_ptr<SpritePackage> ResourceManager::LoadSpritePackage(const std::str
 		std::string filename = "resource/skin2.bmp";
 		unsigned int height, width, texture_id;
 		texture_id = loadSprite_ffmpeg(filename.c_str(), height, width);
+
+		std::shared_ptr<SpritePackage> pack(new SpritePackage);
+		pack->texture_id = texture_id;
+		pack->size = glm::vec2(width, height);
+		float size_ratio = 800.0f / 640.0f;
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 23, sizey = 412;
+			float posx = 0, posy = 0;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "left";
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 23, sizey = 412;
+			float posx = 24, posy = 0;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "right";
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 20, sizey = 30;
+			float posx = 48, posy = 31;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "button0_0";
+			pack->sprite_map[name] = sprite;
+		}
+
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 20, sizey = 30;
+			float posx = 86, posy = 31;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "button0_1";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 16, sizey = 30;
+			float posx = 69, posy = 31;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "button1_0";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 16, sizey = 30;
+			float posx = 107, posy = 31;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "button1_1";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 34, sizey = 30;
+			float posx = 48, posy = 62;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "button2_0";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 34, sizey = 30;
+			float posx = 83, posy = 62;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "button2_1";
+			pack->sprite_map[name] = sprite;
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 19, sizey = 5;
+			float posx = 48, posy = 97 + 15 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "note0_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 15, sizey = 5;
+			float posx = 88, posy = 97 + 15 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "note1_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 33, sizey = 5;
+			float posx = 104, posy = 97 + 15 * i;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "note2_" + std::to_string(i);
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 1, sizey = 382;
+			float posx = 141, posy = 0;
+			sprite->size = glm::vec2(sizex, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "lane";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 1, sizey = 382;
+			float posx = 138, posy = 0;
+			sprite->size = glm::vec2(sizex, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "line1";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 20, sizey = 1;
+			float posx = 2, posy = 415;
+			sprite->size = glm::vec2(sizex, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "line2";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 19, sizey = 377;
+			float posx = 210, posy = 0;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "lane0";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 15, sizey = 377;
+			float posx = 230, posy = 0;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "lane1";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 33, sizey = 377;
+			float posx = 246, posy = 0;
+			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "lane2";
+			pack->sprite_map[name] = sprite;
+		}
+		{
+			std::shared_ptr<Sprite> sprite(new Sprite);
+			sprite->delete_itself = false;
+			sprite->texture_id = texture_id;
+			float sizex = 1, sizey = 1;
+			float posx = 0, posy = 0;
+			sprite->size = glm::vec2(sizex, sizey*size_ratio);
+			float up = posy, down = sizey, left = posx, right = sizex;
+			up /= height;
+			down /= height;
+			left /= width;
+			right /= width;
+			sprite->texture_rect = glm::vec4(left, up, right, down);
+			std::string name = "black";
+			pack->sprite_map[name] = sprite;
+		}
+		for (auto& sprite : pack->sprite_map)
+		{
+			sprite.second->size = glm::vec2(::ceil(sprite.second->size.x), ::ceil(sprite.second->size.y));
+		}
+		sprite_packs[path] = pack;
 	}
 	else
 	{

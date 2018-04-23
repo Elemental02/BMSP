@@ -25,6 +25,11 @@ void gfx::gfxScene::RemoveUpdatable(std::shared_ptr<gfxUpdatable> updatable)
 	}
 }
 
+bool gfx::gfxScene::HasUpdatable(std::shared_ptr<gfxUpdatable> updatable)
+{
+	return updatable_list.find(updatable) != updatable_list.end();
+}
+
 void gfx::gfxScene::Update(std::chrono::milliseconds delta)
 {
 	std::vector<std::shared_ptr<gfxUpdatable>> removes;

@@ -1,6 +1,9 @@
 #pragma once
 namespace gfx
 {
+	enum Align {
+		Left, Center, Right
+	};
 	class gfxObject
 	{
 	private:

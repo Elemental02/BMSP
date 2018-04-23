@@ -1,73 +1,59 @@
 #include "../stdafx.h"
 #include "../managers/GlobalManager.h"
-#include "gfxString.h"
+#include "gfxSpriteFont.h"
 
-void gfx::gfxString::RenderString()
+void gfx::gfxSpriteFont::RenderString()
 {
 	int strlen = str.length();
 	for (auto& rendergroup : renderlist)
 	{
 		rendergroup.second.strsize = 0;
 	}
-	int char_len = 0;
+
+	float pos = 0;
 	for (int i = 0; i < strlen; i++)
 	{
-		if (str[i] <= 127)
-		{
-			if(char_vector.size()<=char_len)
-				char_vector.push_back(str[i]);
-			else
-				char_vector[char_len] = str[i];
-			char_len++;
-		}
-		else
-		{
-			int tempchar = 0;
-			tempchar = str[i];
-			tempchar = tempchar << 8;
-			tempchar = tempchar | (int)str[++i];
-			if (char_vector.size() <= char_len)
-				char_vector.push_back(tempchar);
-			else
-				char_vector[char_len] = tempchar;
-			char_len++;
-		}
-	}
-
-	int pos = 0;
-	for (int i = 0; i < char_len; i++)
-	{
-		auto glyph = font->LoadChar(char_vector[i],pixelSize);
-		int texture_id = glyph.sprite->texture_id;
+		auto glyph = sprite_list[str[i]];
+		int texture_id = glyph->texture_id;
 		if (renderlist.find(texture_id) == renderlist.end())
 			renderlist[texture_id] = renderlistGroup();
-		
+
 		int str_cnt = renderlist[texture_id].strsize;
 		if (renderlist[texture_id].size.size() > str_cnt)
-			renderlist[texture_id].size[str_cnt] = glyph.sprite->size;
+			renderlist[texture_id].size[str_cnt] = glyph->size;
 		else
-			renderlist[texture_id].size.push_back(glyph.sprite->size);
+			renderlist[texture_id].size.push_back(glyph->size);
 
 		if (renderlist[texture_id].uv_rect.size() > str_cnt)
-			renderlist[texture_id].uv_rect[str_cnt] = glyph.sprite->texture_rect;
+			renderlist[texture_id].uv_rect[str_cnt] = glyph->texture_rect;
 		else
-			renderlist[texture_id].uv_rect.push_back(glyph.sprite->texture_rect);
-		
-		if (renderlist[texture_id].matrix.size() > str_cnt * 2)
+			renderlist[texture_id].uv_rect.push_back(glyph->texture_rect);
+
+		if (renderlist[texture_id].matrix.size() > (str_cnt * 2))
 		{
-			renderlist[texture_id].matrix[str_cnt * 2] = glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f);
+			renderlist[texture_id].matrix[str_cnt * 2] = glm::vec3(pos, 0.0f, 0.0f);
 			renderlist[texture_id].matrix[str_cnt * 2 + 1] = glm::vec3(1.0f, 1.0f, 1.0f);
 		}
 		else
 		{
-			renderlist[texture_id].matrix.push_back(glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f));
+			renderlist[texture_id].matrix.push_back(glm::vec3(pos, 0.0f, 0.0f));
 			renderlist[texture_id].matrix.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		renderlist[texture_id].strsize++;
-		pos += glyph.advance;
+		pos += glyph->size.x;
 	}
+
+	int alignment = this->alignment == Align::Center ? -pos / 2.0f : -pos;
 	for (auto& rendergroup : renderlist)
 	{
+		if (this->alignment != Align::Left)
+		{
+			for (int i = 0; i < rendergroup.second.strsize; i++)
+			{
+				rendergroup.second.matrix[i * 2].x += alignment;
+			}
+		}
+
 		if (!rendergroup.second.sizebuffer)
 		{
 			glGenBuffers(1, &rendergroup.second.sizebuffer);
@@ -94,52 +80,15 @@ void gfx::gfxString::RenderString()
 			glBufferData(GL_ARRAY_BUFFER, rendergroup.second.buffersize * sizeof(glm::vec3) * 2, 0, GL_DYNAMIC_DRAW);
 		}
 	}
-
-	if (this->alignment != Align::Left)
-	{
-		int alignment = this->alignment == Align::Center ? -pos / 2.0f : -pos;
-		for (auto& rendergroup : renderlist)
-		{
-			for (int i = 0; i < rendergroup.second.strsize; i++)
-			{
-				rendergroup.second.matrix[i * 2].x += alignment;
-			}
-		}
-	}
-
-	is_dirty = false;
 }
 
-gfx::gfxString::gfxString()
-{
-}
-
-gfx::gfxString::~gfxString()
-{
-	for (auto& rendergroup : renderlist)
-	{
-		glDeleteBuffers(1, &rendergroup.second.sizebuffer);
-		glDeleteBuffers(1, &rendergroup.second.matrixbuffer);
-		glDeleteBuffers(1, &rendergroup.second.uvbuffer);
-	}
-}
-
-void gfx::gfxString::setString(std::string str)
-{
-	is_dirty = true;
-	this->str = str;
-}
-
-void gfx::gfxString::Render()
+void gfx::gfxSpriteFont::Render()
 {
 	if (str.length() == 0)
 		return;
 	if (is_dirty)
-	{
 		RenderString();
-	}
-	IgfxGlobal->UseShaders("font");
-
+	IgfxGlobal->UseShaders(shader);
 	IgfxGlobal->setUniformMatrix(getTransform());
 
 	GLuint vertexbuffer = IgfxGlobal->getGlobalVertexArrayBuffer();
@@ -149,6 +98,8 @@ void gfx::gfxString::Render()
 
 	for (auto& rendergroup : renderlist)
 	{
+		if (rendergroup.second.strsize == 0)
+			continue;
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, rendergroup.first);
 		glUniform1i(samplerId, 0);
@@ -163,7 +114,6 @@ void gfx::gfxString::Render()
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
-		//glVertexAttribDivisor(0, 0);
 
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);

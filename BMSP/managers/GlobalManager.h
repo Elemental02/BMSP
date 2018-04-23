@@ -60,7 +60,7 @@ public:
 		}
 		else
 		{
-			this->fps = 1000.0f / fps;
+			this->fps = ::floor(1000.0f / fps);
 		}
 	}
 	inline float getFPS()

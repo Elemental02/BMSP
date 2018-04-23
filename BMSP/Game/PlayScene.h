@@ -4,11 +4,13 @@
 #include "../gfx/gfxSprite.h"
 #include "../sfx/sfxSound.h"
 #include "../gfx/gfxPanel.h"
+#include "../gfx/gfxSpriteAnimation.h"
+#include "../gfx/gfxSpriteFont.h"
 
 class PlayScene : public gfx::gfxScene
 {
 private:
-	enum SceneState {Initialzing, Loading, Playing, End };
+	enum SceneState {Initialzing, Playing_Animation, Loading, Playing, End };
 	SceneState scene_state = SceneState::Initialzing;
 	BMSPlayer bmsPlayer;
 	std::map<int, std::shared_ptr<Sound>> sounds;
@@ -22,6 +24,7 @@ private:
 	SoundPool soundpool;
 
 	gfx::gfxPanel node_panel;
+	gfx::gfxPanel skin_panel;
 	struct NodeSprite
 	{
 		std::shared_ptr<gfx::gfxSprite> sprite;
@@ -41,7 +44,8 @@ private:
 	{
 		int lane_value;
 		NodeSprite* closest_node;
-		int sound_value;
+		int sound_value = -1;
+		float length;
 	};
 	std::array<LaneInfo, 8> lane_info;
 
@@ -53,11 +57,37 @@ private:
 	
 	std::shared_ptr<gfx::gfxSprite> skin_top;
 	std::shared_ptr<gfx::gfxSprite> skin_bottom;
-	std::shared_ptr<Sprite> nodeSprite;
+	std::shared_ptr<gfx::gfxSprite> skin_left;
+	std::shared_ptr<gfx::gfxSprite> skin_right;
+
+	std::shared_ptr<gfx::gfxSprite> button_sprite[8];
+	std::shared_ptr<gfx::gfxSprite> line_sprite[7];
+
+	std::shared_ptr<Sprite> noteAnimation[3][4];
+	std::shared_ptr<gfx::gfxSpriteAnimation> judgeAnimation[5];
+	std::shared_ptr<gfx::gfxSpriteAnimation> curr_judge;
+
+	std::shared_ptr<gfx::gfxSprite> judgeSkin;
+	std::shared_ptr<gfx::gfxSprite> judgeLayout;
+	std::shared_ptr<gfx::gfxUpdatableFunc> judge_func;
+	int judge_duration = 0;
+
+	std::shared_ptr<gfx::gfxSprite> black_sprite;
+
+	std::shared_ptr<gfx::gfxSprite> lane;
+	std::shared_ptr<gfx::gfxSprite> lane_back[8];
+
+	int combo = 0;
+	std::shared_ptr<gfx::gfxSprite> combo_max;
+	std::shared_ptr<gfx::gfxSpriteFont> combo_sprite;
 
 	float noteSpeed = 550.0f;
 
+	std::future<int> init_future;
+
 	std::string path_to_load;
+
+	bool autoplay = false;
 
 	void SoundPlay(int value);
 public:

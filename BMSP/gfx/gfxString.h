@@ -25,8 +25,10 @@ namespace gfx
 		std::map<GLuint, renderlistGroup> renderlist;
 
 		std::string str;
+		std::vector<int> char_vector;
 
 		int pixelSize = 15;
+		Align alignment = Align::Left;
 
 		bool is_dirty = true;
 

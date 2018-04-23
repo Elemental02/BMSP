@@ -42,6 +42,8 @@ private:
 public:
 	ResourceManager() {}
 	std::shared_ptr<Sprite> LoadSprite(const std::string& path);
+	std::shared_ptr<Sprite> LoadSprite(const std::string& name, int& width, int& height, uint8_t** data);
+	std::shared_ptr<Sprite> RegisterSprite(const std::string& name, int width, int height, uint8_t* data);
 	std::shared_ptr<Sound> LoadSound(const std::string& path);
 	std::shared_ptr<SpritePackage> LoadSpritePackage(const std::string& path);
 	void LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize = 5);

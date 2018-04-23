@@ -108,18 +108,18 @@ void gfx::gfxSprite::Render()
 	int pos4 = pos + 3;
 	glEnableVertexAttribArray(pos1);
 	glEnableVertexAttribArray(pos2);
-	//glEnableVertexAttribArray(pos3);
+	glEnableVertexAttribArray(pos3);
 	//glEnableVertexAttribArray(pos4);
-	glm::vec3 posscale[2] = { getPosition(),getScale() };
+	glm::vec3 posscale[3] = { getPosition(), getScale(), getPivot() };
 	glBindBuffer(GL_ARRAY_BUFFER, transformBuffer);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(posscale), static_cast<void*>(&posscale));
-	glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(0));
-	glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2 * 3, (void*)(sizeof(float) * 3));
-	//glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 8));
+	glVertexAttribPointer(pos1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (void*)(0));
+	glVertexAttribPointer(pos2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (void*)(sizeof(float) * 3));
+	glVertexAttribPointer(pos3, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (void*)(sizeof(float) * 6));
 	//glVertexAttribPointer(pos4, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (void*)(sizeof(float) * 12));
 	glVertexAttribDivisor(pos1, 1);
 	glVertexAttribDivisor(pos2, 1);
-	//glVertexAttribDivisor(pos3, 1);
+	glVertexAttribDivisor(pos3, 1);
 	//glVertexAttribDivisor(pos4, 1);
 
 	// Draw the triangle !
@@ -131,6 +131,6 @@ void gfx::gfxSprite::Render()
 	glDisableVertexAttribArray(4);
 	glDisableVertexAttribArray(pos1);
 	glDisableVertexAttribArray(pos2);
-	//glDisableVertexAttribArray(pos3);
+	glDisableVertexAttribArray(pos3);
 	//glDisableVertexAttribArray(pos4);
 }
