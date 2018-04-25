@@ -116,27 +116,49 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		if (init_future.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 		{
 			std::experimental::filesystem::path path(path_to_load);
+			std::array<std::string, 6> image_extension = { "bmp","png","jpg","jpeg","tga","tiff" };
 			for (auto& bmp : bmsPlayer.getBMS().bmps)
 			{
 				auto dir = path.parent_path();
 				auto bmp_filename = dir.string() + "\\" + bmp.second;
-				auto bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
-				if (!bmp_ptr)
+				bool is_image = false;
+				for (int i = 0; i < image_extension.size(); i++)
 				{
-					bmp_filename.replace(bmp_filename.size() - 3, 3, "png");
-					bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+					auto extension = bmp_filename.substr(bmp_filename.size() - image_extension[i].size(), image_extension[i].size());
+					if (image_extension[i] == extension) 
+					{
+						is_image = true;
+						break;
+					}
 				}
-				if (!bmp_ptr)
+
+				if (is_image)
 				{
-					bmp_filename.replace(bmp_filename.size() - 3, 3, "jpg");
-					bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+					auto bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+					for (int i = 0; i < image_extension.size(); i++)
+					{
+						if (bmp_ptr)
+							break;
+						bmp_filename.replace(bmp_filename.size() - image_extension[i].size(), image_extension[i].size(), image_extension[i]);
+					}
+					bga_sprites[bmp.first] = bmp_ptr;
 				}
-				if (!bmp_ptr)
+				else
 				{
-					bmp_filename.replace(bmp_filename.size() - 3, 4, "jpeg");
-					bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
+					auto image_stream = IResourceManager->OpenImageStream(bmp_filename);
+					if (image_stream && !bgaVideo)
+					{
+						this->bgaVideo = std::shared_ptr<gfx::gfxVideo>(new gfx::gfxVideo);
+						video_value = bmp.first;
+						bgaVideo->setVideo(image_stream);
+					}
 				}
-				bga_sprites[bmp.first] = bmp_ptr;
+			}
+			if (bgaVideo)
+			{
+				bgaVideo->setScale(glm::vec3(800.0f / bgaVideo->getImageSize().x, 600.0f / bgaVideo->getImageSize().y, 1.0f));
+				if(video_value == 0)
+					AddUpdatable(bgaVideo);
 			}
 			scene_state = SceneState::Playing;
 		}
@@ -288,22 +310,22 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		{
 			if (node.first == 1)
 				SoundPlay(node.second.value);
-			else if (node.first == BMS::CH::BGA)
+			else if (node.first == BMS::CH::BGA || node.first == BMS::CH::BGALayer)
 			{
-				auto& sprite = bga_sprites[node.second.value];
-				if (sprite != nullptr)
+				if (video_value && node.second.value == video_value)
 				{
-					bgaSprite->setSprite(sprite);
-					bgaSprite->setScale(glm::vec3(800.0f / sprite->size.x, 600.0f / sprite->size.y, 0.0f));
+					AddUpdatable(bgaVideo);
+					bgaVideo->Update(std::chrono::milliseconds(curr_time - node.second.a_time.count()));
 				}
-			}
-			else if (node.first == BMS::CH::BGALayer)
-			{
-				auto& sprite = bga_sprites[node.second.value];
-				if (sprite != nullptr)
+				else
 				{
-					bgaLayerSprite->setSprite(sprite);
-					bgaLayerSprite->setScale(glm::vec3(800.0f / sprite->size.x, 600.0f / sprite->size.y, 0.0f));
+					auto& sprite = bga_sprites[node.second.value];
+					if (sprite != nullptr)
+					{
+						auto bga = node.first == BMS::CH::BGA ? bgaSprite : bgaLayerSprite;
+						bga->setSprite(sprite);
+						bga->setScale(glm::vec3(800.0f / sprite->size.x, 600.0f / sprite->size.y, 0.0f));
+					}
 				}
 			}
 		}
@@ -362,6 +384,8 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 
 void PlayScene::Render()
 {
+	if (bgaVideo && this->HasUpdatable(bgaVideo))
+		bgaVideo->Render();
 	bgaSprite->Render();
 	bgaLayerSprite->Render();
 	black_sprite->Render();
@@ -386,9 +410,10 @@ void PlayScene::Init()
 	init_future = std::async(std::launch::async, [&]() {
 		std::experimental::filesystem::path path(path_to_load);
 		bmsPlayer.setBMS(parser.Parse(path_to_load));
-		for (auto& wav : bmsPlayer.getBMS().wavs)
+		auto& bms = bmsPlayer.getBMS();
+		auto dir = path.parent_path();
+		for (auto& wav : bms.wavs)
 		{
-			auto dir = path.parent_path();
 			auto wav_filename = dir.string() + "\\" + wav.second;
 			auto wavptr = IResourceManager->LoadSound(wav_filename);
 			if (!wavptr)
@@ -404,6 +429,12 @@ void PlayScene::Init()
 			if (!wavptr)
 				std::cout << "load failed?: " << wav.second <<std::endl;
 			sounds[wav.first] = wavptr;
+		}
+		if (bms.metadata.find("VIDEOFILE") != bms.metadata.end())
+		{
+			this->bgaVideo = std::shared_ptr<gfx::gfxVideo>(new gfx::gfxVideo);
+			std::string video_filename = (dir.string() + "\\").append(bms.metadata.find("VIDEOFILE")->second);
+			bgaVideo->setVideo(video_filename);
 		}
 		return 0;
 	});

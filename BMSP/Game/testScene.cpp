@@ -33,7 +33,7 @@ void TestScene::Init()
 {
 	font = std::shared_ptr<gfx::gfxFont>(new gfx::gfxFont());
 	font->LoadFont("resource/KOPUSGoM.ttf");
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		str.push_back(gfx::gfxString());
 		str[i].setFont(font);

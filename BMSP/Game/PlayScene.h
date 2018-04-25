@@ -6,6 +6,7 @@
 #include "../gfx/gfxPanel.h"
 #include "../gfx/gfxSpriteAnimation.h"
 #include "../gfx/gfxSpriteFont.h"
+#include "../gfx/gfxVideo.h"
 
 class PlayScene : public gfx::gfxScene
 {
@@ -48,7 +49,8 @@ private:
 		float length;
 	};
 	std::array<LaneInfo, 8> lane_info;
-
+	int video_value = 0;
+	std::shared_ptr<gfx::gfxVideo> bgaVideo;
 	std::shared_ptr<gfx::gfxSprite> bgaSprite;
 	std::shared_ptr<gfx::gfxSprite> bgaLayerSprite;
 	

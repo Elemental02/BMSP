@@ -58,7 +58,7 @@ int main(void)
 	IgfxGlobal->LoadShaders("font", "shaders/vertex_shader.shader", "shaders/font_fragment_shader.shader");
 	IgfxGlobal->LoadShaders("layer", "shaders/vertex_shader.shader", "shaders/bga_layer_fragment_shader.shader");
 	
-	IGlobalManager->setFPS(60);
+	IGlobalManager->setFPS(120);
 	int fps = IGlobalManager->getFPS();
 
 	IInputManager->Init(window);
@@ -78,9 +78,10 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	auto playscene = std::shared_ptr<TestScene>(new TestScene);
+	//auto playscene = std::shared_ptr<TestScene>(new TestScene);
+	auto playscene = std::shared_ptr<PlayScene>(new PlayScene);
 	//playscene->SetBMSPath("resource/Cheetahmen 2/Cheetahmen 2 -7keys-.bme");
-	//playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_A.bms");
+	playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_A.bms");
 	//Altale_A.bms
 	IGlobalManager->Push_Scene(playscene);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

@@ -152,6 +152,7 @@
     <ClInclude Include="gfx\gfxSpriteFont.h" />
     <ClInclude Include="gfx\gfxString.h" />
     <ClInclude Include="gfx\gfxUpdatable.h" />
+    <ClInclude Include="gfx\gfxVideo.h" />
     <ClInclude Include="managers\GlobalManager.h" />
     <ClInclude Include="managers\InputManager.h" />
     <ClInclude Include="managers\ResourceManager.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="gfx\gfxSpriteFont.cpp" />
     <ClCompile Include="gfx\gfxString.cpp" />
     <ClCompile Include="gfx\gfxUpdatable.cpp" />
+    <ClCompile Include="gfx\gfxVideo.cpp" />
     <ClCompile Include="managers\GlobalManager.cpp" />
     <ClCompile Include="managers\InputManager.cpp" />
     <ClCompile Include="managers\ResourceManager.cpp" />

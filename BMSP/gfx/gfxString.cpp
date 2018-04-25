@@ -12,26 +12,34 @@ void gfx::gfxString::RenderString()
 	int char_len = 0;
 	for (int i = 0; i < strlen; i++)
 	{
-		if (str[i] <= 127)
+		//if ((str[i] & 0x80) == 0)
 		{
-			if(char_vector.size()<=char_len)
+			if (char_vector.size() <= char_len)
 				char_vector.push_back(str[i]);
 			else
 				char_vector[char_len] = str[i];
 			char_len++;
 		}
-		else
+		/*else
 		{
-			int tempchar = 0;
-			tempchar = str[i];
-			tempchar = tempchar << 8;
-			tempchar = tempchar | (int)str[++i];
+			unsigned int tempchar = (unsigned wchar_t)'го'!!;
+			//tempchar = tempchar| ((str[i]));
+			//tempchar = tempchar & ((str[++i] << 8)|0xff);
+			//tempchar <<= 16;
+			wchar_t wt = 54616;
+			char t[2] = { 0, };
+			t[0] = str[i - 1];
+			t[1] = str[i];
+			char t2[4];
+			memcpy(t2, &tempchar, 4);
+			char t3[2];
+			memcpy(t3, &wt, 2);
 			if (char_vector.size() <= char_len)
 				char_vector.push_back(tempchar);
 			else
 				char_vector[char_len] = tempchar;
 			char_len++;
-		}
+		}*/
 	}
 
 	int pos = 0;

@@ -10,94 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-GLuint loadBMP_custom(const char * imagepath, unsigned int& height, unsigned int& width) {
-
-	printf("Reading image %s\n", imagepath);
-
-	// Data read from the header of the BMP file
-	unsigned char header[54];
-	unsigned int dataPos;
-	unsigned int imageSize;
-	//unsigned int width, height;
-	// Actual RGB data
-	unsigned char * data;
-
-	// Open the file
-	FILE * file;
-	fopen_s(&file, imagepath, "rb");
-	if (!file) {
-		printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath);
-		getchar();
-		return 0;
-	}
-
-	// Read the header, i.e. the 54 first bytes
-
-	// If less than 54 bytes are read, problem
-	if (fread(header, 1, 54, file) != 54) {
-		printf("Not a correct BMP file\n");
-		fclose(file);
-		return 0;
-	}
-	// A BMP files always begins with "BM"
-	if (header[0] != 'B' || header[1] != 'M') {
-		printf("Not a correct BMP file\n");
-		fclose(file);
-		return 0;
-	}
-
-	// Make sure this is a 24bpp file
-	if (*(int*)&(header[0x1E]) != 0) { printf("Not a correct BMP file\n");    fclose(file); return 0; }
-	if (*(int*)&(header[0x1C]) != 24) { printf("Not a correct BMP file\n");    fclose(file); return 0; }
-
-	// Read the information about the image
-	dataPos = *(int*)&(header[0x0A]);
-	imageSize = *(int*)&(header[0x22]);
-	width = *(int*)&(header[0x12]);
-	height = *(int*)&(header[0x16]);
-
-	// Some BMP files are misformatted, guess missing information
-	if (imageSize == 0)    imageSize = width * height * 3; // 3 : one byte for each Red, Green and Blue component
-	if (dataPos == 0)      dataPos = 54; // The BMP header is done that way
-
-										 // Create a buffer
-	data = new unsigned char[imageSize];
-
-	// Read the actual data from the file into the buffer
-	fread(data, 1, imageSize, file);
-
-	// Everything is in memory now, the file can be closed.
-	fclose(file);
-
-	// Create one OpenGL texture
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-
-	// OpenGL has now copied the data. Free our own version
-	delete[] data;
-
-	// Poor filtering, or ...
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); 
-
-	// ... nice trilinear filtering ...
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	// ... which requires mipmaps. Generate them automatically.
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	// Return the ID of the texture we just created
-	return textureID;
-}
-
 GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned int& width)
 {
 	AVFormatContext* container = avformat_alloc_context();
@@ -220,6 +132,8 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 		av_packet_unref(&packet);
 		av_frame_unref(frame);
 		av_frame_free(&frame);
+		if (textureID != 0)
+			break;
 	}
 	sws_freeContext(sws_ctx);
 
@@ -232,7 +146,6 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 
 std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 {
-
 	if (sprites.find(path) != sprites.end())
 		return sprites[path];
 
@@ -248,6 +161,134 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string& path)
 	res->delete_itself = true;
 	sprites[path] = res;
 	return res;
+}
+
+std::shared_ptr<Sprite> ResourceManager::LoadSprite(const std::string & name, Image& imgdata)
+{
+	if (sprites.find(name) != sprites.end())
+		return 0;
+
+	std::shared_ptr<Sprite> res = LoadSprite(imgdata);
+	sprites[name] = res;
+	return res;
+}
+
+std::shared_ptr<Sprite> ResourceManager::LoadSprite(Image& imgdata)
+{
+
+	if (imgdata.data == nullptr)
+		return 0;
+
+	std::shared_ptr<Sprite> res = std::shared_ptr<Sprite>(new Sprite);
+	// Create one OpenGL texture
+	glGenTextures(1, &res->texture_id);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, res->texture_id);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgdata.width, imgdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgdata.data);
+	auto err = glGetError();
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	res->size = glm::vec2(imgdata.width, imgdata.height);
+	res->texture_rect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	res->delete_itself = true;
+	
+	return res;
+}
+
+std::shared_ptr<ImageStream> ResourceManager::OpenImageStream(const std::string & path)
+{
+
+	AVFormatContext* container = avformat_alloc_context();
+	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
+		return 0;
+	}
+
+	if (avformat_find_stream_info(container, nullptr) < 0) {
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+
+	AVCodec *codec = nullptr;
+	int stream_id = av_find_best_stream(container, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+	if (stream_id == -1) {
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+
+	AVCodecParameters *ctxp = container->streams[stream_id]->codecpar;
+	if (codec == nullptr) {
+		codec = avcodec_find_decoder(ctxp->codec_id);
+	}
+	AVCodecContext* ctx = avcodec_alloc_context3(codec);
+
+	avcodec_parameters_to_context(ctx, ctxp);
+
+	int height_conv = ctx->height;
+	int width_conv = ctx->width;
+
+	if (codec == NULL) {
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+
+	int res = avcodec_open2(ctx, codec, nullptr);
+	if (res < 0) {
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+	AVPixelFormat pixFormat;
+	switch (ctx->pix_fmt) {
+	case AV_PIX_FMT_YUVJ420P:
+		pixFormat = AV_PIX_FMT_YUV420P;
+		break;
+	case AV_PIX_FMT_YUVJ422P:
+		pixFormat = AV_PIX_FMT_YUV422P;
+		break;
+	case AV_PIX_FMT_YUVJ444P:
+		pixFormat = AV_PIX_FMT_YUV444P;
+		break;
+	case AV_PIX_FMT_YUVJ440P:
+		pixFormat = AV_PIX_FMT_YUV440P;
+		break;
+	default:
+		pixFormat = ctx->pix_fmt;
+		break;
+	}
+
+	struct SwsContext *sws_ctx = sws_getContext(ctx->width, ctx->height, pixFormat,
+		width_conv, height_conv, AV_PIX_FMT_RGBA, SWS_BICUBIC, NULL, NULL, NULL);
+
+	if (!sws_ctx) {
+		fprintf(stderr, "Could not allocate resampler context\n");
+		avcodec_free_context(&ctx);
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		return 0;
+	}
+	auto imagestream = std::shared_ptr<ImageStream>(new ImageStream);
+	imagestream->codec = ctx;
+	imagestream->container = container;
+	imagestream->sws_ctx = sws_ctx;
+
+	imagestream->stream_id = stream_id;
+
+	LoadImageFrame(imagestream);
+
+	return imagestream;
 }
 
 std::shared_ptr<Sound> ResourceManager::LoadSound(const std::string& path)
@@ -961,14 +1002,15 @@ std::shared_ptr<SpritePackage> ResourceManager::LoadSpritePackage(const std::str
 	return sprite_packs[path];
 }
 
-void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize)
+int ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize)
 {
 	if (sound->container == nullptr || sound->codec == nullptr)
-		return;
+		return 0;
 	if (sound->is_load_complete)
-		return;
+		return 0;
 	AVPacket packet;
 	av_init_packet(&packet);
+	int read_frame = 0;
 	for (int i = 0; i < framesize; i++)
 	{
 		std::vector<uint8_t> bufferdata;
@@ -1013,6 +1055,7 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize
 			alGenBuffers(1, &g_buffer);
 			alBufferData(g_buffer, sound->codec->channels>1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, bufferdata.data(), bufferdata.size(), sound->codec->sample_rate);
 			sound->buffers.push_back(g_buffer);
+			read_frame++;
 		}
 		else
 		{
@@ -1021,7 +1064,69 @@ void ResourceManager::LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize
 			break;
 		}
 	}
-	
+	return read_frame;
+}
+
+int ResourceManager::LoadImageFrame(std::shared_ptr<ImageStream> image_stream, int framesize)
+{
+	if (image_stream->is_load_complete)
+		return 0;
+	AVPacket packet;
+	av_init_packet(&packet);
+
+	int read_frame = 0;
+	int max_buffer = framesize && image_stream->image_buffer.size() > framesize ? framesize : image_stream->image_buffer.size();
+	//int max_buffer = image_stream->image_buffer.size();
+	while (read_frame < max_buffer && av_read_frame(image_stream->container, &packet) >= 0)
+	{
+		if (packet.stream_index != image_stream->stream_id)
+		{
+			av_packet_unref(&packet);
+			continue;
+		}
+		int len = avcodec_send_packet(image_stream->codec, &packet);
+		if (len < 0)
+		{
+			av_packet_unref(&packet);
+			continue;
+		}
+
+		AVFrame *frame = av_frame_alloc();
+		int frameFinished = avcodec_receive_frame(image_stream->codec, frame);
+		if (frameFinished == 0)
+		{
+			AVFrame *frameRGBA = av_frame_alloc();
+			//uint8_t *buffer = (uint8_t *)av_malloc(size);
+			int byte_size = av_image_alloc(frameRGBA->data, frameRGBA->linesize, image_stream->codec->width, image_stream->codec->height, AV_PIX_FMT_RGBA, 1);
+			sws_scale(image_stream->sws_ctx, &frame->data[0], frame->linesize, 0, image_stream->codec->height, &frameRGBA->data[0], frameRGBA->linesize);
+
+			//input data to buffer
+			image_stream->image_buffer[read_frame].width = image_stream->codec->width;
+			image_stream->image_buffer[read_frame].height = image_stream->codec->height;
+			if (!image_stream->image_buffer[read_frame].data)
+				image_stream->image_buffer[read_frame].data = new uint8_t[byte_size];
+			memcpy(image_stream->image_buffer[read_frame].data, frameRGBA->data[0], byte_size);
+
+			av_freep(&frameRGBA->data[0]);
+			av_frame_free(&frameRGBA);
+			read_frame++;
+		}
+		else
+		{
+			std::cout << "decode image frame failed" << std::endl;
+		}
+		av_packet_unref(&packet);
+		av_frame_unref(frame);
+		av_frame_free(&frame);
+	}
+
+	if (read_frame == 0)
+	{
+		image_stream->is_load_complete = true;
+		image_stream->unload_ffmpeg();
+	}
+
+	return read_frame;
 }
 
 void ResourceManager::UnloadSprite(const std::string & path)
@@ -1108,4 +1213,30 @@ void Sound::unload_ffmpeg()
 SpritePackage::~SpritePackage()
 {
 	glDeleteTextures(1, &texture_id);
+}
+
+void ImageStream::unload_ffmpeg()
+{
+	if (sws_ctx != nullptr)
+	{
+		sws_freeContext(sws_ctx);
+		sws_ctx = nullptr;
+	}
+	if (codec != nullptr)
+	{
+		avcodec_free_context(&codec);
+		codec = nullptr;
+	}
+	if (container != nullptr)
+	{
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		container = nullptr;
+	}
+}
+
+Image::~Image()
+{
+	if (data)
+		delete[] data;
 }
