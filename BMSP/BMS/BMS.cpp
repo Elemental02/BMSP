@@ -5,8 +5,8 @@
 const int BMS::CH::P1 = 11;// BMS::parseValue("11");
 const int BMS::CH::P2 = 21;// BMS::parseValue("21");
 
-const int BMS::CH::P1L = BMS::parseValue("51");
-const int BMS::CH::P2L = BMS::parseValue("61");
+const int BMS::CH::P1L = 51;// BMS::parseValue("51");
+const int BMS::CH::P2L = 61;// BMS::parseValue("61");
 
 const int BMS::CH::BGM = BMS::parseValue("01");
 const int BMS::CH::Length = BMS::parseValue("02");

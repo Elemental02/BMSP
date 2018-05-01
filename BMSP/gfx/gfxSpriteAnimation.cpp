@@ -13,7 +13,7 @@ bool gfx::gfxSpriteAnimation::Update(std::chrono::milliseconds delta)
 			current_index = 0;
 			if (loop > 0)
 				loop--;
-			else
+			if (loop == 0)
 			{
 				current_duration = 0;
 				return false;

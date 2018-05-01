@@ -81,7 +81,7 @@ int main(void)
 	//auto playscene = std::shared_ptr<TestScene>(new TestScene);
 	auto playscene = std::shared_ptr<PlayScene>(new PlayScene);
 	//playscene->SetBMSPath("resource/Cheetahmen 2/Cheetahmen 2 -7keys-.bme");
-	playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_A.bms");
+	playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_H.bms");
 	//Altale_A.bms
 	IGlobalManager->Push_Scene(playscene);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

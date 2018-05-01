@@ -962,7 +962,7 @@ std::shared_ptr<SpritePackage> ResourceManager::LoadSpritePackage(const std::str
 			sprite->delete_itself = false;
 			sprite->texture_id = texture_id;
 			float sizex = 33, sizey = 377;
-			float posx = 246, posy = 0;
+			float posx = 266, posy = 0;
 			sprite->size = glm::vec2(sizex*size_ratio, sizey*size_ratio);
 			float up = posy, down = sizey, left = posx, right = sizex;
 			up /= height;

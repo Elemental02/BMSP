@@ -60,19 +60,36 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		func->setFunc([&, func, func2](auto delta) {
 			if (func)
 			{
+				bool res = true;
 				int elasped = func->getElasped();
 				if (elasped > 500)
 				{
-					skin_bottom->setPosition(glm::vec3(0.0f, 600.0f - skin_bottom->getSprite().size.y, -1.0f));
-					skin_top->setPosition(glm::vec3(0.0f, 0.0f, -1.0f));
-					AddUpdatable(func2);
-					return false;
+					elasped = 500;
+					res = false;
 				}
 				float pos = (elasped / 500.0f) - 1.0f;
 				pos = pos * pos;
 				pos = 1.0f - pos;
-				skin_bottom->setPosition(glm::vec3(0.0f, 600.0f - skin_bottom->getSprite().size.y*pos, 0.0f));
+				float width_ratio = 800.0f / 640.0f;
+				float height_ratio = 600.0f / 480.0f;
+				glm::vec3 bottom_pos = glm::vec3(0.0f, 600.0f - skin_bottom->getSprite().size.y*pos, 0.0f);
+				skin_bottom->setPosition(bottom_pos);
 				skin_top->setPosition(glm::vec3(0.0f, -skin_top->getSprite().size.y*(1.0f - pos), 0.0f));
+
+				
+				maxcombo_sprite->setPosition(glm::vec3(bottom_pos.x+292.0f*width_ratio, bottom_pos.y+5.0f*height_ratio, 0.0f));
+				bpm_sprite->setPosition(glm::vec3(bottom_pos.x + 388.0f*width_ratio, bottom_pos.y + 5.0f*height_ratio, 0.0f));
+				minute_sprite->setPosition(glm::vec3(bottom_pos.x + 600.0f*width_ratio, bottom_pos.y + 28.0f*height_ratio, 0.0f));
+				second_sprite->setPosition(glm::vec3(bottom_pos.x + 632.0f*width_ratio, bottom_pos.y + 28.0f*height_ratio, 0.0f));
+				play_sprite->setPosition(glm::vec3(bottom_pos.x + 488.0f*width_ratio, bottom_pos.y + 5.0f*height_ratio, 0.0f));
+				gauge_sprite->setPosition(glm::vec3(bottom_pos.x + 508.0f*width_ratio, bottom_pos.y + 28.0f*height_ratio, 0.0f));
+				point_sprite->setPosition(glm::vec3(bottom_pos.x + 139.0f*width_ratio, bottom_pos.y + 28.0f*height_ratio, 0.0f));
+				score_sprite->setPosition(glm::vec3(bottom_pos.x + 153.0f*width_ratio, bottom_pos.y + 5.0f*height_ratio, 0.0f));
+				if (res == false)
+				{
+					AddUpdatable(func2);
+					return false;
+				}
 				return true;
 			}
 			return false;
@@ -98,7 +115,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			{
 				button_sprite[i]->setPosition(glm::vec3(button_sprite[i]->getPosition().x, 600.0f - (skin_bottom->getSprite().size.y + button_sprite[i]->getSprite().size.y)*pos, 0.0f));
 				if (i < 7) {
-					line_sprite[i]->setPosition(glm::vec3(button_sprite[i]->getPosition().x, skin_top->getSprite().size.y + 600.0f*(1.0f - pos), 0.0f));
+					line_sprite[i]->setPosition(glm::vec3(line_sprite[i]->getPosition().x, skin_top->getSprite().size.y + 600.0f*(1.0f - pos), 0.0f));
 				}
 			}
 			skin_left->setPosition(glm::vec3(0.0f, skin_top->getSprite().size.y - 600.0f*(1.0f - pos), 0.0f));
@@ -178,29 +195,33 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			auto& measure = bms.measures[processed_measure];
 			for (int i = 0; i < 9; i++)
 			{
-				int channel = i + BMS::CH::P1;
-				auto& nodes = measure.nodes.find(channel);
-				if (nodes == measure.nodes.end())
-					continue;
-				for (auto& node : nodes->second)
+				for (int j = 0; j < 2; j++)
 				{
-					if (node_pool.pool.empty())
+					int channel = i + (j ? BMS::CH::P1L : BMS::CH::P1);
+					auto& nodes = measure.nodes.find(channel);
+					if (nodes == measure.nodes.end())
+						continue;
+					for (auto& node : nodes->second)
 					{
-						node_pool.pool.push_back(NodeSprite{ std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite),nullptr });
+						if (node_pool.pool.empty())
+						{
+							node_pool.pool.push_back(NodeSprite{ std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite),nullptr });
+						}
+						auto& sprite_node = node_pool.pool.back();
+						sprite_node.node = &node;
+
+						int lane_num = (i == 5) ? 0 : ((i < 5) ? i + 1 : i - 1);
+						int note_num = (lane_num == 0) ? 2 : (lane_num % 2) == 0 ? 1 : 0;
+						//std::string button_index = "note"+std::to_string(note_num)+"_0";
+						sprite_node.sprite->setSprite(noteAnimation[note_num][0]);
+						sprite_node.sprite->setPosition(glm::vec3(button_sprite[lane_num]->getPosition().x, 0.0f, 0.0f));
+						sprite_node.sprite->setPivot(glm::vec3(0.0f, 1.0f, 0.0f));
+						sprite_node.lane_index = lane_num;
+
+						node_panel.addSprite(sprite_node.sprite.get());
+						node_pool.playing.push_back(sprite_node);
+						node_pool.pool.pop_back();
 					}
-					auto& sprite_node = node_pool.pool.back();
-					sprite_node.node = &node;
-
-					int lane_num = (channel == BMS::CH::P1 + 5) ? 0 : ((channel < BMS::CH::P1 + 5) ? channel - BMS::CH::P1 + 1 : channel - BMS::CH::P1 - 1);
-					int note_num = (lane_num == 0) ? 2 : (lane_num % 2) == 0 ? 1 : 0;
-					//std::string button_index = "note"+std::to_string(note_num)+"_0";
-					sprite_node.sprite->setSprite(noteAnimation[note_num][0]);
-					sprite_node.sprite->setPosition(glm::vec3(button_sprite[lane_num]->getPosition().x, 0.0f, 0.0f));
-					sprite_node.lane_index = lane_num;
-
-					node_panel.addSprite(sprite_node.sprite.get());
-					node_pool.playing.push_back(sprite_node);
-					node_pool.pool.pop_back();
 				}
 			}
 		}
@@ -284,8 +305,12 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 				curr_judge = judgeAnimation[judge_state];
 				curr_judge->Rewind(4);
 				judge_duration = 0;
+				note_effect[i][0]->Rewind();
+				note_effect[i][1]->Rewind();
 				AddUpdatable(curr_judge);
 				AddUpdatable(judge_func);
+				AddUpdatable(note_effect[i][0]);
+				AddUpdatable(note_effect[i][1]);
 				lane_info[i].closest_node->node = nullptr;
 			}
 
@@ -333,6 +358,38 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		{
 			scene_state = SceneState::End;
 		}
+
+		if (maxcombo < combo)
+		{
+			maxcombo = combo;
+			maxcombo_sprite->setString(std::to_string(maxcombo));
+		}
+		if (curr_bpm != (int)bmsPlayer.getCurrentBPM())
+		{
+			curr_bpm = (int)bmsPlayer.getCurrentBPM();
+			bpm_sprite->setString(std::to_string(curr_bpm));
+		}
+		int curr_minute = curr_time / 1000 / 60;
+		if (curr_minute != minute)
+		{
+			minute = curr_minute;
+			minute_sprite->setString(std::to_string(minute));
+		}
+		int curr_second = (curr_time / 1000) % 60;
+		if (curr_second != second)
+		{
+			second = curr_second;
+			second_sprite->setString(second < 10 ? "0" + std::to_string(second) : std::to_string(second));
+		}
+		int curr_play = (curr_progress / (bms.measures.back().length + bms.measures.back().position)) * 100;
+		if (curr_play != play_percent)
+		{
+			play_percent = curr_play;
+			play_sprite->setString(std::to_string(play_percent));
+		}
+		//gauge_sprite->setString("0");
+		//point_sprite->setString("0");
+		//score_sprite->setString("0");
 		break;
 	}
 	case SceneState::End:
@@ -367,6 +424,23 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			button_sprite[i]->setSprite(sprite_pack2->sprite_map[sprite_name]);
 		}
 		lane_info[i].closest_node = nullptr;
+
+		auto p = lane_back[i]->getPosition();
+		float base_y = button_sprite[i]->getPosition().y - lane_back[i]->getSprite().size.y;
+		if (state == KeyState::State_Press || state == KeyState::State_Down)
+		{
+			float y = p.y - delta.count() * 3.0f - base_y;
+			if (y < 0)
+				y = 0.0f;
+			lane_back[i]->setPosition(glm::vec3(p.x, base_y + y, p.z));
+		}
+		else
+		{
+			float y = p.y + delta.count() * 3.0f - base_y;
+			if (y > lane_back[i]->getSprite().size.y)
+				y = lane_back[i]->getSprite().size.y;
+			lane_back[i]->setPosition(glm::vec3(p.x, base_y + y, p.z));
+		}
 	}
 
 	if (curr_judge && !HasUpdatable(curr_judge))
@@ -389,8 +463,22 @@ void PlayScene::Render()
 	bgaSprite->Render();
 	bgaLayerSprite->Render();
 	black_sprite->Render();
+	back_skin_panel.Render();
 	node_panel.Render();
-	skin_panel.Render();
+	front_skin_panel.Render();
+	for (int i = 0; i < 8; i++)
+		for (int j = 0; j < 2; j++)
+			if(this->HasUpdatable(note_effect[i][j]))
+				note_effect[i][j]->Render();
+
+	maxcombo_sprite->Render();
+	bpm_sprite->Render();
+	minute_sprite->Render();
+	second_sprite->Render();
+	play_sprite->Render();
+	gauge_sprite->Render();
+	point_sprite->Render();
+	score_sprite->Render();
 
 	if (curr_judge)
 	{
@@ -482,13 +570,30 @@ void PlayScene::Init()
 		button_sprite[i] = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
 		button_sprite[i]->setSprite(sprite_pack2->sprite_map[sprite_name]);
 		button_sprite[i]->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
+
+		lane_back[i] = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
+		lane_back[i]->setSprite(sprite_pack2->sprite_map["lane"+std::to_string(button_num)]);
+		lane_back[i]->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
+		back_skin_panel.addSprite(lane_back[i].get());
+
+		for (int j = 0; j < 2; j++)
+		{
+			note_effect[i][j] = std::shared_ptr<gfx::gfxSpriteAnimation>(new gfx::gfxSpriteAnimation);
+			note_effect[i][j]->setPivot(glm::vec3(0.5f, 0.5f, 0.0f));
+			note_effect[i][j]->setPosition(glm::vec3(lanepos + (button_sprite[i]->getSprite().size.x) / 2.0f, skin_top->getSprite().size.y + sprite_pack2->sprite_map["lane"]->size.y - 7.5f, 0.0f));
+			note_effect[i][j]->setShader("layer");
+			for (int k = 0; k < 3; k++)
+				note_effect[i][j]->addLastFrame(sprite_pack1->sprite_map["effect_" + std::to_string(j + k * 2)]);
+			note_effect[i][j]->setDuration(30);
+		}
+
 		lanepos += button_sprite[i]->getSprite().size.x;
-		skin_panel.addSprite(button_sprite[i].get());
+		front_skin_panel.addSprite(button_sprite[i].get());
 		if (i < 7) {
 			line_sprite[i] = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
 			line_sprite[i]->setSprite(sprite_pack2->sprite_map["line1"]);
 			line_sprite[i]->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
-			skin_panel.addSprite(line_sprite[i].get());
+			front_skin_panel.addSprite(line_sprite[i].get());
 		}
 	}
 
@@ -503,10 +608,10 @@ void PlayScene::Init()
 	lane->setPosition(glm::vec3(skin_left->getSprite().size.x, 600.0f, 0.0f));
 	lane->setScale(glm::vec3(lanepos - skin_left->getSprite().size.x, 1.0f, 1.0f));
 
-	skin_panel.addSprite(skin_right.get());
-	skin_panel.addSprite(skin_left.get());
+	front_skin_panel.addSprite(skin_right.get());
+	front_skin_panel.addSprite(skin_left.get());
 
-	skin_panel.addSprite(lane.get());
+	back_skin_panel.addSprite(lane.get());
 
 	black_sprite = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
 	black_sprite->setSprite(sprite_pack2->sprite_map["black"]);
@@ -514,8 +619,8 @@ void PlayScene::Init()
 	black_sprite->setScale(glm::vec3(lanepos, lane->getSprite().size.y, 1.0f));
 	black_sprite->setPosition(glm::vec3(skin_left->getSprite().size.x, skin_top->getSprite().size.y, 0.0f));
 
-	skin_panel.addSprite(skin_top.get());
-	skin_panel.addSprite(skin_bottom.get());
+	front_skin_panel.addSprite(skin_top.get());
+	front_skin_panel.addSprite(skin_bottom.get());
 
 	std::string judgestr[5] = { "cool_" ,"great_" ,"good_" ,"bad_" ,"miss_" };
 	for (int i = 0; i < 5; i++)
@@ -565,17 +670,63 @@ void PlayScene::Init()
 	combo_max->setShader("layer");
 
 	combo_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	maxcombo_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	bpm_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	minute_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	second_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	play_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	gauge_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	point_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+	score_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
+
 	for(int i=0;i<10;i++)
 	{
-		std::string str = std::to_string(i) + "_l";
-		combo_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str]);
+		std::string str_l = std::to_string(i) + "_l";
+		std::string str_s = std::to_string(i) + "_s";
+		combo_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_l]);
+		maxcombo_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		bpm_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		minute_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		second_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		play_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		gauge_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		point_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		score_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
 	}
+	maxcombo_sprite->setAlign(gfx::Align::Right);
+	bpm_sprite->setAlign(gfx::Align::Right);
+	minute_sprite->setAlign(gfx::Align::Right);
+	second_sprite->setAlign(gfx::Align::Right);
+	play_sprite->setAlign(gfx::Align::Right);
+	gauge_sprite->setAlign(gfx::Align::Right);
+	point_sprite->setAlign(gfx::Align::Right);
+	score_sprite->setAlign(gfx::Align::Right);
+
+	maxcombo_sprite->setShader("layer");
+	bpm_sprite->setShader("layer");
+	minute_sprite->setShader("layer");
+	second_sprite->setShader("layer");
+	play_sprite->setShader("layer");
+	gauge_sprite->setShader("layer");
+	point_sprite->setShader("layer");
+	score_sprite->setShader("layer");
+
+	maxcombo_sprite->setString("0");
+	bpm_sprite->setString("0");
+	minute_sprite->setString("0");
+	second_sprite->setString("00");
+	play_sprite->setString("0");
+	gauge_sprite->setString("0");
+	point_sprite->setString("0");
+	score_sprite->setString("0");
+
 	combo_sprite->setShader("layer");
 	combo_sprite->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().size.x) / 2.0f + skin_left->getSprite().size.x, 300.0f, 0.0f));
 	combo_sprite->setAlign(gfx::Align::Center);
-	skin_panel.setShader("layer");
+	front_skin_panel.setShader("layer");
+	back_skin_panel.setShader("layer");
 
-	autoplay = true;
+	autoplay = false;
 }
 
 void PlayScene::SetBMSPath(std::string path)

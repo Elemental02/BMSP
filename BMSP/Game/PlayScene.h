@@ -24,8 +24,9 @@ private:
 	};
 	SoundPool soundpool;
 
+	gfx::gfxPanel front_skin_panel;
 	gfx::gfxPanel node_panel;
-	gfx::gfxPanel skin_panel;
+	gfx::gfxPanel back_skin_panel;
 	struct NodeSprite
 	{
 		std::shared_ptr<gfx::gfxSprite> sprite;
@@ -78,10 +79,28 @@ private:
 
 	std::shared_ptr<gfx::gfxSprite> lane;
 	std::shared_ptr<gfx::gfxSprite> lane_back[8];
+	std::shared_ptr<gfx::gfxSpriteAnimation> note_effect[8][2];
 
 	int combo = 0;
 	std::shared_ptr<gfx::gfxSprite> combo_max;
 	std::shared_ptr<gfx::gfxSpriteFont> combo_sprite;
+
+	int maxcombo = 0;
+	std::shared_ptr<gfx::gfxSpriteFont> maxcombo_sprite;
+	int curr_bpm = 0;
+	std::shared_ptr<gfx::gfxSpriteFont> bpm_sprite;
+	int minute;
+	std::shared_ptr<gfx::gfxSpriteFont> minute_sprite;
+	int second;
+	std::shared_ptr<gfx::gfxSpriteFont> second_sprite;
+	int play_percent;
+	std::shared_ptr<gfx::gfxSpriteFont> play_sprite;
+	int gauge_percent;
+	std::shared_ptr<gfx::gfxSpriteFont> gauge_sprite;
+	int point;
+	std::shared_ptr<gfx::gfxSpriteFont> point_sprite;
+	int score;
+	std::shared_ptr<gfx::gfxSpriteFont> score_sprite;
 
 	float noteSpeed = 550.0f;
 

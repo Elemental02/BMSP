@@ -55,7 +55,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 		std::string line;
 		std::getline(file, line);
 		std::smatch match;
-		if (std::regex_match(line, match, std::regex("^#([a-zA-Z][a-zA-Z0-9]*)[ \\t]*(.*?)"))) // header
+		if (std::regex_match(line, match, std::regex("^#([a-zA-Z][a-zA-Z0-9]*)[ \\t]*(.*?)(?:[ \\t]?)(?:;.*)?(?://.*)?"))) // header
 		{
 			// name value
 			std::string name = match[1];
@@ -92,12 +92,16 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 			{
 				bms.rank = std::stoi(value);
 			}
+			else if (name == "LNTYPE")
+			{
+				bms.lnType = std::stoi(value);
+			}
 			else
 			{
 				bms.metadata[name] = value;
 			}
 		}
-		else if (/*!metadata_only &&*/ std::regex_match(line, match, std::regex("^#([0-9][0-9][0-9])([0-9a-zA-Z][0-9a-zA-Z]):(.*?)(?:[;(?://)].*)?")))
+		else if (/*!metadata_only &&*/ std::regex_match(line, match, std::regex("^#([0-9][0-9][0-9])([0-9a-zA-Z][0-9a-zA-Z]):(.*?)(?:[ \\t]?)(?:;.*)?(?://.*)?")))
 		{
 			if (metadata_only)
 				break;
@@ -131,7 +135,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 					std::string val = nodes.substr(i * 2, 2);
 					int value = ichannel == BMS::CH::BPM ? std::stoi(val, 0, 16) : BMS::parseValue(val.c_str());
 					double position = i / (double)len;
-					if (value != 0)
+					if (value != 0 || (ichannel >= BMS::CH::P1L && ichannel <= (BMS::CH::P2L+9)))
 					{
 						auto node = BMSNode();
 						node.value = value;
@@ -237,7 +241,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 					}
 					node.a_time = stopped_time + std::chrono::milliseconds(static_cast<long long>((node.position - bpm_node->position) * BMS::_4_minute_to_millisecond / bpm_node->bpm + bpm_node->time));
 
-					if (channels.first >= BMS::CH::P1L && channels.first <= (BMS::CH::P2L + 7))
+					if (channels.first >= BMS::CH::P1L && channels.first <= (BMS::CH::P2L + 9))
 					{
 						if (bms.lnType == 1)	// ex: 00AA0000FF00
 						{
@@ -247,6 +251,7 @@ BMS BMSParser::Parse(std::string filename, bool metadata_only)
 								{
 									lastNodes[channels.first]->length = node.position - lastNodes[channels.first]->position;
 									lastNodes[channels.first] = nullptr;
+									node.value = 0;
 								}
 								else
 								{

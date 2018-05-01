@@ -58,4 +58,9 @@ public:
 	{
 		return is_complete;
 	}
+
+	inline double getCurrentBPM()
+	{
+		return current_bpm;
+	}
 };

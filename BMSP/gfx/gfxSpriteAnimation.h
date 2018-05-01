@@ -28,6 +28,7 @@ namespace gfx
 		{
 			current_index = 0;
 			current_duration = 0;
+			setSprite(sprite_list[current_index]);
 			this->loop = loop;
 		}
 
