@@ -21,7 +21,7 @@ namespace gfx
 		};
 		struct Glyph_Group
 		{
-			std::map<char, FontSprite> spritemap;
+			std::map<int, FontSprite> spritemap;
 			std::vector<TextureCursor> textures;
 		};
 
@@ -32,6 +32,6 @@ namespace gfx
 		void LoadFont(std::string font);
 
 		//void setPixelSize(int pixel);
-		FontSprite LoadChar(unsigned int ch, int pixel);
+		FontSprite LoadChar(int ch, int pixel);
 	};
 }

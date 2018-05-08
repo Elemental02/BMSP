@@ -19,7 +19,6 @@ void BMSPlayer::Update()
 	updated_nodes.clear();
 
 	bool loop = false;
-	BMSNode* stop_node = nullptr;
 	do
 	{
 		BMSMeasure& measure = bms.measures[current_measure];
@@ -34,10 +33,12 @@ void BMSPlayer::Update()
 						double node_bpm = channel.first == BMS::CH::BPM ? static_cast<double>(node.value) : bms.bpms[node.value];
 						current_bpm = bpm_node ? (bpm_node->position < node.position ? node_bpm : current_bpm) : node_bpm;
 						bpm_node = bpm_node ? (bpm_node->position < node.position ? &node : bpm_node) : &node;
+						stopped_time = std::chrono::milliseconds();
 					}
 					else if (channel.first == BMS::CH::Stop)
 					{
 						stop_node = stop_node ? (stop_node->position < node.position ? &node : stop_node) : &node;
+						stopped_time = std::chrono::milliseconds(stopped_time.count() + stop_node->value);
 					}
 					else
 					{
@@ -64,11 +65,11 @@ void BMSPlayer::Update()
 		}
 	} while (loop);
 
-	if (stop_node && (stop_node->a_time + std::chrono::milliseconds(stop_node->value) > play_time))
+	if (stop_node && (stop_node->a_time.count() + stop_node->value) > play_time.count())
 		current_process = stop_node->position;
 	else if (bpm_node)
-		current_process = bpm_node->position + (play_time - bpm_node->a_time).count()*current_bpm / BMS::_4_minute_to_millisecond;
+		current_process = bpm_node->position + (play_time - bpm_node->a_time - stopped_time).count()*current_bpm / BMS::_4_minute_to_millisecond;
 	else
-		current_process = (play_time).count()*current_bpm / BMS::_4_minute_to_millisecond;
+		current_process = ((play_time).count() - stopped_time.count())*current_bpm / BMS::_4_minute_to_millisecond;
 	prev_time = curr_time;
 }

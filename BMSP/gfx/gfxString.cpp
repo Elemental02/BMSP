@@ -2,6 +2,9 @@
 #include "../managers/GlobalManager.h"
 #include "gfxString.h"
 
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
+#include <unicode/locid.h>
 void gfx::gfxString::RenderString()
 {
 	int strlen = str.length();
@@ -9,43 +12,49 @@ void gfx::gfxString::RenderString()
 	{
 		rendergroup.second.strsize = 0;
 	}
-	int char_len = 0;
-	for (int i = 0; i < strlen; i++)
-	{
-		//if ((str[i] & 0x80) == 0)
-		{
-			if (char_vector.size() <= char_len)
-				char_vector.push_back(str[i]);
-			else
-				char_vector[char_len] = str[i];
-			char_len++;
-		}
-		/*else
-		{
-			unsigned int tempchar = (unsigned wchar_t)'го'!!;
-			//tempchar = tempchar| ((str[i]));
-			//tempchar = tempchar & ((str[++i] << 8)|0xff);
-			//tempchar <<= 16;
-			wchar_t wt = 54616;
-			char t[2] = { 0, };
-			t[0] = str[i - 1];
-			t[1] = str[i];
-			char t2[4];
-			memcpy(t2, &tempchar, 4);
-			char t3[2];
-			memcpy(t3, &wt, 2);
-			if (char_vector.size() <= char_len)
-				char_vector.push_back(tempchar);
-			else
-				char_vector[char_len] = tempchar;
-			char_len++;
-		}*/
-	}
-
-	int pos = 0;
+	
+	auto& loc = icu::Locale::getJapanese();
+	auto t = icu::UnicodeString(str.c_str());
+	auto len = t.length();
+	int char_len = t.length();
 	for (int i = 0; i < char_len; i++)
 	{
-		auto glyph = font->LoadChar(char_vector[i],pixelSize);
+		if (char_vector.size() <= i)
+			char_vector.push_back(t[i]);
+		else
+			char_vector[i] = t[i];
+	}
+
+	int pos_x = 0, pos_y = 0;
+	int linestart = 0;
+	std::vector<std::pair<int, int>> line;
+	for (int i = 0; i < char_len; i++)
+	{
+		auto glyph = font->LoadChar(char_vector[i], pixel_size);
+
+		if (max_width && pos_x + glyph.advance > max_width)
+		{
+			if (this->alignment != Align::Left)
+			{
+				int alignment = this->alignment == Align::Center ? -pos_x / 2.0f : -pos_x;
+
+				for (auto pair : line)
+				{
+					renderlist[pair.first].matrix[pair.second*2].x += alignment;
+				}
+				/*for (auto& rendergroup : renderlist)
+				{
+					for (int i = 0; i < rendergroup.second.strsize; i++)
+					{
+						rendergroup.second.matrix[i * 2].x += alignment;
+					}
+				}*/
+			}
+			pos_x = 0;
+			pos_y += pixel_size;
+			line.erase(line.begin(), line.end());
+		}
+
 		int texture_id = glyph.sprite->texture_id;
 		if (renderlist.find(texture_id) == renderlist.end())
 			renderlist[texture_id] = renderlistGroup();
@@ -63,16 +72,18 @@ void gfx::gfxString::RenderString()
 		
 		if (renderlist[texture_id].matrix.size() > str_cnt * 2)
 		{
-			renderlist[texture_id].matrix[str_cnt * 2] = glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f);
+			renderlist[texture_id].matrix[str_cnt * 2] = glm::vec3(pos_x + glyph.left, pos_y + pixel_size - glyph.top, 0.0f);
 			renderlist[texture_id].matrix[str_cnt * 2 + 1] = glm::vec3(1.0f, 1.0f, 1.0f);
 		}
 		else
 		{
-			renderlist[texture_id].matrix.push_back(glm::vec3(pos + glyph.left, pixelSize - glyph.top, 0.0f));
+			renderlist[texture_id].matrix.push_back(glm::vec3(pos_x + glyph.left, pos_y + pixel_size - glyph.top, 0.0f));
 			renderlist[texture_id].matrix.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
 		}
+		if (max_width)
+			line.push_back(std::pair<int, int>(texture_id, renderlist[texture_id].strsize));
 		renderlist[texture_id].strsize++;
-		pos += glyph.advance;
+		pos_x += glyph.advance;
 	}
 	for (auto& rendergroup : renderlist)
 	{
@@ -100,18 +111,6 @@ void gfx::gfxString::RenderString()
 
 			glBindBuffer(GL_ARRAY_BUFFER, rendergroup.second.matrixbuffer);
 			glBufferData(GL_ARRAY_BUFFER, rendergroup.second.buffersize * sizeof(glm::vec3) * 2, 0, GL_DYNAMIC_DRAW);
-		}
-	}
-
-	if (this->alignment != Align::Left)
-	{
-		int alignment = this->alignment == Align::Center ? -pos / 2.0f : -pos;
-		for (auto& rendergroup : renderlist)
-		{
-			for (int i = 0; i < rendergroup.second.strsize; i++)
-			{
-				rendergroup.second.matrix[i * 2].x += alignment;
-			}
 		}
 	}
 

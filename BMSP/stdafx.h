@@ -13,6 +13,7 @@
 #include <future>
 #include <mutex>
 #include <filesystem>
+#include <locale>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>

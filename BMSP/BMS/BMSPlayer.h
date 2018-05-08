@@ -10,10 +10,12 @@ private:
 	double current_process = 0.0f;
 	
 	BMSNode* bpm_node = nullptr;
+	BMSNode* stop_node = nullptr;
 	std::chrono::system_clock::time_point start_time;
 	std::chrono::system_clock::time_point prev_time;
 
 	std::chrono::milliseconds play_time;
+	std::chrono::milliseconds stopped_time;
 
 	std::list<std::pair<int,BMSNode>> updated_nodes;
 

@@ -87,9 +87,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;icu/icuuc.lib;icu/icudt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
@@ -116,7 +117,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;icu/icuuc.lib;icu/icudt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/safeseh:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -148,6 +149,7 @@
     <ClInclude Include="gfx\gfxPanel.h" />
     <ClInclude Include="gfx\gfxScene.h" />
     <ClInclude Include="gfx\gfxSprite.h" />
+    <ClInclude Include="gfx\gfxSprite9.h" />
     <ClInclude Include="gfx\gfxSpriteAnimation.h" />
     <ClInclude Include="gfx\gfxSpriteFont.h" />
     <ClInclude Include="gfx\gfxString.h" />
@@ -179,6 +181,7 @@
     <ClCompile Include="gfx\gfxPanel.cpp" />
     <ClCompile Include="gfx\gfxScene.cpp" />
     <ClCompile Include="gfx\gfxSprite.cpp" />
+    <ClCompile Include="gfx\gfxSprite9.cpp" />
     <ClCompile Include="gfx\gfxSpriteAnimation.cpp" />
     <ClCompile Include="gfx\gfxSpriteFont.cpp" />
     <ClCompile Include="gfx\gfxString.cpp" />

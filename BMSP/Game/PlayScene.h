@@ -77,6 +77,8 @@ private:
 
 	std::shared_ptr<gfx::gfxSprite> black_sprite;
 
+	std::shared_ptr<gfx::gfxSprite> autoplay_sprite;
+
 	std::shared_ptr<gfx::gfxSprite> lane;
 	std::shared_ptr<gfx::gfxSprite> lane_back[8];
 	std::shared_ptr<gfx::gfxSpriteAnimation> note_effect[8][2];
@@ -120,4 +122,5 @@ public:
 	virtual void Init();
 
 	void SetBMSPath(std::string path);
+	void SetAutoplay(bool autoplay);
 };

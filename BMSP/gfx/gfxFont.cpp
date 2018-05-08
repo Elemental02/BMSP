@@ -21,7 +21,7 @@ void gfx::gfxFont::LoadFont(std::string font)
 
 }
 
-gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(unsigned int ch, int pixel)
+gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(int ch, int pixel)
 {
 	auto& glyph_group_it = glyph_map.find(pixel);
 	if (glyph_group_it == glyph_map.end())
@@ -36,6 +36,10 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(unsigned int ch, int pixel)
 	bool need_new_texture_cursor = false;
 	if (sprite_it == glyph_group.spritemap.end())
 	{
+		FT_Set_Pixel_Sizes(face, 0, pixel);
+		FT_Load_Char(face, ch, FT_LOAD_RENDER);
+		if (ch == 56)
+			printf("");
 		if (glyph_group.textures.empty())
 		{
 			need_new_texture_cursor = true;
@@ -75,9 +79,6 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(unsigned int ch, int pixel)
 			glGenerateMipmap(GL_TEXTURE_2D);
 			delete[] buffer;
 		}
-
-		FT_Set_Pixel_Sizes(face, 0, pixel);
-		FT_Load_Char(face, ch, FT_LOAD_RENDER);
 
 		auto& texture_cursor = glyph_group.textures.back();
 		auto glyph = face->glyph;

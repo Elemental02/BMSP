@@ -12,7 +12,9 @@ private:
 	gfx::gfxString str_artist;
 	gfx::gfxString str_genre;
 	gfx::gfxString str_bpm;
+	gfx::gfxString str_level;
 
+	bool autoplay = false;
 	gfx::gfxString str_autoplay;
 	gfx::gfxString str_autoplay_on;
 	gfx::gfxString str_autoplay_off;

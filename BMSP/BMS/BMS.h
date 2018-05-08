@@ -21,6 +21,7 @@ public:
 	int rank;
 	int lnType = 1;
 	std::map<int, float> bpms;
+	std::map<int, float> stops;
 	std::set<int> ln_objs;
 	std::vector<BMSMeasure> measures;
 

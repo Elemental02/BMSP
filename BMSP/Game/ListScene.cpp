@@ -34,6 +34,13 @@ void ListScene::Update(std::chrono::milliseconds delta)
 				str.setPixelSize(pixelSize);
 				str.setString(bms.metadata["TITLE"]);
 			}*/
+			if (bms_list.size() < 1)
+			{
+				str_artist.setString("no BMS file founded");
+				scene_state = List_Playing;
+				break;
+			}
+
 			for (int i = 0; i < 21; i++)
 			{
 				str_bms_list.push_back(gfx::gfxString());
@@ -41,22 +48,27 @@ void ListScene::Update(std::chrono::milliseconds delta)
 				str.setFont(mainfont);
 				str.setPixelSize(pixelSize);
 			}
+			str_list_corsor.setString("->");
+			str_autoplay.setString("AutoPlay(Tab to On or Off): ");
+			str_autoplay_on.setString("On");
+			str_autoplay_off.setString("Off");
 			scene_state = List_Loading;
 		}
 		break;
 	case SceneState::List_Loading:
 	{
+		scene_state = SceneState::List_Playing;
 		str_artist.setString("Artist: " + bms_list[cursor_index].metadata["ARTIST"]);
 		str_genre.setString("Genre: " + bms_list[cursor_index].metadata["GENRE"]);
 		str_bpm.setString("BPM: " + std::to_string(bms_list[cursor_index].bpm));
-		scene_state = SceneState::List_Playing;
+		str_level.setString("Level: "+ bms_list[cursor_index].metadata["PLAYLEVEL"]);
 		int start_index = cursor_index - 10;
 		for (int i = 0; i < 21; i++, start_index++)
 		{
-			if(start_index<0)
-				start_index+= bms_list.size();
-			else if(start_index>=bms_list.size())
-				start_index -= bms_list.size();
+			while (start_index < 0)
+				start_index += bms_list.size();
+			if (start_index >= bms_list.size())
+				start_index = start_index % bms_list.size();
 			str_bms_list[i].setPosition(glm::vec3(240.0f, (i - 10) * pixelSize + 285, 0.0f));
 			str_bms_list[i].setString(bms_list[start_index].metadata["TITLE"]);
 		}
@@ -64,6 +76,16 @@ void ListScene::Update(std::chrono::milliseconds delta)
 		break;
 
 	case SceneState::List_Playing:
+		if (IInputManager->getKeyState(KeyIndex::ESC) == KeyState::State_Press)
+		{
+			IGlobalManager->Pop_Scene();
+		}
+
+		if (bms_list.size() < 1)
+		{
+			break;
+		}
+
 		if (IInputManager->getKeyState(KeyIndex::Up) == KeyState::State_Press)
 		{
 			cursor_index--;
@@ -83,14 +105,18 @@ void ListScene::Update(std::chrono::milliseconds delta)
 		{
 			auto scene = std::shared_ptr<PlayScene>(new PlayScene);
 			scene->SetBMSPath(bms_path_list[cursor_index]);
+			scene->SetAutoplay(autoplay);
 			IGlobalManager->Push_Scene(scene);
 			scene_state = List_Loading;
 		}
 
-
-		if (IInputManager->getKeyState(KeyIndex::ESC) == KeyState::State_Press)
+		if (IInputManager->getKeyState(KeyIndex::Tab) == KeyState::State_Press)
 		{
-			IGlobalManager->Pop_Scene();
+			autoplay = !autoplay;
+			glm::vec4 red = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			glm::vec4 white = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			str_autoplay_off.setColor(autoplay ? white : red);
+			str_autoplay_on.setColor(autoplay ? red : white);
 		}
 		break;
 	}
@@ -112,6 +138,7 @@ void ListScene::Render()
 		str_autoplay.Render();
 		str_autoplay_on.Render();
 		str_autoplay_off.Render();
+		str_level.Render();
 		for (auto& str : str_bms_list)
 		{
 			str.Render();
@@ -133,30 +160,31 @@ void ListScene::Init()
 	str_list_corsor.setFont(mainfont);
 	str_autoplay_on.setFont(mainfont);
 	str_autoplay_off.setFont(mainfont);
+	str_level.setFont(mainfont);
 
 	str_artist.setPixelSize(pixelSize);
 	str_bpm.setPixelSize(pixelSize);
 	str_genre.setPixelSize(pixelSize);
+	str_level.setPixelSize(pixelSize);
 	str_list_corsor.setPixelSize(pixelSize);
 	str_autoplay_on.setPixelSize(pixelSize);
 	str_autoplay_off.setPixelSize(pixelSize);
 
-	str_list_corsor.setString("->");
 	str_list_corsor.setPosition(glm::vec3(180.0f, 300 - 15, 0.0f));
-	str_autoplay_on.setString("On");
 	str_autoplay_on.setPosition(glm::vec3(380.0f, 570.0f, 0.0f));
-	str_autoplay_off.setString("Off");
 	str_autoplay_off.setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	str_autoplay_off.setPosition(glm::vec3(430.0f, 570.0f, 0.0f));
 
 	str_bpm.setPosition(glm::vec3(0, 45, 0.0f));
 	str_genre.setPosition(glm::vec3(0, 90, 0.0f));
+	str_level.setPosition(glm::vec3(0, 135, 0.0f));
 
 	str_autoplay.setFont(mainfont);
 	str_autoplay.setPixelSize(pixelSize);
-	str_autoplay.setString("AutoPlay(Tab to On or Off): ");
 	str_autoplay.setPosition(glm::vec3(0.0f, 570.0f, 0.0f));
-
+	
+	str_artist.setMaxWidth(800);
+	
 	init_future = std::async(std::launch::async, [&](){
 		std::list<std::experimental::filesystem::path> path_queue;
 		path_queue.push_back(std::experimental::filesystem::current_path());

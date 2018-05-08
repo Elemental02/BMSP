@@ -34,7 +34,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1600, 1200, "Tutorial 01", NULL, NULL);
+	window = glfwCreateWindow(1200, 900, "BMSP", NULL, NULL);
 	if (window == NULL) {
 		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
 		getchar();
@@ -78,10 +78,10 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//auto playscene = std::shared_ptr<TestScene>(new TestScene);
-	auto playscene = std::shared_ptr<PlayScene>(new PlayScene);
+	auto playscene = std::shared_ptr<ListScene>(new ListScene);
+	//auto playscene = std::shared_ptr<PlayScene>(new PlayScene);
 	//playscene->SetBMSPath("resource/Cheetahmen 2/Cheetahmen 2 -7keys-.bme");
-	playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_H.bms");
+	//playscene->SetBMSPath("resource/spackage/[Sakuzyo][catastrophe]Altale/Altale_H.bms");
 	//Altale_A.bms
 	IGlobalManager->Push_Scene(playscene);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

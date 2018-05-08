@@ -7,5 +7,5 @@ public:
 	//BMSMetadata ParseMeatdata(std::string filename);
 	//const double _4_minute_to_millisecond = 4 * 60 * 1000;
 private:
-	
+	static std::map<std::string, BMS> bms_list;
 };

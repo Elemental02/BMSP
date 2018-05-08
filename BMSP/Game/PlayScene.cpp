@@ -394,7 +394,11 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 	}
 	case SceneState::End:
 	{
-
+		for (auto& it : soundpool.playing)
+		{
+			it->Stop();
+		}
+		IGlobalManager->Pop_Scene();
 	}
 	break;
 	}
@@ -470,7 +474,8 @@ void PlayScene::Render()
 		for (int j = 0; j < 2; j++)
 			if(this->HasUpdatable(note_effect[i][j]))
 				note_effect[i][j]->Render();
-
+	if (scene_state ==SceneState::Playing &&  autoplay)
+		autoplay_sprite->Render();
 	maxcombo_sprite->Render();
 	bpm_sprite->Render();
 	minute_sprite->Render();
@@ -669,6 +674,12 @@ void PlayScene::Init()
 	combo_max->setPivot(glm::vec3(0.5f, 0.5f, 0.5f));
 	combo_max->setShader("layer");
 
+	autoplay_sprite= std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
+	autoplay_sprite->setSprite(sprite_pack1->sprite_map["autoplay"]);
+	autoplay_sprite->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().size.x) / 2.0f + skin_left->getSprite().size.x, 420.0f, 0.0f));
+	autoplay_sprite->setPivot(glm::vec3(0.5f, 0.5f, 0.5f));
+	autoplay_sprite->setShader("layer");
+
 	combo_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
 	maxcombo_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
 	bpm_sprite = std::shared_ptr<gfx::gfxSpriteFont>(new gfx::gfxSpriteFont);
@@ -725,11 +736,14 @@ void PlayScene::Init()
 	combo_sprite->setAlign(gfx::Align::Center);
 	front_skin_panel.setShader("layer");
 	back_skin_panel.setShader("layer");
-
-	autoplay = false;
 }
 
 void PlayScene::SetBMSPath(std::string path)
 {
 	path_to_load = path;
+}
+
+void PlayScene::SetAutoplay(bool autoplay)
+{
+	this->autoplay = autoplay;
 }

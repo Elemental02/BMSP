@@ -27,7 +27,8 @@ namespace gfx
 		std::string str;
 		std::vector<int> char_vector;
 
-		int pixelSize = 15;
+		int pixel_size = 15;
+		int max_width = 0;
 		Align alignment = Align::Left;
 
 		bool is_dirty = true;
@@ -44,7 +45,7 @@ namespace gfx
 		virtual void Render();
 
 		inline void setPixelSize(int size) {
-			pixelSize = size;
+			pixel_size = size;
 		}
 		inline void setFont(std::shared_ptr<gfxFont> font) {
 			this->font = font;
@@ -57,6 +58,11 @@ namespace gfx
 		inline glm::vec4& getColor()
 		{
 			return this->color;
+		}
+
+		inline void setMaxWidth(int width)
+		{
+			max_width = width;
 		}
 	};
 }
