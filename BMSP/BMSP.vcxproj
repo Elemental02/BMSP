@@ -69,13 +69,30 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>../include;$(IncludePath)</IncludePath>
+    <LibraryPath>../lib/Win32;$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(VC_ReferencesPath_x86);</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>../include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>../lib/x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>../include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>../lib/Win32;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avdevice.lib;ffmpeg/avfilter.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/postproc.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;icu/icuuc.lib;icu/icudt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OptimizeReferences>false</OptimizeReferences>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -83,6 +100,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>glfw3.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -91,12 +111,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(ProjectDir)/BMSP</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;openal32.lib;glew32.lib;glfw3.lib;freetype.lib;ffmpeg/avcodec.lib;ffmpeg/avformat.lib;ffmpeg/avutil.lib;ffmpeg/swscale.lib;ffmpeg/swresample.lib;icu/icuuc.lib;icu/icudt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/safeseh:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -116,6 +138,28 @@
     <ClInclude Include="BMS\BMS.h" />
     <ClInclude Include="BMS\BMSNode.h" />
     <ClInclude Include="BMS\BMSParser.h" />
+    <ClInclude Include="BMS\BMSPlayer.h" />
+    <ClInclude Include="common\Singleton.h" />
+    <ClInclude Include="Game\ListScene.h" />
+    <ClInclude Include="Game\PlayScene.h" />
+    <ClInclude Include="Game\testScene.h" />
+    <ClInclude Include="gfx\gfxFont.h" />
+    <ClInclude Include="gfx\gfxGlobal.h" />
+    <ClInclude Include="gfx\gfxObject.h" />
+    <ClInclude Include="gfx\gfxPanel.h" />
+    <ClInclude Include="gfx\gfxScene.h" />
+    <ClInclude Include="gfx\gfxSprite.h" />
+    <ClInclude Include="gfx\gfxSprite9.h" />
+    <ClInclude Include="gfx\gfxSpriteAnimation.h" />
+    <ClInclude Include="gfx\gfxSpriteFont.h" />
+    <ClInclude Include="gfx\gfxString.h" />
+    <ClInclude Include="gfx\gfxUpdatable.h" />
+    <ClInclude Include="gfx\gfxVideo.h" />
+    <ClInclude Include="managers\GlobalManager.h" />
+    <ClInclude Include="managers\InputManager.h" />
+    <ClInclude Include="managers\ResourceManager.h" />
+    <ClInclude Include="sfx\sfxGlobal.h" />
+    <ClInclude Include="sfx\sfxSound.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -125,8 +169,35 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="BMS\BMSPlayer.cpp" />
     <ClCompile Include="client\client.cpp" />
     <ClCompile Include="client\impl\winmain.cpp" />
+    <ClCompile Include="Game\ListScene.cpp" />
+    <ClCompile Include="Game\PlayScene.cpp" />
+    <ClCompile Include="Game\testScene.cpp" />
+    <ClCompile Include="gfx\gfxFont.cpp" />
+    <ClCompile Include="gfx\gfxGlobal.cpp" />
+    <ClCompile Include="gfx\gfxObject.cpp" />
+    <ClCompile Include="gfx\gfxPanel.cpp" />
+    <ClCompile Include="gfx\gfxScene.cpp" />
+    <ClCompile Include="gfx\gfxSprite.cpp" />
+    <ClCompile Include="gfx\gfxSprite9.cpp" />
+    <ClCompile Include="gfx\gfxSpriteAnimation.cpp" />
+    <ClCompile Include="gfx\gfxSpriteFont.cpp" />
+    <ClCompile Include="gfx\gfxString.cpp" />
+    <ClCompile Include="gfx\gfxUpdatable.cpp" />
+    <ClCompile Include="gfx\gfxVideo.cpp" />
+    <ClCompile Include="managers\GlobalManager.cpp" />
+    <ClCompile Include="managers\InputManager.cpp" />
+    <ClCompile Include="managers\ResourceManager.cpp" />
+    <ClCompile Include="sfx\sfxGlobal.cpp" />
+    <ClCompile Include="sfx\sfxSound.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\bga_layer_fragment_shader.shader" />
+    <None Include="shaders\font_fragment_shader.shader" />
+    <None Include="shaders\fragment_shader.shader" />
+    <None Include="shaders\vertex_shader.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -25,6 +25,36 @@
     <Filter Include="소스 파일\client\impl">
       <UniqueIdentifier>{7c1f5568-4b7f-4722-8e90-0fa999031480}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\gfx">
+      <UniqueIdentifier>{7d0c5150-7fd3-47fc-b58d-447b024dffe9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\gfx">
+      <UniqueIdentifier>{72f041ce-8c12-4ae2-ac92-ddf16d9ad996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{c60277c4-7871-4ea4-a10d-d96baf9259ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\managers">
+      <UniqueIdentifier>{512f747d-8dc8-44af-a1da-34641da5eb7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\common">
+      <UniqueIdentifier>{b39eacfa-5fb9-4e79-b9a1-6846faab0ce3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\managers">
+      <UniqueIdentifier>{01487df3-e8f9-4067-b0a9-f54fcceb2df1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\sfx">
+      <UniqueIdentifier>{e1ad1cb3-d666-4676-a7a7-089ca8d5d116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\sfx">
+      <UniqueIdentifier>{43ab49ba-4551-4622-b5e5-89e404a2fe20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Game">
+      <UniqueIdentifier>{31de2c73-09dd-4b30-b45f-12fd3e52376e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game">
+      <UniqueIdentifier>{57c57f89-a22e-4d0e-86db-c653b05a741a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -38,6 +68,72 @@
     </ClInclude>
     <ClInclude Include="BMS\BMSParser.h">
       <Filter>헤더 파일\BMS</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxObject.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxSprite.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxScene.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="managers\ResourceManager.h">
+      <Filter>헤더 파일\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="common\Singleton.h">
+      <Filter>헤더 파일\common</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxGlobal.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxPanel.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="sfx\sfxSound.h">
+      <Filter>헤더 파일\sfx</Filter>
+    </ClInclude>
+    <ClInclude Include="sfx\sfxGlobal.h">
+      <Filter>헤더 파일\sfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\PlayScene.h">
+      <Filter>헤더 파일\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="BMS\BMSPlayer.h">
+      <Filter>헤더 파일\BMS</Filter>
+    </ClInclude>
+    <ClInclude Include="managers\InputManager.h">
+      <Filter>헤더 파일\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxFont.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxString.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\testScene.h">
+      <Filter>헤더 파일\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\ListScene.h">
+      <Filter>헤더 파일\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="managers\GlobalManager.h">
+      <Filter>헤더 파일\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxSpriteAnimation.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxSpriteFont.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxUpdatable.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxVideo.h">
+      <Filter>헤더 파일\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxSprite9.h">
+      <Filter>헤더 파일\gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,5 +152,82 @@
     <ClCompile Include="client\impl\winmain.cpp">
       <Filter>소스 파일\client\impl</Filter>
     </ClCompile>
+    <ClCompile Include="gfx\gfxObject.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxSprite.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxScene.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="managers\ResourceManager.cpp">
+      <Filter>소스 파일\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxGlobal.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxPanel.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="sfx\sfxSound.cpp">
+      <Filter>소스 파일\sfx</Filter>
+    </ClCompile>
+    <ClCompile Include="sfx\sfxGlobal.cpp">
+      <Filter>소스 파일\sfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\PlayScene.cpp">
+      <Filter>소스 파일\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="BMS\BMSPlayer.cpp">
+      <Filter>소스 파일\BMS</Filter>
+    </ClCompile>
+    <ClCompile Include="managers\InputManager.cpp">
+      <Filter>소스 파일\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxFont.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxString.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\testScene.cpp">
+      <Filter>소스 파일\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\ListScene.cpp">
+      <Filter>소스 파일\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="managers\GlobalManager.cpp">
+      <Filter>소스 파일\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxSpriteAnimation.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxSpriteFont.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxUpdatable.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxVideo.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxSprite9.cpp">
+      <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\vertex_shader.shader">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\fragment_shader.shader">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\font_fragment_shader.shader">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\bga_layer_fragment_shader.shader">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
