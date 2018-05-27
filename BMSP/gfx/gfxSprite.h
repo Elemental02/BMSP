@@ -1,7 +1,7 @@
 #pragma once
+#include "../resource/Sprite.h"
 #include "gfxObject.h"
 
-struct Sprite;
 namespace gfx
 {
 	class gfxSprite : public gfxObject

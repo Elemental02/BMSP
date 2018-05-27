@@ -32,7 +32,7 @@ void TestScene::Render()
 void TestScene::Init()
 {
 	font = std::shared_ptr<gfx::gfxFont>(new gfx::gfxFont());
-	font->LoadFont("resource/KOPUSGoM.ttf");
+	font->LoadFont("resources/KOPUSGoM.ttf");
 	for (int i = 0; i < 1; i++)
 	{
 		str.push_back(gfx::gfxString());
@@ -41,6 +41,6 @@ void TestScene::Init()
 	}
 	
 	sprites.push_back(std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite));
-	auto sprite = IResourceManager->LoadSprite("resource/action1_01.bmp");
+	auto sprite = IResourceManager->LoadSprite("resources/action1_01.bmp");
 	sprites[0]->setSprite(sprite);
 }

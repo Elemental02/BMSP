@@ -22,9 +22,6 @@
     <Filter Include="소스 파일\client">
       <UniqueIdentifier>{8dfd28e0-fa02-4dcb-9dab-1378198bbab5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\client\impl">
-      <UniqueIdentifier>{7c1f5568-4b7f-4722-8e90-0fa999031480}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\gfx">
       <UniqueIdentifier>{7d0c5150-7fd3-47fc-b58d-447b024dffe9}</UniqueIdentifier>
     </Filter>
@@ -54,6 +51,12 @@
     </Filter>
     <Filter Include="소스 파일\Game">
       <UniqueIdentifier>{57c57f89-a22e-4d0e-86db-c653b05a741a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\resource">
+      <UniqueIdentifier>{fd7ca24f-8cd2-4dbd-a3f2-455bf0263d3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\resource">
+      <UniqueIdentifier>{218e059f-91c1-4f7a-b38c-b80d51dfbaa8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +138,12 @@
     <ClInclude Include="gfx\gfxSprite9.h">
       <Filter>헤더 파일\gfx</Filter>
     </ClInclude>
+    <ClInclude Include="resource\Sprite.h">
+      <Filter>헤더 파일\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\SpritePackage.h">
+      <Filter>헤더 파일\resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMS\BMS.cpp">
@@ -148,9 +157,6 @@
     </ClCompile>
     <ClCompile Include="client\client.cpp">
       <Filter>소스 파일\client</Filter>
-    </ClCompile>
-    <ClCompile Include="client\impl\winmain.cpp">
-      <Filter>소스 파일\client\impl</Filter>
     </ClCompile>
     <ClCompile Include="gfx\gfxObject.cpp">
       <Filter>소스 파일\gfx</Filter>
@@ -214,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="gfx\gfxSprite9.cpp">
       <Filter>소스 파일\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\Sprite.cpp">
+      <Filter>소스 파일\resource</Filter>
+    </ClCompile>
+    <ClCompile Include="resource\SpritePackage.cpp">
+      <Filter>소스 파일\resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

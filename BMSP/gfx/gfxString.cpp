@@ -55,20 +55,20 @@ void gfx::gfxString::RenderString()
 			line.erase(line.begin(), line.end());
 		}
 
-		int texture_id = glyph.sprite->texture_id;
+		int texture_id = glyph.sprite->getTextureId();
 		if (renderlist.find(texture_id) == renderlist.end())
 			renderlist[texture_id] = renderlistGroup();
 		
 		int str_cnt = renderlist[texture_id].strsize;
 		if (renderlist[texture_id].size.size() > str_cnt)
-			renderlist[texture_id].size[str_cnt] = glyph.sprite->size;
+			renderlist[texture_id].size[str_cnt] = glyph.sprite->getSize();
 		else
-			renderlist[texture_id].size.push_back(glyph.sprite->size);
+			renderlist[texture_id].size.push_back(glyph.sprite->getSize());
 
 		if (renderlist[texture_id].uv_rect.size() > str_cnt)
-			renderlist[texture_id].uv_rect[str_cnt] = glyph.sprite->texture_rect;
+			renderlist[texture_id].uv_rect[str_cnt] = glyph.sprite->getRect();
 		else
-			renderlist[texture_id].uv_rect.push_back(glyph.sprite->texture_rect);
+			renderlist[texture_id].uv_rect.push_back(glyph.sprite->getRect());
 		
 		if (renderlist[texture_id].matrix.size() > str_cnt * 2)
 		{

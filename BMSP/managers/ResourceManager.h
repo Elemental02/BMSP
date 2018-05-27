@@ -1,13 +1,6 @@
 #pragma once
-struct Sprite
-{
-	glm::uint texture_id = 0;
-	glm::vec2 size;
-	glm::vec4 texture_rect;
-	bool delete_itself = true;
-	~Sprite();
-};
-
+#include "../resource/Sprite.h"
+#include "../resource/SpritePackage.h"
 struct Sound
 {
 	AVCodecContext* codec;
@@ -22,15 +15,6 @@ struct Sound
 	~Sound();
 
 	void unload_ffmpeg();
-};
-
-struct SpritePackage
-{
-	glm::uint texture_id = 0;
-	glm::vec2 size;
-	std::map<std::string, std::shared_ptr<Sprite>> sprite_map;
-
-	~SpritePackage();
 };
 
 struct Image
@@ -66,12 +50,12 @@ public:
 	ResourceManager() {}
 	std::shared_ptr<Sprite> LoadSprite(const std::string& path);
 	std::shared_ptr<Sprite> LoadSprite(const std::string& name, Image& imgdata);
-	std::shared_ptr<Sprite> LoadSprite(Image& imgdata);	//no name ver
+	std::shared_ptr<Sprite> LoadSprite(Image& imgdata);
 	std::shared_ptr<ImageStream> OpenImageStream(const std::string& name);
 	std::shared_ptr<Sound> LoadSound(const std::string& path);
 	std::shared_ptr<SpritePackage> LoadSpritePackage(const std::string& path);
 	int LoadSoundFrame(std::shared_ptr<Sound> sound, int framesize = 5);
-	int LoadImageFrame(std::shared_ptr<ImageStream> sound, int framesize = 0);
+	int LoadImageFrame(std::shared_ptr<ImageStream> image, int framesize = 0);
 
 	void UnloadSprite(const std::string& path);
 	void UnloadSound(const std::string& path);

@@ -1,5 +1,5 @@
 #pragma once
-#include "../managers/ResourceManager.h"
+#include "../resource/Sprite.h"
 
 namespace gfx
 {
@@ -26,6 +26,8 @@ namespace gfx
 		};
 
 		std::map<int, Glyph_Group> glyph_map;
+
+		void AddTextureCursor(Glyph_Group& group);
 	public:
 		gfxFont();
 		~gfxFont();

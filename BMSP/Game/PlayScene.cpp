@@ -72,9 +72,9 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 				pos = 1.0f - pos;
 				float width_ratio = 800.0f / 640.0f;
 				float height_ratio = 600.0f / 480.0f;
-				glm::vec3 bottom_pos = glm::vec3(0.0f, 600.0f - skin_bottom->getSprite().size.y*pos, 0.0f);
+				glm::vec3 bottom_pos = glm::vec3(0.0f, 600.0f - skin_bottom->getSprite().getSize().y*pos, 0.0f);
 				skin_bottom->setPosition(bottom_pos);
-				skin_top->setPosition(glm::vec3(0.0f, -skin_top->getSprite().size.y*(1.0f - pos), 0.0f));
+				skin_top->setPosition(glm::vec3(0.0f, -skin_top->getSprite().getSize().y*(1.0f - pos), 0.0f));
 
 				
 				maxcombo_sprite->setPosition(glm::vec3(bottom_pos.x+292.0f*width_ratio, bottom_pos.y+5.0f*height_ratio, 0.0f));
@@ -113,14 +113,14 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			pos = 1.0f - pos;
 			for (int i = 0; i < 8; i++)
 			{
-				button_sprite[i]->setPosition(glm::vec3(button_sprite[i]->getPosition().x, 600.0f - (skin_bottom->getSprite().size.y + button_sprite[i]->getSprite().size.y)*pos, 0.0f));
+				button_sprite[i]->setPosition(glm::vec3(button_sprite[i]->getPosition().x, 600.0f - (skin_bottom->getSprite().getSize().y + button_sprite[i]->getSprite().getSize().y)*pos, 0.0f));
 				if (i < 7) {
-					line_sprite[i]->setPosition(glm::vec3(line_sprite[i]->getPosition().x, skin_top->getSprite().size.y + 600.0f*(1.0f - pos), 0.0f));
+					line_sprite[i]->setPosition(glm::vec3(line_sprite[i]->getPosition().x, skin_top->getSprite().getSize().y + 600.0f*(1.0f - pos), 0.0f));
 				}
 			}
-			skin_left->setPosition(glm::vec3(0.0f, skin_top->getSprite().size.y - 600.0f*(1.0f - pos), 0.0f));
-			skin_right->setPosition(glm::vec3(skin_right->getPosition().x, skin_top->getSprite().size.y - 600.0f*(1.0f - pos), 0.0f));
-			lane->setPosition(glm::vec3(skin_left->getSprite().size.x, skin_top->getSprite().size.y - 600.0f*(1.0f - pos), 0.0f));
+			skin_left->setPosition(glm::vec3(0.0f, skin_top->getSprite().getSize().y - 600.0f*(1.0f - pos), 0.0f));
+			skin_right->setPosition(glm::vec3(skin_right->getPosition().x, skin_top->getSprite().getSize().y - 600.0f*(1.0f - pos), 0.0f));
+			lane->setPosition(glm::vec3(skin_left->getSprite().getSize().x, skin_top->getSprite().getSize().y - 600.0f*(1.0f - pos), 0.0f));
 			return res;
 		});
 
@@ -139,7 +139,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 				auto dir = path.parent_path();
 				auto bmp_filename = dir.string() + "\\" + bmp.second;
 				bool is_image = false;
-				for (int i = 0; i < image_extension.size(); i++)
+				for (size_t i = 0; i < image_extension.size(); i++)
 				{
 					auto extension = bmp_filename.substr(bmp_filename.size() - image_extension[i].size(), image_extension[i].size());
 					if (image_extension[i] == extension) 
@@ -152,7 +152,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 				if (is_image)
 				{
 					auto bmp_ptr = IResourceManager->LoadSprite(bmp_filename);
-					for (int i = 0; i < image_extension.size(); i++)
+					for (size_t i = 0; i < image_extension.size(); i++)
 					{
 						if (bmp_ptr)
 							break;
@@ -226,14 +226,14 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			}
 		}
 
-		float lane_pos = lane->getSprite().size.y + skin_top->getSprite().size.y;
+		float lane_pos = lane->getSprite().getSize().y + skin_top->getSprite().getSize().y;
 		int note_index = (curr_time * 60 / 1000 / 10) % 4;
 		for (auto& sprite_node : node_pool.playing)
 		{
 			if (sprite_node.node == nullptr)
 				continue;
 			auto pos = sprite_node.sprite->getPosition();
-			double ypos = sprite_node.node->position - curr_progress;
+			float ypos = static_cast<float>(sprite_node.node->position - curr_progress);
 			lane_info[sprite_node.lane_index].closest_node = (lane_info[sprite_node.lane_index].closest_node == nullptr) || (lane_info[sprite_node.lane_index].closest_node->node == nullptr) || (abs(ypos) < abs(lane_info[sprite_node.lane_index].closest_node->node->position - curr_progress)) ? &(sprite_node) : lane_info[sprite_node.lane_index].closest_node;
 			lane_info[sprite_node.lane_index].sound_value = lane_info[sprite_node.lane_index].closest_node->node->value;
 			pos.y = lane_pos - (ypos)* noteSpeed;
@@ -349,7 +349,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 					{
 						auto bga = node.first == BMS::CH::BGA ? bgaSprite : bgaLayerSprite;
 						bga->setSprite(sprite);
-						bga->setScale(glm::vec3(800.0f / sprite->size.x, 600.0f / sprite->size.y, 0.0f));
+						bga->setScale(glm::vec3(800.0f / sprite->getSize().x, 600.0f / sprite->getSize().y, 0.0f));
 					}
 				}
 			}
@@ -369,13 +369,13 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			curr_bpm = (int)bmsPlayer.getCurrentBPM();
 			bpm_sprite->setString(std::to_string(curr_bpm));
 		}
-		int curr_minute = curr_time / 1000 / 60;
+		auto curr_minute = curr_time / 1000 / 60;
 		if (curr_minute != minute)
 		{
 			minute = curr_minute;
 			minute_sprite->setString(std::to_string(minute));
 		}
-		int curr_second = (curr_time / 1000) % 60;
+		auto curr_second = (curr_time / 1000) % 60;
 		if (curr_second != second)
 		{
 			second = curr_second;
@@ -420,17 +420,17 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		if (state == KeyState::State_Press)
 		{
 			std::string sprite_name = "button" + std::to_string(button_num) + "_1";
-			button_sprite[i]->setSprite(sprite_pack2->sprite_map[sprite_name]);
+			button_sprite[i]->setSprite(sprite_pack2->getSprite(sprite_name));
 		}
 		else if (state == KeyState::State_Up)
 		{
 			std::string sprite_name = "button" + std::to_string(button_num) + "_0";
-			button_sprite[i]->setSprite(sprite_pack2->sprite_map[sprite_name]);
+			button_sprite[i]->setSprite(sprite_pack2->getSprite(sprite_name));
 		}
 		lane_info[i].closest_node = nullptr;
 
 		auto p = lane_back[i]->getPosition();
-		float base_y = button_sprite[i]->getPosition().y - lane_back[i]->getSprite().size.y;
+		float base_y = button_sprite[i]->getPosition().y - lane_back[i]->getSprite().getSize().y;
 		if (state == KeyState::State_Press || state == KeyState::State_Down)
 		{
 			float y = p.y - delta.count() * 3.0f - base_y;
@@ -441,8 +441,8 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 		else
 		{
 			float y = p.y + delta.count() * 3.0f - base_y;
-			if (y > lane_back[i]->getSprite().size.y)
-				y = lane_back[i]->getSprite().size.y;
+			if (y > lane_back[i]->getSprite().getSize().y)
+				y = lane_back[i]->getSprite().getSize().y;
 			lane_back[i]->setPosition(glm::vec3(p.x, base_y + y, p.z));
 		}
 	}
@@ -552,32 +552,32 @@ void PlayScene::Init()
 	sprite_pack2 = IResourceManager->LoadSpritePackage("skin2");
 	sprite_pack1 = IResourceManager->LoadSpritePackage("skin1");
 	skin_top = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	skin_top->setSprite(sprite_pack1->sprite_map["top"]);
-	skin_top->setPosition(glm::vec3(0.0f, -skin_top->getSprite().size.y, 0.0f));
+	skin_top->setSprite(sprite_pack1->getSprite("top"));
+	skin_top->setPosition(glm::vec3(0.0f, -skin_top->getSprite().getSize().y, 0.0f));
 
 	skin_bottom = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	skin_bottom->setSprite(sprite_pack1->sprite_map["bottom"]);
+	skin_bottom->setSprite(sprite_pack1->getSprite("bottom"));
 	skin_bottom->setPosition(glm::vec3(0.0f, 600.0f, 0.0f));
 
 	skin_left = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	skin_left->setSprite(sprite_pack2->sprite_map["left"]);
+	skin_left->setSprite(sprite_pack2->getSprite("left"));
 	skin_left->setPosition(glm::vec3(0.0f, 600.0f, 0.0f));
 
 	float size_ratio = 800.0f / 640.0f;
 	float lane_length = 33 + 15 * 3 + 19 * 4;
 	lane_length *= size_ratio;
 
-	int lanepos = skin_left->getSprite().size.x;
+	int lanepos = (skin_left->getSprite().getSize().x);
 	for (int i = 0; i < 8; i++)
 	{
 		int button_num = (i == 0) ? 2 : (i % 2) == 0 ? 1 : 0;
 		std::string sprite_name = "button" + std::to_string(button_num) + "_0";
 		button_sprite[i] = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-		button_sprite[i]->setSprite(sprite_pack2->sprite_map[sprite_name]);
+		button_sprite[i]->setSprite(sprite_pack2->getSprite(sprite_name));
 		button_sprite[i]->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
 
 		lane_back[i] = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-		lane_back[i]->setSprite(sprite_pack2->sprite_map["lane"+std::to_string(button_num)]);
+		lane_back[i]->setSprite(sprite_pack2->getSprite("lane"+std::to_string(button_num)));
 		lane_back[i]->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
 		back_skin_panel.addSprite(lane_back[i].get());
 
@@ -585,33 +585,33 @@ void PlayScene::Init()
 		{
 			note_effect[i][j] = std::shared_ptr<gfx::gfxSpriteAnimation>(new gfx::gfxSpriteAnimation);
 			note_effect[i][j]->setPivot(glm::vec3(0.5f, 0.5f, 0.0f));
-			note_effect[i][j]->setPosition(glm::vec3(lanepos + (button_sprite[i]->getSprite().size.x) / 2.0f, skin_top->getSprite().size.y + sprite_pack2->sprite_map["lane"]->size.y - 7.5f, 0.0f));
+			note_effect[i][j]->setPosition(glm::vec3(lanepos + (button_sprite[i]->getSprite().getSize().x) / 2.0f, skin_top->getSprite().getSize().y + sprite_pack2->getSprite("lane")->getSize().y - 7.5f, 0.0f));
 			note_effect[i][j]->setShader("layer");
 			for (int k = 0; k < 3; k++)
-				note_effect[i][j]->addLastFrame(sprite_pack1->sprite_map["effect_" + std::to_string(j + k * 2)]);
+				note_effect[i][j]->addLastFrame(sprite_pack1->getSprite("effect_" + std::to_string(j + k * 2)));
 			note_effect[i][j]->setDuration(30);
 		}
 
-		lanepos += button_sprite[i]->getSprite().size.x;
+		lanepos += button_sprite[i]->getSprite().getSize().x;
 		front_skin_panel.addSprite(button_sprite[i].get());
 		if (i < 7) {
 			line_sprite[i] = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-			line_sprite[i]->setSprite(sprite_pack2->sprite_map["line1"]);
+			line_sprite[i]->setSprite(sprite_pack2->getSprite("line1"));
 			line_sprite[i]->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
 			front_skin_panel.addSprite(line_sprite[i].get());
 		}
 	}
 
 	skin_right = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	skin_right->setSprite(sprite_pack2->sprite_map["right"]);
-	sprite_pack2->sprite_map["right"]->size.y = 600 - skin_top->getSprite().size.y - skin_bottom->getSprite().size.y;
-	sprite_pack2->sprite_map["left"]->size.y = 600 - skin_top->getSprite().size.y - skin_bottom->getSprite().size.y;
+	skin_right->setSprite(sprite_pack2->getSprite("right"));
+	skin_right->setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
 	skin_right->setPosition(glm::vec3(lanepos, 600.0f, 0.0f));
 
 	lane = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	lane->setSprite(sprite_pack2->sprite_map["lane"]);
-	lane->setPosition(glm::vec3(skin_left->getSprite().size.x, 600.0f, 0.0f));
-	lane->setScale(glm::vec3(lanepos - skin_left->getSprite().size.x, 1.0f, 1.0f));
+	lane->setSprite(sprite_pack2->getSprite("lane"));
+	lane->setPosition(glm::vec3(skin_left->getSprite().getSize().x, 600.0f, 0.0f));
+	lane->setScale(glm::vec3((lanepos - skin_left->getSprite().getSize().x) / lane->getSprite().getSize().x, 1.0f, 1.0f));
 
 	front_skin_panel.addSprite(skin_right.get());
 	front_skin_panel.addSprite(skin_left.get());
@@ -619,10 +619,10 @@ void PlayScene::Init()
 	back_skin_panel.addSprite(lane.get());
 
 	black_sprite = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	black_sprite->setSprite(sprite_pack2->sprite_map["black"]);
+	black_sprite->setSprite(sprite_pack2->getSprite("black"));
 	black_sprite->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.8f));
-	black_sprite->setScale(glm::vec3(lanepos, lane->getSprite().size.y, 1.0f));
-	black_sprite->setPosition(glm::vec3(skin_left->getSprite().size.x, skin_top->getSprite().size.y, 0.0f));
+	black_sprite->setScale(glm::vec3(lanepos / black_sprite->getSprite().getSize().x, lane->getSprite().getSize().y, 1.0f));
+	black_sprite->setPosition(glm::vec3(skin_left->getSprite().getSize().x, skin_top->getSprite().getSize().y, 0.0f));
 
 	front_skin_panel.addSprite(skin_top.get());
 	front_skin_panel.addSprite(skin_bottom.get());
@@ -634,10 +634,10 @@ void PlayScene::Init()
 		for (int j = 0; j < 4; j++)
 		{
 			std::string name = judgestr[i] + std::to_string(j);
-			judgeAnimation[i]->addLastFrame(sprite_pack1->sprite_map[name]);
+			judgeAnimation[i]->addLastFrame(sprite_pack1->getSprite(name));
 		}
 		judgeAnimation[i]->setPivot(glm::vec3(0.5f, 0.5f, 0.0f));
-		judgeAnimation[i]->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().size.x) / 2.0f + skin_left->getSprite().size.x, 380.0f, 0.0f));
+		judgeAnimation[i]->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().getSize().x) / 2.0f + skin_left->getSprite().getSize().x, 380.0f, 0.0f));
 		judgeAnimation[i]->setDuration(30);
 		judgeAnimation[i]->setShader("layer");
 	}
@@ -646,12 +646,12 @@ void PlayScene::Init()
 		for (int j = 0; j < 4; j++)
 		{
 			std::string note_name = "note" + std::to_string(i) +"_" +std::to_string(j);
-			noteAnimation[i][j] = sprite_pack2->sprite_map[note_name];
+			noteAnimation[i][j] = sprite_pack2->getSprite(note_name);
 		}
 	}
 
 	judge_func = std::shared_ptr<gfx::gfxUpdatableFunc>(new gfx::gfxUpdatableFunc);
-	judge_func->setFunc([&](auto delta) {
+	judge_func->setFunc([&](std::chrono::milliseconds delta) {
 		if (curr_judge)
 		{
 			judge_duration += delta.count();
@@ -669,14 +669,14 @@ void PlayScene::Init()
 	});
 
 	combo_max = std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	combo_max->setSprite(sprite_pack1->sprite_map["max"]);
-	combo_max->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().size.x) / 2.0f + skin_left->getSprite().size.x, 270.0f, 0.0f));
+	combo_max->setSprite(sprite_pack1->getSprite("max"));
+	combo_max->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().getSize().x) / 2.0f + skin_left->getSprite().getSize().x, 270.0f, 0.0f));
 	combo_max->setPivot(glm::vec3(0.5f, 0.5f, 0.5f));
 	combo_max->setShader("layer");
 
 	autoplay_sprite= std::shared_ptr<gfx::gfxSprite>(new gfx::gfxSprite);
-	autoplay_sprite->setSprite(sprite_pack1->sprite_map["autoplay"]);
-	autoplay_sprite->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().size.x) / 2.0f + skin_left->getSprite().size.x, 420.0f, 0.0f));
+	autoplay_sprite->setSprite(sprite_pack1->getSprite("autoplay"));
+	autoplay_sprite->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().getSize().x) / 2.0f + skin_left->getSprite().getSize().x, 420.0f, 0.0f));
 	autoplay_sprite->setPivot(glm::vec3(0.5f, 0.5f, 0.5f));
 	autoplay_sprite->setShader("layer");
 
@@ -694,15 +694,15 @@ void PlayScene::Init()
 	{
 		std::string str_l = std::to_string(i) + "_l";
 		std::string str_s = std::to_string(i) + "_s";
-		combo_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_l]);
-		maxcombo_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		bpm_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		minute_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		second_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		play_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		gauge_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		point_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
-		score_sprite->addSprite('0' + i, sprite_pack1->sprite_map[str_s]);
+		combo_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_l));
+		maxcombo_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		bpm_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		minute_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		second_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		play_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		gauge_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		point_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
+		score_sprite->addSprite('0' + i, sprite_pack1->getSprite(str_s));
 	}
 	maxcombo_sprite->setAlign(gfx::Align::Right);
 	bpm_sprite->setAlign(gfx::Align::Right);
@@ -732,7 +732,7 @@ void PlayScene::Init()
 	score_sprite->setString("0");
 
 	combo_sprite->setShader("layer");
-	combo_sprite->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().size.x) / 2.0f + skin_left->getSprite().size.x, 300.0f, 0.0f));
+	combo_sprite->setPosition(glm::vec3((skin_right->getPosition().x - skin_left->getSprite().getSize().x) / 2.0f + skin_left->getSprite().getSize().x, 300.0f, 0.0f));
 	combo_sprite->setAlign(gfx::Align::Center);
 	front_skin_panel.setShader("layer");
 	back_skin_panel.setShader("layer");

@@ -151,7 +151,7 @@ void ListScene::Init()
 {
 	int pos = 0;
 	mainfont = std::make_shared<gfx::gfxFont>(gfx::gfxFont());
-	mainfont->LoadFont("resource/KOPUSGoM.ttf");
+	mainfont->LoadFont("resources/KOPUSGoM.ttf");
 	init_string.string = "Wait for Loading";
 
 	str_artist.setFont(mainfont);

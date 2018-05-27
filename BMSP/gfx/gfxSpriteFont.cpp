@@ -14,20 +14,20 @@ void gfx::gfxSpriteFont::RenderString()
 	for (int i = 0; i < strlen; i++)
 	{
 		auto glyph = sprite_list[str[i]];
-		int texture_id = glyph->texture_id;
+		int texture_id = glyph->getTextureId();
 		if (renderlist.find(texture_id) == renderlist.end())
 			renderlist[texture_id] = renderlistGroup();
 
 		int str_cnt = renderlist[texture_id].strsize;
 		if (renderlist[texture_id].size.size() > str_cnt)
-			renderlist[texture_id].size[str_cnt] = glyph->size;
+			renderlist[texture_id].size[str_cnt] = glyph->getSize();
 		else
-			renderlist[texture_id].size.push_back(glyph->size);
+			renderlist[texture_id].size.push_back(glyph->getSize());
 
 		if (renderlist[texture_id].uv_rect.size() > str_cnt)
-			renderlist[texture_id].uv_rect[str_cnt] = glyph->texture_rect;
+			renderlist[texture_id].uv_rect[str_cnt] = glyph->getRect();
 		else
-			renderlist[texture_id].uv_rect.push_back(glyph->texture_rect);
+			renderlist[texture_id].uv_rect.push_back(glyph->getRect());
 
 		if (renderlist[texture_id].matrix.size() > (str_cnt * 2))
 		{
@@ -40,7 +40,7 @@ void gfx::gfxSpriteFont::RenderString()
 			renderlist[texture_id].matrix.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		renderlist[texture_id].strsize++;
-		pos += glyph->size.x;
+		pos += glyph->getSize().x;
 	}
 
 	int alignment = this->alignment == Align::Center ? -pos / 2.0f : -pos;

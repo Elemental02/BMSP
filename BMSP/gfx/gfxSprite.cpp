@@ -37,7 +37,7 @@ void gfx::gfxSprite::Render()
 	IgfxGlobal->setUniformMatrix(glm::mat4());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, sprite->texture_id);
+	glBindTexture(GL_TEXTURE_2D, sprite->getTextureId());
 	glUniform1i(samplerId, 0);
 
 	glEnableVertexAttribArray(0);
@@ -77,7 +77,7 @@ void gfx::gfxSprite::Render()
 
 	glEnableVertexAttribArray(3);
 	glBindBuffer(GL_ARRAY_BUFFER, sizebuffer);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sprite->size), static_cast<void*>(&sprite->size));
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sprite->getSize()), static_cast<const void*>(&sprite->getSize()));
 	glVertexAttribPointer(
 		3,                  // attribute 1. No particular reason for 0, but must match the layout in the shader.
 		2,                  // size
@@ -90,7 +90,7 @@ void gfx::gfxSprite::Render()
 
 	glEnableVertexAttribArray(4);
 	glBindBuffer(GL_ARRAY_BUFFER, texturerectbuffer);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sprite->texture_rect), static_cast<void*>(&sprite->texture_rect));
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sprite->getRect()), static_cast<const void*>(&sprite->getRect()));
 	glVertexAttribPointer(
 		4,                  // attribute 1. No particular reason for 0, but must match the layout in the shader.
 		4,                  // size

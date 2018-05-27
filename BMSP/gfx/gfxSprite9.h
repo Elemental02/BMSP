@@ -1,13 +1,12 @@
 #pragma once
 
-struct Sprite;
 namespace gfx
 {
 	class gfxSprite9 : public gfxObject
 	{
 	private:
 		std::shared_ptr<Sprite> sprite;
-		std::array<Sprite, 9> sprites;
+		std::vector<Sprite> sprites;
 		std::array<glm::vec3, 9> positions;
 		glm::vec2 size;
 		glm::vec3 pivot = { 0.0f, 0.0f, 0.0f };

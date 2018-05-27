@@ -1,5 +1,5 @@
 #pragma once
-#include "../managers/ResourceManager.h"
+#include "../resource/Sprite.h"
 #include "gfxUpdatable.h"
 #include "gfxSprite.h"
 

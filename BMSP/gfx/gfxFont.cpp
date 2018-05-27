@@ -4,6 +4,27 @@
 
 const int maxTextureSize = 2048;
 
+void gfx::gfxFont::AddTextureCursor(Glyph_Group& group)
+{
+	group.textures.push_back(TextureCursor());
+	auto& texture_cursor = group.textures.back();
+	glm::u8* buffer = new glm::u8[maxTextureSize * maxTextureSize];
+	memset(buffer, 0, maxTextureSize * maxTextureSize);
+
+	glGenTextures(1, &texture_cursor.texture_id);
+	glBindTexture(GL_TEXTURE_2D, texture_cursor.texture_id);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, maxTextureSize, maxTextureSize, 0, GL_RED, GL_UNSIGNED_BYTE, buffer);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	delete[] buffer;
+}
+
 gfx::gfxFont::gfxFont()
 {
 }
@@ -38,8 +59,6 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(int ch, int pixel)
 	{
 		FT_Set_Pixel_Sizes(face, 0, pixel);
 		FT_Load_Char(face, ch, FT_LOAD_RENDER);
-		if (ch == 56)
-			printf("");
 		if (glyph_group.textures.empty())
 		{
 			need_new_texture_cursor = true;
@@ -61,32 +80,15 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(int ch, int pixel)
 
 		if (need_new_texture_cursor)
 		{
-			glyph_group.textures.push_back(TextureCursor());
-			auto& texture_cursor = glyph_group.textures.back();
-			glm::u8* buffer = new glm::u8[maxTextureSize * maxTextureSize];
-			memset(buffer, 0, maxTextureSize * maxTextureSize);
-
-			glGenTextures(1, &texture_cursor.texture_id);
-			glBindTexture(GL_TEXTURE_2D, texture_cursor.texture_id);
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, maxTextureSize, maxTextureSize, 0, GL_RED, GL_UNSIGNED_BYTE, buffer);
-
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			delete[] buffer;
+			AddTextureCursor(glyph_group);
 		}
 
 		auto& texture_cursor = glyph_group.textures.back();
 		auto glyph = face->glyph;
 		glBindTexture(GL_TEXTURE_2D, texture_cursor.texture_id);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, texture_cursor.current_position_x, texture_cursor.current_position_y, glyph->bitmap.width, glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, glyph->bitmap.buffer);
-		std::shared_ptr<Sprite> sprite(new Sprite);
-		sprite->delete_itself = false;
-		sprite->size = glm::vec2(glyph->bitmap.width,glyph->bitmap.rows);
+		
+		glm::vec2 size(glyph->bitmap.width,glyph->bitmap.rows);
 
 		float uv_left = texture_cursor.current_position_x, uv_right = glyph->bitmap.width;
 		uv_left /= maxTextureSize;
@@ -95,8 +97,10 @@ gfx::gfxFont::FontSprite gfx::gfxFont::LoadChar(int ch, int pixel)
 		uv_up /= maxTextureSize;
 		uv_down /= maxTextureSize;
 
-		sprite->texture_rect = glm::vec4(uv_left, uv_up, uv_right, uv_down);
-		sprite->texture_id = texture_cursor.texture_id;
+		glm::vec4 texture_rect(uv_left, uv_up, uv_right, uv_down);
+		
+		std::shared_ptr<Sprite> sprite(new Sprite(texture_cursor.texture_id, size, texture_rect, false));
+
 		texture_cursor.current_position_x += glyph->bitmap.width + 1;
 		texture_cursor.current_height = texture_cursor.current_height > glyph->bitmap.rows ? texture_cursor.current_height : glyph->bitmap.rows;
 		FontSprite font_sprite;

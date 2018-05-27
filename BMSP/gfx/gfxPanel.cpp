@@ -31,7 +31,7 @@ void gfx::gfxPanel::Render()
 		if (group.second.sprites.empty())
 			continue;
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, (*(group.second.sprites.begin()))->getSprite().texture_id);
+		glBindTexture(GL_TEXTURE_2D, (*(group.second.sprites.begin()))->getSprite().getTextureId());
 		
 		if (!group.second.colorbuffer)
 		{
@@ -77,8 +77,8 @@ void gfx::gfxPanel::Render()
 		for (auto& sprite : group.second.sprites)
 		{			
 			group.second.color[color_count]= sprite->getColor();
-			group.second.size[color_count] = sprite->getSprite().size;
-			group.second.uv_rect[color_count] = sprite->getSprite().texture_rect;
+			group.second.size[color_count] = sprite->getSprite().getSize();
+			group.second.uv_rect[color_count] = sprite->getSprite().getRect();
 
 			group.second.matrix[color_count * 3] = sprite->getPosition();
 			group.second.matrix[color_count * 3 + 1] = sprite->getScale();
@@ -183,7 +183,7 @@ void gfx::gfxPanel::Render()
 
 void gfx::gfxPanel::addSprite(gfxSprite* sprite)
 {
-	GLuint texture_id = sprite->getSprite().texture_id;
+	GLuint texture_id = sprite->getSprite().getTextureId();
 	auto& pair = renderlist.find(texture_id);
 	if (pair == renderlist.end())
 	{
@@ -196,7 +196,7 @@ void gfx::gfxPanel::addSprite(gfxSprite* sprite)
 
 void gfx::gfxPanel::RemoveSprite(gfxSprite* sprite)
 {
-	GLuint texture_id = sprite->getSprite().texture_id;
+	GLuint texture_id = sprite->getSprite().getTextureId();
 	auto& pair = renderlist.find(texture_id);
 	if (pair == renderlist.end())
 	{

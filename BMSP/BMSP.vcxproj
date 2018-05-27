@@ -158,6 +158,8 @@
     <ClInclude Include="managers\GlobalManager.h" />
     <ClInclude Include="managers\InputManager.h" />
     <ClInclude Include="managers\ResourceManager.h" />
+    <ClInclude Include="resource\Sprite.h" />
+    <ClInclude Include="resource\SpritePackage.h" />
     <ClInclude Include="sfx\sfxGlobal.h" />
     <ClInclude Include="sfx\sfxSound.h" />
     <ClInclude Include="stdafx.h" />
@@ -171,7 +173,6 @@
     </ClCompile>
     <ClCompile Include="BMS\BMSPlayer.cpp" />
     <ClCompile Include="client\client.cpp" />
-    <ClCompile Include="client\impl\winmain.cpp" />
     <ClCompile Include="Game\ListScene.cpp" />
     <ClCompile Include="Game\PlayScene.cpp" />
     <ClCompile Include="Game\testScene.cpp" />
@@ -190,6 +191,8 @@
     <ClCompile Include="managers\GlobalManager.cpp" />
     <ClCompile Include="managers\InputManager.cpp" />
     <ClCompile Include="managers\ResourceManager.cpp" />
+    <ClCompile Include="resource\Sprite.cpp" />
+    <ClCompile Include="resource\SpritePackage.cpp" />
     <ClCompile Include="sfx\sfxGlobal.cpp" />
     <ClCompile Include="sfx\sfxSound.cpp" />
   </ItemGroup>
