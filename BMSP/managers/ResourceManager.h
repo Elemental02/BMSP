@@ -46,6 +46,28 @@ private:
 	std::map<std::string, std::shared_ptr<Sprite>> sprites;
 	std::map<std::string, std::shared_ptr<Sound>> sounds;
 	std::map<std::string, std::shared_ptr<SpritePackage>> sprite_packs;
+
+	struct ffmpeg_stream
+	{
+		AVMediaType media_type;
+		AVCodecContext* ctx;
+		AVFormatContext* container;
+		SwsContext* sws_ctx;
+		SwrContext* swr_ctx;
+		int stream_id;
+
+		bool is_load_complete = false;
+		
+		int open_media_stream(std::string path, AVMediaType media_type);
+		void set_sws();
+		void set_swr();
+
+		void read_image_frame();
+		void read_audio_frame();
+
+		void unload_ffmpeg();
+		~ffmpeg_stream();
+	};
 public:
 	ResourceManager() {}
 	std::shared_ptr<Sprite> LoadSprite(const std::string& path);

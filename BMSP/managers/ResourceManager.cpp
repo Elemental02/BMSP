@@ -107,17 +107,14 @@ GLuint loadSprite_ffmpeg(const char * imagepath, unsigned int& height, unsigned 
 		if (frameFinished == 0)
 		{
 			AVFrame *frameRGBA = av_frame_alloc();
-			//uint8_t *buffer = (uint8_t *)av_malloc(size);
 			av_image_alloc(frameRGBA->data, frameRGBA->linesize, width_conv, height_conv, AV_PIX_FMT_RGBA, 1);
 			sws_scale(sws_ctx, &frame->data[0], frame->linesize, 0, ctx->height, &frameRGBA->data[0], frameRGBA->linesize);
 			
-			// Create one OpenGL texture
 			glGenTextures(1, &textureID);
 
-			// "Bind" the newly created texture : all future texture functions will modify this texture
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			// Give the image to OpenGL
+			
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_conv, height_conv, 0, GL_RGBA, GL_UNSIGNED_BYTE, frameRGBA->data[0]);
 			auto err = glGetError();
 			av_freep(&frameRGBA->data[0]);
@@ -177,13 +174,11 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(Image& imgdata)
 		return 0;
 	
 	GLuint texture_id = 0;
-	// Create one OpenGL texture
 	glGenTextures(1, &texture_id);
 
-	// "Bind" the newly created texture : all future texture functions will modify this texture
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	// Give the image to OpenGL
+	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgdata.width, imgdata.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgdata.data);
 	auto err = glGetError();
 
@@ -201,7 +196,6 @@ std::shared_ptr<Sprite> ResourceManager::LoadSprite(Image& imgdata)
 
 std::shared_ptr<ImageStream> ResourceManager::OpenImageStream(const std::string & path)
 {
-
 	AVFormatContext* container = avformat_alloc_context();
 	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
 		return 0;
@@ -608,4 +602,149 @@ Image::~Image()
 {
 	if (data)
 		delete[] data;
+}
+
+int ResourceManager::ffmpeg_stream::open_media_stream(std::string path, AVMediaType media_type)
+{
+	this->media_type = media_type;
+	container = avformat_alloc_context();
+	if (avformat_open_input(&container, path.c_str(), NULL, NULL) < 0) {
+		unload_ffmpeg();
+		return 0;
+	}
+
+	if (avformat_find_stream_info(container, nullptr) < 0) {
+		unload_ffmpeg();
+		return 0;
+	}
+
+	AVCodec *codec = nullptr;
+	int stream_id = av_find_best_stream(container, media_type, -1, -1, &codec, 0);
+	if (stream_id == -1) {
+		unload_ffmpeg();
+		return 0;
+	}
+
+	AVCodecParameters *ctxp = container->streams[stream_id]->codecpar;
+	if (codec == nullptr) {
+		codec = avcodec_find_decoder(ctxp->codec_id);
+	}
+	
+	ctx = avcodec_alloc_context3(codec);
+
+	avcodec_parameters_to_context(ctx, ctxp);
+
+	if (codec == NULL) {
+		unload_ffmpeg();
+		return 0;
+	}
+
+	int res = avcodec_open2(ctx, codec, nullptr);
+	if (res < 0) {
+		unload_ffmpeg();
+		return 0;
+	}
+
+	return 1;
+}
+
+void ResourceManager::ffmpeg_stream::read_image_frame()
+{
+	if (media_type != AVMEDIA_TYPE_VIDEO)
+		return;
+	
+	if (is_load_complete)
+		return;
+
+	AVPacket packet;
+	av_init_packet(&packet);
+
+	int read_frame = 0;
+	//int max_buffer = image_stream->image_buffer.size();
+	while (av_read_frame(container, &packet) >= 0)
+	{
+		if (packet.stream_index != stream_id)
+		{
+			av_packet_unref(&packet);
+			continue;
+		}
+		int len = avcodec_send_packet(ctx, &packet);
+		if (len < 0)
+		{
+			av_packet_unref(&packet);
+			continue;
+		}
+
+		AVFrame *frame = av_frame_alloc();
+		int frameFinished = avcodec_receive_frame(ctx, frame);
+		if (frameFinished == 0)
+		{
+			AVFrame *frameRGBA = av_frame_alloc();
+			//uint8_t *buffer = (uint8_t *)av_malloc(size);
+			int byte_size = av_image_alloc(frameRGBA->data, frameRGBA->linesize, ctx->width, ctx->height, AV_PIX_FMT_RGBA, 1);
+			sws_scale(sws_ctx, &frame->data[0], frame->linesize, 0, ctx->height, &frameRGBA->data[0], frameRGBA->linesize);
+
+			//input data to buffer
+			//image_stream->image_buffer[read_frame].width = image_stream->codec->width;
+			//image_stream->image_buffer[read_frame].height = image_stream->codec->height;
+			//if (!image_stream->image_buffer[read_frame].data)
+				//image_stream->image_buffer[read_frame].data = new uint8_t[byte_size];
+			//memcpy(image_stream->image_buffer[read_frame].data, frameRGBA->data[0], byte_size);
+
+			av_freep(&frameRGBA->data[0]);
+			av_frame_free(&frameRGBA);
+			read_frame++;
+		}
+		else
+		{
+			std::cout << "decode image frame failed" << std::endl;
+		}
+		av_packet_unref(&packet);
+		av_frame_unref(frame);
+		av_frame_free(&frame);
+	}
+
+	if (read_frame == 0)
+	{
+		is_load_complete = true;
+		unload_ffmpeg();
+	}
+
+	//return read_frame;
+}
+
+void ResourceManager::ffmpeg_stream::read_audio_frame()
+{
+	if (media_type != AVMEDIA_TYPE_AUDIO)
+		return;
+}
+
+void ResourceManager::ffmpeg_stream::unload_ffmpeg()
+{
+	if (swr_ctx != nullptr)
+	{
+		swr_free(&swr_ctx);
+		swr_ctx = nullptr;
+	}
+	if (sws_ctx != nullptr)
+	{
+		sws_freeContext(sws_ctx);
+		sws_ctx = nullptr;
+	}
+	if (ctx != nullptr)
+	{
+		avcodec_free_context(&ctx);
+		ctx = nullptr;
+	}
+	if (container != nullptr)
+	{
+		avformat_close_input(&container);
+		avformat_free_context(container);
+		container = nullptr;
+	}
+}
+
+ResourceManager::ffmpeg_stream::~ffmpeg_stream()
+{
+	unload_ffmpeg();
 }

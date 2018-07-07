@@ -42,13 +42,6 @@ void gfx::gfxString::RenderString()
 				{
 					renderlist[pair.first].matrix[pair.second*2].x += alignment;
 				}
-				/*for (auto& rendergroup : renderlist)
-				{
-					for (int i = 0; i < rendergroup.second.strsize; i++)
-					{
-						rendergroup.second.matrix[i * 2].x += alignment;
-					}
-				}*/
 			}
 			pos_x = 0;
 			pos_y += pixel_size;

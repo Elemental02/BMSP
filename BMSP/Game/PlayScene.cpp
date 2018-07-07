@@ -235,7 +235,7 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			auto pos = sprite_node.sprite->getPosition();
 			float ypos = static_cast<float>(sprite_node.node->position - curr_progress);
 			lane_info[sprite_node.lane_index].closest_node = (lane_info[sprite_node.lane_index].closest_node == nullptr) || (lane_info[sprite_node.lane_index].closest_node->node == nullptr) || (abs(ypos) < abs(lane_info[sprite_node.lane_index].closest_node->node->position - curr_progress)) ? &(sprite_node) : lane_info[sprite_node.lane_index].closest_node;
-			lane_info[sprite_node.lane_index].sound_value = lane_info[sprite_node.lane_index].closest_node->node->value;
+			lane_info[sprite_node.lane_index].sound_value = lane_info[sprite_node.lane_index].closest_node->node->value ? lane_info[sprite_node.lane_index].closest_node->node->value : lane_info[sprite_node.lane_index].sound_value;
 			pos.y = lane_pos - (ypos)* noteSpeed;
 			sprite_node.sprite->setPosition(pos);
 			
@@ -261,6 +261,8 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 			int button_num = (i == 0) ? 2 : (i % 2) == 0 ? 1 : 0;
 			bool playsound = false;
 			int judge_state = -1;
+			if (!autoplay && state == KeyState::State_Press)
+				playsound = true;
 			if (lane_info[i].closest_node != nullptr && lane_info[i].closest_node->node != nullptr)
 			{
 				auto judge = (curr_time - lane_info[i].closest_node->node->a_time.count());
@@ -275,25 +277,21 @@ void PlayScene::Update(std::chrono::milliseconds delta)
 					judge = std::abs(judge);
 					if (judge < 20)
 					{
-						playsound = true;
 						judge_state = 0;
 						combo++;
 					}
 					else if (judge < 40)
 					{
-						playsound = true;
 						judge_state = 1;
 						combo++;
 					}
 					else if (judge < 100)
 					{
-						playsound = true;
 						judge_state = 2;
 						combo++;
 					}
 					else if (judge < 200)
 					{
-						playsound = true;
 						judge_state = 3;
 						combo = 0;
 					}
